@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{% if noticia %}Editar{% else %}Criar{% endif %} Notícia</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
+        .admin-header { background-color: #3B5F6C; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-header a { color: #D4AF37; text-decoration: none; margin-left: 15px; }
+        .container { width: 90%; max-width: 800px; margin: 20px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #3B5F6C; border-bottom: 2px solid #D4AF37; padding-bottom: 10px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2C3E50; }
+        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        textarea { resize: vertical; min-height: 200px; }
+        .btn-submit { background-color: #4CAF50; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; margin-top: 10px; }
+        .btn-cancel { background-color: #95a5a6; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em; text-decoration: none; margin-left: 10px; }
+        .current-image img { max-width: 200px; height: auto; display: block; margin-top: 10px; border: 1px solid #ddd; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Painel de Administração</h1>
+        <a href="{{ url_for('admin_dashboard') }}">Voltar ao Dashboard</a>
+    </div>
+    <div class="container">
+        <h2>{% if noticia %}Editar Notícia #{{ noticia['id'] }}{% else %}Criar Nova Notícia{% endif %}</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            <h2>{% if noticia %}Editar{% else %}Criar{% endif %} Notícia</h2>
+            
+            <div class="form-group">
+                <label for="titulo">Título:</label>
+                <input type="text" id="titulo" name="titulo" value="{{ noticia['titulo'] if noticia else '' }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="subtitulo">Subtítulo (Opcional):</label>
+                <input type="text" id="subtitulo" name="subtitulo" value="{{ noticia['subtitulo'] if noticia else '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="tipo">Tipo de Conteúdo:</label>
+                <select id="tipo" name="tipo" required>
+                    <option value="Notícia" {% if noticia and noticia['tipo'] == 'Notícia' %}selected{% endif %}>Notícia</option>
+                    <option value="Evento" {% if noticia and noticia['tipo'] == 'Evento' %}selected{% endif %}>Evento</option>
+                    <option value="Aviso" {% if noticia and noticia['tipo'] == 'Aviso' %}selected{% endif %}>Aviso</option>
+                    <option value="Outro" {% if noticia and noticia['tipo'] == 'Outro' %}selected{% endif %}>Outro</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="conteudo">Conteúdo:</label>
+                <textarea id="conteudo" name="conteudo" required>{{ noticia['conteudo'] if noticia else '' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="imagem">Foto (Trocar/Nova):</label>
+                <input type="file" id="imagem" name="imagem" accept="image/*">
+                
+                {% if noticia and noticia['imagem_url'] %}
+                    <div class="current-image">
+                        <p>Imagem Atual:</p>
+                        <img src="{{ noticia['imagem_url'] }}" alt="Imagem Atual">
+                        <input type="hidden" name="imagem_atual" value="{{ noticia['imagem_url'] }}">
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-submit">Salvar Notícia</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-cancel">Cancelar</a>
+        </form>
+Se o seu `<textarea id="conteudo" name="conteudo" ...>` estiver correto, mas aparecer **DEPOIS** da tag `</form>`, ele será ignorado.
+
+**Ação:** Verifique a estrutura do seu `admin_edit.html` para garantir que o campo **`Conteúdo`** está aninhado corretamente. Salve e tente novamente.
+    </div>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Painel Admin</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
+        .admin-header { background-color: #3B5F6C; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-header a { color: #D4AF37; text-decoration: none; margin-left: 15px; }
+        .container { width: 90%; max-width: 1200px; margin: 20px auto; }
+        .action-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .btn-new { background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .actions-col a, .actions-col button { padding: 5px 10px; border-radius: 3px; text-decoration: none; margin-right: 5px; font-size: 0.9em; }
+        .btn-edit { background-color: #D4AF37; color: #2C3E50; border: none; }
+        .btn-delete { background-color: #e74c3c; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h1>Painel de Administração</h1>
+        <div>
+            Bem-vindo(a) | <a href="{{ url_for('logout') }}">Sair</a>
+        </div>
+    </div>
+    <div class="container">
+        <div class="action-bar">
+            <h2>Gerenciamento de Notícias / Eventos</h2>
+            <a href="{{ url_for('admin_edit') }}" class="btn-new">➕ Adicionar Novo</a>
+        </div>
+        
+        {% if noticias %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Tipo</th> <th>Imagem</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for noticia in noticias %}
+                <tr>
+                    <td>{{ noticia['id'] }}</td>
+                    <td>{{ noticia['titulo'] }}</td>
+                    <td>{{ noticia['tipo'] }}</td> <td>
+                        {% if noticia['imagem_url'] %}
+                            <img src="{{ noticia['imagem_url'] }}" alt="Miniatura" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                        {% else %}
+                            (Sem Imagem)
+                        {% endif %}
+                    </td>
+                    <td>{{ noticia['data_criacao'] }}</td>
+                    <td class="actions-col">
+                        <a href="{{ url_for('admin_edit', post_id=noticia['id']) }}" class="btn-edit">Editar</a>
+                        <form method="POST" action="{{ url_for('admin_delete', post_id=noticia['id']) }}" style="display:inline;">
+                            <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir esta notícia?');">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p>Nenhuma notícia encontrada. Comece adicionando uma!</p>
+        {% endif %}
+    </div>
+</body>
+</html>
