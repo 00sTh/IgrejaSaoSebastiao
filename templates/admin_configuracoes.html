@@ -1,0 +1,280 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Configurações{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Configurações</h1>
+    <p class="breadcrumb">Painel Administrativo / Configurações</p>
+</div>
+
+<!-- Configurações Gerais -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-church"></i> Configurações da Paróquia
+        </h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_configuracoes_save') }}" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label" for="nome_paroquia">
+                Nome da Paróquia <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="nome_paroquia" name="nome_paroquia" class="form-control"
+                   value="{{ config.nome_paroquia if config else 'Igreja São Sebastião' }}"
+                   required maxlength="200">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="slogan">
+                Slogan
+            </label>
+            <input type="text" id="slogan" name="slogan" class="form-control"
+                   value="{{ config.slogan if config else '' }}"
+                   maxlength="200"
+                   placeholder="Ex: Fé, Esperança e Caridade">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="sobre">
+                Sobre a Paróquia
+            </label>
+            <textarea id="sobre" name="sobre" class="form-control"
+                      rows="6"
+                      placeholder="Breve história e informações sobre a paróquia...">{{ config.sobre if config else '' }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label class="form-label" for="email">
+                    Email
+                </label>
+                <input type="email" id="email" name="email" class="form-control"
+                       value="{{ config.email if config else '' }}"
+                       placeholder="contato@paroquia.com.br">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="telefone">
+                    Telefone
+                </label>
+                <input type="text" id="telefone" name="telefone" class="form-control"
+                       value="{{ config.telefone if config else '' }}"
+                       placeholder="(00) 0000-0000">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="endereco">
+                Endereço Completo
+            </label>
+            <textarea id="endereco" name="endereco" class="form-control"
+                      rows="3"
+                      placeholder="Rua, número, bairro, cidade, estado, CEP">{{ config.endereco if config else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="logo">
+                Logo da Paróquia
+            </label>
+            {% if config and config.logo_url %}
+            <div style="margin-bottom: 1rem;">
+                <img src="{{ config.logo_url }}" alt="Logo atual"
+                     style="max-height: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            </div>
+            {% endif %}
+            <input type="file" id="logo" name="logo" class="form-control"
+                   accept="image/png,image/jpg,image/jpeg,image/svg+xml">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Formatos aceitos: PNG, JPG, SVG. Tamanho recomendado: 200x200px.
+            </small>
+        </div>
+
+        <div style="padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                Salvar Configurações
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Informações de Contato -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-address-book"></i> Informações de Contato
+        </h2>
+        <a href="{{ url_for('admin_contato_edit') }}" class="btn btn-primary">
+            <i class="fas fa-edit"></i>
+            Editar Contato
+        </a>
+    </div>
+
+    <div style="display: grid; gap: 1rem;">
+        {% if contato %}
+        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-phone" style="color: #667eea; font-size: 1.25rem;"></i>
+                <strong style="color: #374151;">Telefone:</strong>
+            </div>
+            <p style="margin: 0 0 0 2rem; color: #6b7280;">{{ contato.telefone or 'Não cadastrado' }}</p>
+        </div>
+
+        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-envelope" style="color: #667eea; font-size: 1.25rem;"></i>
+                <strong style="color: #374151;">Email:</strong>
+            </div>
+            <p style="margin: 0 0 0 2rem; color: #6b7280;">{{ contato.email or 'Não cadastrado' }}</p>
+        </div>
+
+        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-map-marker-alt" style="color: #667eea; font-size: 1.25rem;"></i>
+                <strong style="color: #374151;">Endereço:</strong>
+            </div>
+            <p style="margin: 0 0 0 2rem; color: #6b7280; white-space: pre-line;">{{ contato.endereco or 'Não cadastrado' }}</p>
+        </div>
+        {% else %}
+        <p style="text-align: center; color: #6b7280; padding: 2rem;">
+            Nenhuma informação de contato cadastrada.
+        </p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Redes Sociais -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-share-alt"></i> Redes Sociais
+        </h2>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_social_save') }}">
+        <div class="form-group">
+            <label class="form-label" for="facebook">
+                <i class="fab fa-facebook" style="color: #1877f2;"></i> Facebook
+            </label>
+            <input type="url" id="facebook" name="facebook" class="form-control"
+                   value="{{ social.facebook if social else '' }}"
+                   placeholder="https://facebook.com/suaparoquia">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="instagram">
+                <i class="fab fa-instagram" style="color: #e4405f;"></i> Instagram
+            </label>
+            <input type="url" id="instagram" name="instagram" class="form-control"
+                   value="{{ social.instagram if social else '' }}"
+                   placeholder="https://instagram.com/suaparoquia">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="youtube">
+                <i class="fab fa-youtube" style="color: #ff0000;"></i> YouTube
+            </label>
+            <input type="url" id="youtube" name="youtube" class="form-control"
+                   value="{{ social.youtube if social else '' }}"
+                   placeholder="https://youtube.com/@suaparoquia">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="whatsapp">
+                <i class="fab fa-whatsapp" style="color: #25d366;"></i> WhatsApp
+            </label>
+            <input type="text" id="whatsapp" name="whatsapp" class="form-control"
+                   value="{{ social.whatsapp if social else '' }}"
+                   placeholder="(00) 00000-0000">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Apenas números, ex: 11987654321
+            </small>
+        </div>
+
+        <div style="padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                Salvar Redes Sociais
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Administração do Sistema -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-tools"></i> Administração do Sistema
+        </h2>
+    </div>
+
+    <div style="display: grid; gap: 1rem;">
+        <div style="padding: 1.5rem; background: #eff6ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">
+                        <i class="fas fa-database"></i> Backup do Banco de Dados
+                    </h4>
+                    <p style="color: #1e40af; margin: 0; font-size: 0.875rem;">
+                        Faça backup regularmente dos dados da paróquia
+                    </p>
+                </div>
+                <a href="{{ url_for('admin_backup') }}" class="btn btn-primary">
+                    <i class="fas fa-download"></i>
+                    Fazer Backup
+                </a>
+            </div>
+        </div>
+
+        <div style="padding: 1.5rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; color: #92400e; margin-bottom: 0.5rem;">
+                        <i class="fas fa-key"></i> Alterar Senha
+                    </h4>
+                    <p style="color: #92400e; margin: 0; font-size: 0.875rem;">
+                        Mantenha sua senha segura e atualizada
+                    </p>
+                </div>
+                <a href="{{ url_for('admin_change_password') }}" class="btn btn-primary">
+                    <i class="fas fa-lock"></i>
+                    Alterar Senha
+                </a>
+            </div>
+        </div>
+
+        <div style="padding: 1.5rem; background: #fef2f2; border-radius: 8px; border-left: 4px solid #ef4444;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 600; color: #991b1b; margin-bottom: 0.5rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Limpar Cache
+                    </h4>
+                    <p style="color: #991b1b; margin: 0; font-size: 0.875rem;">
+                        Limpe o cache do sistema se estiver com problemas de visualização
+                    </p>
+                </div>
+                <button onclick="if(confirm('Tem certeza que deseja limpar o cache?')) { window.location.href='{{ url_for('admin_clear_cache') }}'; }"
+                        class="btn btn-danger">
+                    <i class="fas fa-broom"></i>
+                    Limpar Cache
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Informações do Sistema -->
+<div class="card" style="background: #f9fafb; border: 1px solid #e5e7eb;">
+    <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">
+        <i class="fas fa-info-circle"></i> Informações do Sistema
+    </h3>
+    <div style="display: grid; gap: 0.5rem; font-size: 0.875rem; color: #6b7280;">
+        <div><strong>Versão:</strong> 1.0.0</div>
+        <div><strong>Python:</strong> {{ python_version or '3.x' }}</div>
+        <div><strong>Flask:</strong> {{ flask_version or '3.x' }}</div>
+        <div><strong>Banco de Dados:</strong> SQLite</div>
+    </div>
+</div>
+{% endblock %}

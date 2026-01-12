@@ -1,0 +1,161 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Galeria de Fotos{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Galeria de Fotos</h1>
+    <p class="breadcrumb">Painel Administrativo / Galeria de Fotos</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Gerenciar Fotos</h2>
+        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Adicionar Foto
+        </a>
+    </div>
+
+    <!-- Filtros -->
+    <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: end;">
+            <div style="flex: 1;">
+                <label class="form-label">Buscar</label>
+                <input type="text" name="busca" class="form-control" placeholder="Buscar por título ou descrição..."
+                       value="{{ request.args.get('busca', '') }}">
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search"></i>
+                Buscar
+            </button>
+            <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+                <i class="fas fa-redo"></i>
+                Limpar
+            </a>
+        </form>
+    </div>
+
+    {% if fotos %}
+    <!-- Grid de fotos -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        {% for foto in fotos %}
+        <div style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s; position: relative;"
+             onmouseover="this.style.transform='translateY(-4px)'"
+             onmouseout="this.style.transform='translateY(0)'">
+
+            <!-- Imagem -->
+            <div style="position: relative; padding-top: 75%; overflow: hidden; background: #e5e7eb;">
+                <img src="{{ foto.imagem_url }}" alt="{{ foto.titulo }}"
+                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <!-- Informações -->
+            <div style="padding: 1rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ foto.titulo }}
+                </h3>
+                {% if foto.descricao %}
+                <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                    {{ foto.descricao }}
+                </p>
+                {% endif %}
+
+                <!-- Data -->
+                <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 1rem;">
+                    <i class="fas fa-calendar"></i>
+                    {{ foto.data_upload.strftime('%d/%m/%Y') if foto.data_upload else 'N/A' }}
+                </div>
+
+                <!-- Ações -->
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{{ url_for('admin_galeria_edit', foto_id=foto.id) }}"
+                       class="btn btn-primary" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; justify-content: center;">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </a>
+                    <form method="POST" action="{{ url_for('admin_galeria_delete', foto_id=foto.id) }}"
+                          style="flex: 1;" onsubmit="return confirm('Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.');">
+                        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Estatísticas -->
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: #eff6ff; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: #2563eb; margin-bottom: 0.25rem;">
+                    {{ fotos|length }}
+                </div>
+                <div style="font-size: 0.875rem; color: #1e40af;">
+                    Total de Fotos
+                </div>
+            </div>
+
+            <div style="padding: 1rem; background: #f0fdf4; border-radius: 8px; text-align: center;">
+                <div style="font-size: 2rem; font-weight: 700; color: #16a34a; margin-bottom: 0.25rem;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div style="font-size: 0.875rem; color: #166534;">
+                    Todas Publicadas
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paginação (se implementada) -->
+    {% if total_pages and total_pages > 1 %}
+    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+        {% for page_num in range(1, total_pages + 1) %}
+        <a href="?page={{ page_num }}"
+           class="btn {% if page_num == current_page %}btn-primary{% else %}btn-secondary{% endif %}"
+           style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+            {{ page_num }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div style="text-align: center; padding: 3rem;">
+        <i class="fas fa-images" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+        <p style="color: #6b7280; font-size: 1.125rem;">Nenhuma foto na galeria.</p>
+        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-plus"></i>
+            Adicionar primeira foto
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Dicas -->
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+        <i class="fas fa-lightbulb"></i> Dicas para Fotos
+    </h3>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Use fotos de alta qualidade e bem iluminadas</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Prefira formato horizontal (paisagem) para melhor exibição</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Adicione títulos e descrições para tornar a galeria mais informativa</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Mantenha a galeria atualizada com eventos recentes</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}

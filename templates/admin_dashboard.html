@@ -1,73 +1,141 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard - Painel Admin</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
-        .admin-header { background-color: #3B5F6C; color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .admin-header a { color: #D4AF37; text-decoration: none; margin-left: 15px; }
-        .container { width: 90%; max-width: 1200px; margin: 20px auto; }
-        .action-bar { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .btn-new { background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .actions-col a, .actions-col button { padding: 5px 10px; border-radius: 3px; text-decoration: none; margin-right: 5px; font-size: 0.9em; }
-        .btn-edit { background-color: #D4AF37; color: #2C3E50; border: none; }
-        .btn-delete { background-color: #e74c3c; color: white; border: none; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <div class="admin-header">
-        <h1>Painel de Administração</h1>
-        <div>
-            Bem-vindo(a) | <a href="{{ url_for('logout') }}">Sair</a>
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Dashboard</h1>
+    <p class="breadcrumb">Painel Administrativo / Dashboard</p>
+</div>
+
+<!-- Estatísticas -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-newspaper"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_noticias or 0 }}</h3>
+            <p>Notícias Publicadas</p>
         </div>
     </div>
-    <div class="container">
-        <div class="action-bar">
-            <h2>Gerenciamento de Notícias / Eventos</h2>
-            <a href="{{ url_for('admin_edit') }}" class="btn-new">➕ Adicionar Novo</a>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-clock"></i>
         </div>
-        
-        {% if noticias %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Título</th>
-                    <th>Tipo</th> <th>Imagem</th>
-                    <th>Data</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for noticia in noticias %}
-                <tr>
-                    <td>{{ noticia['id'] }}</td>
-                    <td>{{ noticia['titulo'] }}</td>
-                    <td>{{ noticia['tipo'] }}</td> <td>
-                        {% if noticia['imagem_url'] %}
-                            <img src="{{ noticia['imagem_url'] }}" alt="Miniatura" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                        {% else %}
-                            (Sem Imagem)
-                        {% endif %}
-                    </td>
-                    <td>{{ noticia['data_criacao'] }}</td>
-                    <td class="actions-col">
-                        <a href="{{ url_for('admin_edit', post_id=noticia['id']) }}" class="btn-edit">Editar</a>
-                        <form method="POST" action="{{ url_for('admin_delete', post_id=noticia['id']) }}" style="display:inline;">
-                            <button type="submit" class="btn-delete" onclick="return confirm('Tem certeza que deseja excluir esta notícia?');">Excluir</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p>Nenhuma notícia encontrada. Comece adicionando uma!</p>
-        {% endif %}
+        <div class="stat-content">
+            <h3>{{ total_horarios or 0 }}</h3>
+            <p>Horários de Missas</p>
+        </div>
     </div>
-</body>
-</html>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fas fa-images"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_fotos or 0 }}</h3>
+            <p>Fotos na Galeria</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="stat-content">
+            <h3>{{ total_informacoes or 0 }}</h3>
+            <p>Informações Cadastradas</p>
+        </div>
+    </div>
+</div>
+
+<!-- Ações Rápidas -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Ações Rápidas</h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <a href="{{ url_for('admin_noticia_edit') }}" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
+            <i class="fas fa-plus"></i>
+            Nova Notícia
+        </a>
+        <a href="{{ url_for('admin_horario_edit') }}" class="btn btn-success" style="justify-content: center; padding: 1rem;">
+            <i class="fas fa-clock"></i>
+            Adicionar Horário
+        </a>
+        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
+            <i class="fas fa-image"></i>
+            Adicionar Foto
+        </a>
+        <a href="{{ url_for('admin_configuracoes') }}" class="btn btn-secondary" style="justify-content: center; padding: 1rem;">
+            <i class="fas fa-cog"></i>
+            Configurações
+        </a>
+    </div>
+</div>
+
+<!-- Notícias Recentes -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Notícias Recentes</h2>
+        <a href="{{ url_for('admin_noticias') }}" class="btn btn-primary btn-sm">Ver Todas</a>
+    </div>
+    {% if noticias_recentes %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Tipo</th>
+                <th>Data</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for noticia in noticias_recentes[:5] %}
+            <tr>
+                <td>{{ noticia.titulo }}</td>
+                <td>
+                    <span style="padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500;
+                        {% if noticia.tipo == 'noticia' %}background: #dbeafe; color: #1e40af;
+                        {% else %}background: #fef3c7; color: #92400e;{% endif %}">
+                        {{ 'Notícia' if noticia.tipo == 'noticia' else 'Evento' }}
+                    </span>
+                </td>
+                <td>{{ noticia.data_criacao.strftime('%d/%m/%Y') if noticia.data_criacao else 'N/A' }}</td>
+                <td>
+                    <a href="{{ url_for('admin_noticia_edit', noticia_id=noticia.id) }}" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #6b7280; padding: 2rem;">Nenhuma notícia cadastrada ainda.</p>
+    {% endif %}
+</div>
+
+<!-- Informações do Sistema -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Informações do Sistema</h2>
+    </div>
+    <div style="display: grid; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 8px;">
+            <span style="font-weight: 500; color: #374151;">Última atualização:</span>
+            <span style="color: #6b7280;">{{ ultima_atualizacao or 'Hoje' }}</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 8px;">
+            <span style="font-weight: 500; color: #374151;">Status do site:</span>
+            <span style="color: #22c55e; font-weight: 600;"><i class="fas fa-check-circle"></i> Online</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 8px;">
+            <span style="font-weight: 500; color: #374151;">Versão:</span>
+            <span style="color: #6b7280;">1.0.0</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

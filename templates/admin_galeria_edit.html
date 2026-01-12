@@ -1,0 +1,200 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ 'Editar' if foto else 'Adicionar' }} Foto{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>{{ 'Editar' if foto else 'Adicionar' }} Foto</h1>
+    <p class="breadcrumb">Painel Administrativo / Galeria / {{ 'Editar' if foto else 'Nova' }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-{% if foto %}edit{% else %}plus{% endif %}"></i>
+            {{ 'Editar' if foto else 'Adicionar Nova' }} Foto
+        </h2>
+        <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin_galeria_edit', foto_id=foto.id if foto else None) }}">
+        <div class="form-group">
+            <label class="form-label" for="titulo">
+                Título <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="titulo" name="titulo" class="form-control"
+                   value="{{ foto.titulo if foto else '' }}"
+                   required maxlength="150"
+                   placeholder="Ex: Festa de São Sebastião 2026">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="descricao">
+                Descrição
+            </label>
+            <textarea id="descricao" name="descricao" class="form-control"
+                      rows="4" maxlength="300"
+                      placeholder="Breve descrição da foto (opcional)">{{ foto.descricao if foto else '' }}</textarea>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Máximo de 300 caracteres
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="imagem">
+                {% if foto %}Imagem Atual{% else %}Imagem <span style="color: #ef4444;">*</span>{% endif %}
+            </label>
+
+            {% if foto and foto.imagem_url %}
+            <div style="margin-bottom: 1.5rem; text-align: center; padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+                <img src="{{ foto.imagem_url }}" alt="{{ foto.titulo }}"
+                     style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <p style="margin-top: 1rem; color: #6b7280; font-size: 0.875rem;">
+                    <i class="fas fa-info-circle"></i> Faça upload de uma nova imagem para substituir a atual
+                </p>
+            </div>
+            {% endif %}
+
+            <input type="file" id="imagem" name="imagem" class="form-control"
+                   accept="image/jpeg,image/png,image/jpg,image/webp"
+                   {% if not foto %}required{% endif %}>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Formatos aceitos: JPG, PNG, WEBP. Tamanho máximo: 10MB.
+                {% if foto %}Deixe em branco para manter a imagem atual.{% endif %}
+            </small>
+        </div>
+
+        <!-- Preview da nova imagem -->
+        <div id="preview-container" style="display: none; margin-bottom: 1.5rem;">
+            <label class="form-label">Prévia da Nova Imagem</label>
+            <div style="text-align: center; padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+                <img id="preview-image" src="" alt="Prévia"
+                     style="max-width: 100%; max-height: 400px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="categoria">
+                Categoria
+            </label>
+            <select id="categoria" name="categoria" class="form-control">
+                <option value="">Sem categoria</option>
+                <option value="Eventos" {% if foto and foto.categoria == 'Eventos' %}selected{% endif %}>Eventos</option>
+                <option value="Missas" {% if foto and foto.categoria == 'Missas' %}selected{% endif %}>Missas</option>
+                <option value="Comunidade" {% if foto and foto.categoria == 'Comunidade' %}selected{% endif %}>Comunidade</option>
+                <option value="Festividades" {% if foto and foto.categoria == 'Festividades' %}selected{% endif %}>Festividades</option>
+                <option value="Obras" {% if foto and foto.categoria == 'Obras' %}selected{% endif %}>Obras e Reformas</option>
+                <option value="Outros" {% if foto and foto.categoria == 'Outros' %}selected{% endif %}>Outros</option>
+            </select>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Ajuda a organizar as fotos por tema
+            </small>
+        </div>
+
+        <!-- Informações da foto -->
+        {% if foto %}
+        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; margin-bottom: 1.5rem;">
+            <h4 style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.75rem;">
+                <i class="fas fa-info-circle"></i> Informações da Foto
+            </h4>
+            <div style="display: grid; gap: 0.5rem; font-size: 0.875rem; color: #6b7280;">
+                <div>
+                    <strong>Data de upload:</strong>
+                    {{ foto.data_upload.strftime('%d/%m/%Y às %H:%M') if foto.data_upload else 'N/A' }}
+                </div>
+                <div>
+                    <strong>Formato:</strong>
+                    {{ foto.imagem_url.split('.')[-1].upper() if foto.imagem_url else 'N/A' }}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                {{ 'Atualizar' if foto else 'Adicionar' }} Foto
+            </button>
+            <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+            {% if foto %}
+            <button type="button" class="btn btn-danger" style="margin-left: auto;"
+                    onclick="if(confirm('Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.')) {
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ url_for('admin_galeria_delete', foto_id=foto.id) }}';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }">
+                <i class="fas fa-trash"></i>
+                Excluir
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Dicas -->
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+        <i class="fas fa-camera"></i> Dicas para Fotos de Qualidade
+    </h3>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Use fotos com boa iluminação e foco nítido</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Prefira formato horizontal (paisagem) para melhor visualização</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Resolução recomendada: mínimo 1200x800 pixels</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Adicione descrições para tornar o conteúdo mais acessível</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview da imagem antes do upload
+    document.getElementById('imagem').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validar tamanho
+            const fileSize = file.size / 1024 / 1024; // em MB
+            if (fileSize > 10) {
+                alert('O arquivo selecionado é muito grande. O tamanho máximo é 10MB.');
+                this.value = '';
+                return;
+            }
+
+            // Validar tipo
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                alert('Formato de arquivo não suportado. Use JPG, PNG ou WEBP.');
+                this.value = '';
+                return;
+            }
+
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('preview-image').src = e.target.result;
+                document.getElementById('preview-container').style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,172 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ 'Editar' if horario else 'Novo' }} Horário{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>{{ 'Editar' if horario else 'Novo' }} Horário de Missa</h1>
+    <p class="breadcrumb">Painel Administrativo / Horários / {{ 'Editar' if horario else 'Novo' }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-{% if horario %}edit{% else %}plus{% endif %}"></i>
+            {{ 'Editar' if horario else 'Adicionar' }} Horário
+        </h2>
+        <a href="{{ url_for('admin_horarios') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_horario_edit', horario_id=horario.id if horario else None) }}">
+        <div class="form-group">
+            <label class="form-label" for="dia_semana">
+                Dia da Semana <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="dia_semana" name="dia_semana" class="form-control" required>
+                <option value="">Selecione o dia</option>
+                {% set dias = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'] %}
+                {% for dia in dias %}
+                <option value="{{ dia }}" {% if horario and horario.dia_semana == dia %}selected{% endif %}>
+                    {{ dia }}-feira{% if dia == 'Sábado' or dia == 'Domingo' %}{% else %}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="horario">
+                Horário <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="time" id="horario" name="horario" class="form-control"
+                   value="{{ horario.horario if horario else '' }}"
+                   required>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Selecione o horário da celebração
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="tipo">
+                Tipo de Celebração <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="tipo" name="tipo" class="form-control" required>
+                <option value="">Selecione o tipo</option>
+                <option value="Missa" {% if horario and horario.tipo == 'Missa' %}selected{% endif %}>Missa</option>
+                <option value="Missa com Crianças" {% if horario and horario.tipo == 'Missa com Crianças' %}selected{% endif %}>Missa com Crianças</option>
+                <option value="Missa Solene" {% if horario and horario.tipo == 'Missa Solene' %}selected{% endif %}>Missa Solene</option>
+                <option value="Adoração ao Santíssimo" {% if horario and horario.tipo == 'Adoração ao Santíssimo' %}selected{% endif %}>Adoração ao Santíssimo</option>
+                <option value="Terço" {% if horario and horario.tipo == 'Terço' %}selected{% endif %}>Terço</option>
+                <option value="Confissões" {% if horario and horario.tipo == 'Confissões' %}selected{% endif %}>Confissões</option>
+                <option value="Outro" {% if horario and horario.tipo == 'Outro' %}selected{% endif %}>Outro</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="tipo_outro_group" style="display: none;">
+            <label class="form-label" for="tipo_outro">
+                Especifique o Tipo
+            </label>
+            <input type="text" id="tipo_outro" name="tipo_outro" class="form-control"
+                   placeholder="Ex: Novena, Via Sacra, etc.">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="observacoes">
+                Observações
+            </label>
+            <textarea id="observacoes" name="observacoes" class="form-control"
+                      rows="3" maxlength="200"
+                      placeholder="Informações adicionais (opcional)">{{ horario.observacoes if horario else '' }}</textarea>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Ex: "Apenas no primeiro domingo do mês", "Não há missa em feriados", etc.
+            </small>
+        </div>
+
+        <!-- Preview do horário -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">
+                <i class="fas fa-eye"></i> Prévia do Horário
+            </h3>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div id="preview-dia" style="width: 50px; height: 50px; border-radius: 8px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem;">
+                    ---
+                </div>
+                <div>
+                    <div id="preview-horario" style="font-size: 1.25rem; font-weight: 700; color: #667eea; margin-bottom: 0.25rem;">
+                        --:--
+                    </div>
+                    <div id="preview-tipo" style="font-size: 0.875rem; color: #6b7280;">
+                        Tipo de celebração
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                {{ 'Atualizar' if horario else 'Adicionar' }} Horário
+            </button>
+            <a href="{{ url_for('admin_horarios') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+            {% if horario %}
+            <button type="button" class="btn btn-danger" style="margin-left: auto;"
+                    onclick="if(confirm('Tem certeza que deseja excluir este horário?')) {
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ url_for('admin_horario_delete', horario_id=horario.id) }}';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }">
+                <i class="fas fa-trash"></i>
+                Excluir
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Mostrar/ocultar campo "Outro tipo"
+    document.getElementById('tipo').addEventListener('change', function() {
+        const outroGroup = document.getElementById('tipo_outro_group');
+        if (this.value === 'Outro') {
+            outroGroup.style.display = 'block';
+        } else {
+            outroGroup.style.display = 'none';
+        }
+        updatePreview();
+    });
+
+    // Atualizar prévia em tempo real
+    function updatePreview() {
+        const dia = document.getElementById('dia_semana').value;
+        const horario = document.getElementById('horario').value;
+        const tipo = document.getElementById('tipo').value;
+
+        document.getElementById('preview-dia').textContent = dia ? dia.substring(0, 3) : '---';
+        document.getElementById('preview-horario').textContent = horario || '--:--';
+        document.getElementById('preview-tipo').textContent = tipo || 'Tipo de celebração';
+    }
+
+    // Atualizar prévia ao digitar
+    document.getElementById('dia_semana').addEventListener('change', updatePreview);
+    document.getElementById('horario').addEventListener('change', updatePreview);
+    document.getElementById('tipo').addEventListener('change', updatePreview);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        const tipo = document.getElementById('tipo').value;
+        if (tipo === 'Outro') {
+            document.getElementById('tipo_outro_group').style.display = 'block';
+        }
+        updatePreview();
+    });
+</script>
+{% endblock %}

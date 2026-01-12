@@ -1,0 +1,188 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ 'Editar' if informacao else 'Nova' }} Informação{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>{{ 'Editar' if informacao else 'Nova' }} Informação</h1>
+    <p class="breadcrumb">Painel Administrativo / Informações / {{ 'Editar' if informacao else 'Nova' }}</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-{% if informacao %}edit{% else %}plus{% endif %}"></i>
+            {{ 'Editar' if informacao else 'Criar Nova' }} Informação
+        </h2>
+        <a href="{{ url_for('admin_informacoes') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_informacao_edit', informacao_id=informacao.id if informacao else None) }}">
+        <div class="form-group">
+            <label class="form-label" for="titulo">
+                Título <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="titulo" name="titulo" class="form-control"
+                   value="{{ informacao.titulo if informacao else '' }}"
+                   required maxlength="100"
+                   placeholder="Ex: História da Paróquia">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="subtitulo">
+                Subtítulo
+            </label>
+            <input type="text" id="subtitulo" name="subtitulo" class="form-control"
+                   value="{{ informacao.subtitulo if informacao else '' }}"
+                   maxlength="150"
+                   placeholder="Subtítulo ou descrição curta (opcional)">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="icone">
+                Ícone <span style="color: #ef4444;">*</span>
+            </label>
+            <select id="icone" name="icone" class="form-control" required>
+                <option value="">Selecione um ícone</option>
+                {% set icones = [
+                    {'value': 'church', 'label': 'Igreja'},
+                    {'value': 'info-circle', 'label': 'Informação'},
+                    {'value': 'book-bible', 'label': 'Bíblia'},
+                    {'value': 'hands-praying', 'label': 'Mãos Orando'},
+                    {'value': 'cross', 'label': 'Cruz'},
+                    {'value': 'calendar-check', 'label': 'Calendário'},
+                    {'value': 'users', 'label': 'Pessoas'},
+                    {'value': 'heart', 'label': 'Coração'},
+                    {'value': 'phone', 'label': 'Telefone'},
+                    {'value': 'envelope', 'label': 'Envelope'},
+                    {'value': 'map-marker-alt', 'label': 'Localização'},
+                    {'value': 'clock', 'label': 'Relógio'},
+                    {'value': 'hand-holding-heart', 'label': 'Doar'},
+                    {'value': 'dove', 'label': 'Pomba'}
+                ] %}
+                {% for ic in icones %}
+                <option value="{{ ic.value }}" {% if informacao and informacao.icone == ic.value %}selected{% endif %}>
+                    {{ ic.label }}
+                </option>
+                {% endfor %}
+            </select>
+            <div style="margin-top: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 0.875rem; color: #6b7280;">Prévia:</span>
+                <div id="preview-icon" style="width: 40px; height: 40px; border-radius: 8px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="conteudo">
+                Conteúdo <span style="color: #ef4444;">*</span>
+            </label>
+            <textarea id="conteudo" name="conteudo" class="form-control"
+                      required rows="10"
+                      placeholder="Conteúdo completo da informação...">{{ informacao.conteudo if informacao else '' }}</textarea>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Use quebras de linha para separar parágrafos
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="ordem">
+                Ordem de Exibição <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="number" id="ordem" name="ordem" class="form-control"
+                   value="{{ informacao.ordem if informacao else '1' }}"
+                   required min="1" max="100">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Números menores aparecem primeiro no site (Ex: 1, 2, 3...)
+            </small>
+        </div>
+
+        <!-- Preview da informação -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">
+                <i class="fas fa-eye"></i> Prévia da Informação
+            </h3>
+            <div style="display: flex; align-items: start; gap: 1rem;">
+                <div id="preview-icon-large" style="width: 50px; height: 50px; border-radius: 8px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div style="flex: 1;">
+                    <h4 id="preview-titulo" style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin-bottom: 0.25rem;">
+                        Título da Informação
+                    </h4>
+                    <p id="preview-subtitulo" style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">
+                        Subtítulo (opcional)
+                    </p>
+                    <div id="preview-conteudo" style="padding: 1rem; background: white; border-radius: 6px; color: #374151; line-height: 1.6; white-space: pre-line;">
+                        Conteúdo será exibido aqui...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                {{ 'Atualizar' if informacao else 'Criar' }} Informação
+            </button>
+            <a href="{{ url_for('admin_informacoes') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+            {% if informacao %}
+            <button type="button" class="btn btn-danger" style="margin-left: auto;"
+                    onclick="if(confirm('Tem certeza que deseja excluir esta informação?')) {
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ url_for('admin_informacao_delete', informacao_id=informacao.id) }}';
+                        document.body.appendChild(form);
+                        form.submit();
+                    }">
+                <i class="fas fa-trash"></i>
+                Excluir
+            </button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Atualizar prévia do ícone
+    document.getElementById('icone').addEventListener('change', function() {
+        const iconeValue = this.value || 'info-circle';
+        document.getElementById('preview-icon').innerHTML = `<i class="fas fa-${iconeValue}"></i>`;
+        document.getElementById('preview-icon-large').innerHTML = `<i class="fas fa-${iconeValue}"></i>`;
+    });
+
+    // Atualizar prévia do conteúdo em tempo real
+    function updatePreview() {
+        const titulo = document.getElementById('titulo').value || 'Título da Informação';
+        const subtitulo = document.getElementById('subtitulo').value || 'Subtítulo (opcional)';
+        const conteudo = document.getElementById('conteudo').value || 'Conteúdo será exibido aqui...';
+
+        document.getElementById('preview-titulo').textContent = titulo;
+        document.getElementById('preview-subtitulo').textContent = subtitulo;
+        document.getElementById('preview-conteudo').textContent = conteudo;
+    }
+
+    document.getElementById('titulo').addEventListener('input', updatePreview);
+    document.getElementById('subtitulo').addEventListener('input', updatePreview);
+    document.getElementById('conteudo').addEventListener('input', updatePreview);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', function() {
+        const icone = document.getElementById('icone').value;
+        if (icone) {
+            document.getElementById('preview-icon').innerHTML = `<i class="fas fa-${icone}"></i>`;
+            document.getElementById('preview-icon-large').innerHTML = `<i class="fas fa-${icone}"></i>`;
+        }
+        updatePreview();
+    });
+</script>
+{% endblock %}

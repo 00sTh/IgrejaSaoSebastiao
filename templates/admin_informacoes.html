@@ -1,0 +1,120 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Informações da Paróquia{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Informações da Paróquia</h1>
+    <p class="breadcrumb">Painel Administrativo / Informações</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Gerenciar Informações</h2>
+        <a href="{{ url_for('admin_informacao_edit') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Nova Informação
+        </a>
+    </div>
+
+    {% if informacoes %}
+    <div style="display: grid; gap: 1rem;">
+        {% for info in informacoes %}
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-{{ info.icone or 'info-circle' }}"></i>
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: #1f2937; margin: 0;">
+                            {{ info.titulo }}
+                        </h3>
+                    </div>
+                    {% if info.subtitulo %}
+                    <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">{{ info.subtitulo }}</p>
+                    {% endif %}
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{{ url_for('admin_informacao_edit', informacao_id=info.id) }}"
+                       class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form method="POST" action="{{ url_for('admin_informacao_delete', informacao_id=info.id) }}"
+                          style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta informação?');">
+                        <button type="submit" class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div style="padding: 1rem; background: white; border-radius: 6px; white-space: pre-line; color: #374151; line-height: 1.6;">
+                {{ info.conteudo }}
+            </div>
+
+            {% if info.ordem %}
+            <div style="margin-top: 0.75rem; font-size: 0.875rem; color: #6b7280;">
+                <i class="fas fa-sort"></i> Ordem de exibição: {{ info.ordem }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Informações sobre ordenação -->
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+        <div style="padding: 1rem; background: #eff6ff; border-radius: 8px; border-left: 4px solid #2563eb;">
+            <div style="display: flex; align-items: start; gap: 0.75rem;">
+                <i class="fas fa-info-circle" style="color: #2563eb; margin-top: 0.25rem;"></i>
+                <div>
+                    <strong style="color: #1e40af;">Sobre a ordenação:</strong>
+                    <p style="color: #1e40af; margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                        As informações são exibidas no site na ordem definida. Use números menores para que apareçam primeiro.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div style="text-align: center; padding: 3rem;">
+        <i class="fas fa-info-circle" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+        <p style="color: #6b7280; font-size: 1.125rem;">Nenhuma informação cadastrada.</p>
+        <a href="{{ url_for('admin_informacao_edit') }}" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-plus"></i>
+            Adicionar primeira informação
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Sugestões de informações -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-lightbulb"></i> Sugestões de Informações
+        </h2>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        {% set sugestoes = [
+            {'icone': 'church', 'titulo': 'História da Paróquia', 'desc': 'Conte a história e tradição da igreja'},
+            {'icone': 'hands-praying', 'titulo': 'Pastorais e Ministérios', 'desc': 'Informações sobre grupos paroquiais'},
+            {'icone': 'book-bible', 'titulo': 'Catequese', 'desc': 'Horários e informações sobre catequese'},
+            {'icone': 'heart', 'titulo': 'Como Contribuir', 'desc': 'Formas de ajudar a paróquia'},
+            {'icone': 'calendar-check', 'titulo': 'Sacramentos', 'desc': 'Como solicitar batismo, casamento, etc.'},
+            {'icone': 'users', 'titulo': 'Equipe Paroquial', 'desc': 'Informações sobre padre e equipe'}
+        ] %}
+
+        {% for sug in sugestoes %}
+        <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+            <div style="width: 36px; height: 36px; border-radius: 6px; background: #dbeafe; color: #1e40af; display: flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+                <i class="fas fa-{{ sug.icone }}"></i>
+            </div>
+            <h4 style="font-size: 0.95rem; font-weight: 600; color: #1f2937; margin-bottom: 0.25rem;">{{ sug.titulo }}</h4>
+            <p style="font-size: 0.8rem; color: #6b7280; margin: 0;">{{ sug.desc }}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
