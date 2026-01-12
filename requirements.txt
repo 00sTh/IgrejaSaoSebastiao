@@ -1,4 +1,4 @@
 Flask==3.1.0
 Werkzeug==3.1.3
 python-dotenv==1.0.0
-Pillow==11.1.0
+# Pillow==11.1.0  # Removido temporariamente - não compatível com Python 3.14 no Windows
