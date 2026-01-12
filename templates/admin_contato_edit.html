@@ -1,0 +1,275 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Editar Contato{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Editar Informações de Contato</h1>
+    <p class="breadcrumb">Painel Administrativo / Configurações / Editar Contato</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">
+            <i class="fas fa-address-book"></i> Informações de Contato da Paróquia
+        </h2>
+        <a href="{{ url_for('admin_configuracoes') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Voltar
+        </a>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin_contato_save') }}">
+        <div class="form-group">
+            <label class="form-label" for="telefone">
+                <i class="fas fa-phone"></i> Telefone Principal <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="text" id="telefone" name="telefone" class="form-control"
+                   value="{{ contato.telefone if contato else '' }}"
+                   required
+                   placeholder="(00) 0000-0000">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Telefone principal para contato
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="telefone_2">
+                <i class="fas fa-phone"></i> Telefone Secundário
+            </label>
+            <input type="text" id="telefone_2" name="telefone_2" class="form-control"
+                   value="{{ contato.telefone_2 if contato else '' }}"
+                   placeholder="(00) 0000-0000">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="celular">
+                <i class="fas fa-mobile-alt"></i> Celular / WhatsApp
+            </label>
+            <input type="text" id="celular" name="celular" class="form-control"
+                   value="{{ contato.celular if contato else '' }}"
+                   placeholder="(00) 00000-0000">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Número de celular da paróquia (pode ser usado para WhatsApp)
+            </small>
+        </div>
+
+        <div style="border-top: 1px solid #e5e7eb; margin: 2rem 0; padding-top: 2rem;"></div>
+
+        <div class="form-group">
+            <label class="form-label" for="email">
+                <i class="fas fa-envelope"></i> Email Principal <span style="color: #ef4444;">*</span>
+            </label>
+            <input type="email" id="email" name="email" class="form-control"
+                   value="{{ contato.email if contato else '' }}"
+                   required
+                   placeholder="contato@paroquia.com.br">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="email_2">
+                <i class="fas fa-envelope"></i> Email Secundário
+            </label>
+            <input type="email" id="email_2" name="email_2" class="form-control"
+                   value="{{ contato.email_2 if contato else '' }}"
+                   placeholder="secretaria@paroquia.com.br">
+        </div>
+
+        <div style="border-top: 1px solid #e5e7eb; margin: 2rem 0; padding-top: 2rem;"></div>
+
+        <div class="form-group">
+            <label class="form-label" for="endereco">
+                <i class="fas fa-map-marker-alt"></i> Endereço Completo <span style="color: #ef4444;">*</span>
+            </label>
+            <textarea id="endereco" name="endereco" class="form-control"
+                      required rows="4"
+                      placeholder="Rua, número, bairro&#10;Cidade - Estado&#10;CEP: 00000-000">{{ contato.endereco if contato else '' }}</textarea>
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Endereço completo da paróquia (rua, número, bairro, cidade, estado, CEP)
+            </small>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="maps_url">
+                <i class="fas fa-map"></i> Link do Google Maps
+            </label>
+            <input type="url" id="maps_url" name="maps_url" class="form-control"
+                   value="{{ contato.maps_url if contato else '' }}"
+                   placeholder="https://goo.gl/maps/...">
+            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
+                Cole aqui o link de compartilhamento do Google Maps para facilitar a localização
+            </small>
+        </div>
+
+        <div style="border-top: 1px solid #e5e7eb; margin: 2rem 0; padding-top: 2rem;"></div>
+
+        <div class="form-group">
+            <label class="form-label" for="horario_secretaria">
+                <i class="fas fa-clock"></i> Horário de Atendimento da Secretaria
+            </label>
+            <textarea id="horario_secretaria" name="horario_secretaria" class="form-control"
+                      rows="3"
+                      placeholder="Segunda a Sexta: 9h às 12h e 14h às 17h&#10;Sábado: 9h às 12h">{{ contato.horario_secretaria if contato else '' }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="observacoes">
+                <i class="fas fa-comment"></i> Observações Adicionais
+            </label>
+            <textarea id="observacoes" name="observacoes" class="form-control"
+                      rows="3"
+                      placeholder="Informações adicionais sobre o contato (opcional)">{{ contato.observacoes if contato else '' }}</textarea>
+        </div>
+
+        <!-- Preview das informações -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem;">
+                <i class="fas fa-eye"></i> Prévia das Informações de Contato
+            </h3>
+
+            <div style="display: grid; gap: 1.5rem;">
+                <!-- Telefones -->
+                <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: #667eea; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fas fa-phone"></i> Telefones
+                    </h4>
+                    <div style="color: #374151; line-height: 1.8;">
+                        <div id="preview-telefone">-</div>
+                        <div id="preview-telefone-2" style="display: none;">-</div>
+                        <div id="preview-celular" style="display: none;">-</div>
+                    </div>
+                </div>
+
+                <!-- Emails -->
+                <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: #667eea; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fas fa-envelope"></i> Emails
+                    </h4>
+                    <div style="color: #374151; line-height: 1.8;">
+                        <div id="preview-email">-</div>
+                        <div id="preview-email-2" style="display: none;">-</div>
+                    </div>
+                </div>
+
+                <!-- Endereço -->
+                <div>
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: #667eea; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fas fa-map-marker-alt"></i> Endereço
+                    </h4>
+                    <div id="preview-endereco" style="color: #374151; line-height: 1.8; white-space: pre-line;">-</div>
+                </div>
+
+                <!-- Horário -->
+                <div id="preview-horario-container" style="display: none;">
+                    <h4 style="font-size: 0.875rem; font-weight: 600; color: #667eea; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fas fa-clock"></i> Horário de Atendimento
+                    </h4>
+                    <div id="preview-horario" style="color: #374151; line-height: 1.8; white-space: pre-line;">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i>
+                Salvar Informações
+            </button>
+            <a href="{{ url_for('admin_configuracoes') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- Dicas -->
+<div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">
+        <i class="fas fa-lightbulb"></i> Dicas
+    </h3>
+    <ul style="list-style: none; padding: 0; margin: 0;">
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Mantenha as informações de contato sempre atualizadas</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Forneça múltiplas formas de contato para facilitar a comunicação</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>O link do Google Maps ajuda as pessoas a encontrarem a paróquia facilmente</span>
+        </li>
+        <li style="padding: 0.5rem 0; display: flex; align-items: start; gap: 0.5rem;">
+            <i class="fas fa-check" style="margin-top: 0.25rem;"></i>
+            <span>Especifique os horários de atendimento da secretaria para evitar visitas desnecessárias</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Atualizar preview em tempo real
+    function updatePreview() {
+        // Telefones
+        const telefone = document.getElementById('telefone').value;
+        const telefone2 = document.getElementById('telefone_2').value;
+        const celular = document.getElementById('celular').value;
+
+        document.getElementById('preview-telefone').textContent = telefone || '-';
+
+        if (telefone2) {
+            document.getElementById('preview-telefone-2').textContent = telefone2;
+            document.getElementById('preview-telefone-2').style.display = 'block';
+        } else {
+            document.getElementById('preview-telefone-2').style.display = 'none';
+        }
+
+        if (celular) {
+            document.getElementById('preview-celular').textContent = 'WhatsApp: ' + celular;
+            document.getElementById('preview-celular').style.display = 'block';
+        } else {
+            document.getElementById('preview-celular').style.display = 'none';
+        }
+
+        // Emails
+        const email = document.getElementById('email').value;
+        const email2 = document.getElementById('email_2').value;
+
+        document.getElementById('preview-email').textContent = email || '-';
+
+        if (email2) {
+            document.getElementById('preview-email-2').textContent = email2;
+            document.getElementById('preview-email-2').style.display = 'block';
+        } else {
+            document.getElementById('preview-email-2').style.display = 'none';
+        }
+
+        // Endereço
+        const endereco = document.getElementById('endereco').value;
+        document.getElementById('preview-endereco').textContent = endereco || '-';
+
+        // Horário
+        const horario = document.getElementById('horario_secretaria').value;
+        if (horario) {
+            document.getElementById('preview-horario').textContent = horario;
+            document.getElementById('preview-horario-container').style.display = 'block';
+        } else {
+            document.getElementById('preview-horario-container').style.display = 'none';
+        }
+    }
+
+    // Adicionar listeners
+    document.getElementById('telefone').addEventListener('input', updatePreview);
+    document.getElementById('telefone_2').addEventListener('input', updatePreview);
+    document.getElementById('celular').addEventListener('input', updatePreview);
+    document.getElementById('email').addEventListener('input', updatePreview);
+    document.getElementById('email_2').addEventListener('input', updatePreview);
+    document.getElementById('endereco').addEventListener('input', updatePreview);
+    document.getElementById('horario_secretaria').addEventListener('input', updatePreview);
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', updatePreview);
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+════════════════════════════════════════════════════════════
+   🙏 SISTEMA IGREJA SÃO SEBASTIÃO - INFORMAÇÕES DE ACESSO
+════════════════════════════════════════════════════════════
+
+📍 ENDEREÇOS DE ACESSO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🌐 Site Público:
+   http://localhost:5000
+   http://127.0.0.1:5000
+
+🔐 Painel Administrativo:
+   http://localhost:5000/admin
+   http://127.0.0.1:5000/admin
+
+🔑 CREDENCIAIS DE ACESSO PADRÃO:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+   Usuário: admin
+   Senha:   admin123
+
+⚠️  IMPORTANTE: Mude a senha imediatamente!
+   Edite o arquivo .env e altere ADMIN_PASSWORD
+
+📋 PRIMEIROS PASSOS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. ✅ Fazer login no painel admin
+2. ✅ Ir em Configurações e atualizar:
+   - Nome da igreja
+   - Telefone
+   - Email
+   - Endereço
+   - Redes sociais
+
+3. ✅ Editar Informações:
+   - Sobre a Paróquia
+   - História
+   - Missão
+
+4. ✅ Atualizar Horários de Missas
+
+5. ✅ Adicionar Notícias e Eventos
+
+6. ✅ Adicionar Fotos na Galeria
+
+7. ✅ Fazer o PRIMEIRO BACKUP
+   (Botão no Dashboard)
+
+📚 DOCUMENTAÇÃO COMPLETA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📖 README.md         - Documentação completa do sistema
+📘 GUIA_RAPIDO.md    - Guia rápido de 3 minutos
+📄 .env.example      - Exemplo de configuração
+
+🎯 FUNCIONALIDADES DO PAINEL:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Dashboard com estatísticas
+✅ Gerenciar notícias e eventos
+✅ Gerenciar horários de missas
+✅ Editar informações da paróquia
+✅ Gerenciar galeria de fotos
+✅ Configurações gerais
+✅ Sistema de backup automático
+✅ Interface moderna e responsiva
+
+🔒 SEGURANÇA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  Nunca compartilhe suas credenciais
+⚠️  Faça backups regularmente
+⚠️  Use senhas fortes
+⚠️  Mantenha o arquivo .env seguro
+⚠️  Não commite o .env no git
+
+💾 BACKUPS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📁 Localização: /backups/
+📅 Recomendação: Semanal
+🔄 Como fazer: Botão "Fazer Backup" no Dashboard
+
+🆘 SUPORTE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ Problemas? Consulte a seção "Problemas Comuns" no README.md
+📧 Dúvidas? Entre em contato com o suporte técnico
+
+═══════════════════════════════════════════════════════════
+
+        ✨ Sistema em Fase de Testes (v2.0.0 Beta) ✨
+            Desenvolvido para Igreja São Sebastião
+                    Ponte Nova/MG
+
+═══════════════════════════════════════════════════════════
