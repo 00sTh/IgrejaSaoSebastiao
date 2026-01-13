@@ -1,0 +1,247 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Mensagens de Contato - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <div class="section-header">
+        <h1><i class="fas fa-envelope"></i> Mensagens de Contato</h1>
+        <span class="badge">{{ mensagens|length }} mensagem(ns)</span>
+        {% set nao_lidas = mensagens|selectattr('lida', 'equalto', 0)|list|length %}
+        {% if nao_lidas > 0 %}
+        <span class="badge badge-warning">{{ nao_lidas }} nova(s)</span>
+        {% endif %}
+    </div>
+
+    {% if mensagens %}
+    <div class="messages-grid">
+        {% for msg in mensagens %}
+        <div class="message-card {% if not msg.lida %}unread{% endif %}">
+            <div class="message-header">
+                <div class="sender-info">
+                    <strong>{{ msg.nome }}</strong>
+                    <a href="mailto:{{ msg.email }}">{{ msg.email }}</a>
+                </div>
+                <div class="message-date">
+                    {{ msg.data_criacao[:16] if msg.data_criacao else '' }}
+                    {% if not msg.lida %}
+                    <span class="new-badge">Nova</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="message-body">
+                {{ msg.mensagem }}
+            </div>
+            <div class="message-actions">
+                <a href="mailto:{{ msg.email }}?subject=Re: Contato Igreja São Sebastião" class="btn btn-primary btn-sm">
+                    <i class="fas fa-reply"></i> Responder
+                </a>
+                {% if not msg.lida %}
+                <form action="{{ url_for('admin_mensagem_lida', mensagem_id=msg.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-check"></i> Marcar como lida
+                    </button>
+                </form>
+                {% endif %}
+                <form action="{{ url_for('admin_mensagem_delete', mensagem_id=msg.id) }}" method="POST"
+                      onsubmit="return confirm('Deletar esta mensagem?');" style="display: inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <h3>Nenhuma mensagem ainda</h3>
+        <p>Quando alguém enviar uma mensagem pelo site, aparecerá aqui.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.admin-section {
+    padding: 20px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.section-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.badge {
+    background: #3B5F6C;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+}
+
+.badge-warning {
+    background: #ffc107;
+    color: #333;
+}
+
+.messages-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.message-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border-left: 4px solid #ddd;
+}
+
+.message-card.unread {
+    border-left-color: #3B5F6C;
+    background: #f8fbfc;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sender-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sender-info strong {
+    font-size: 1.1rem;
+}
+
+.sender-info a {
+    color: #3B5F6C;
+    font-size: 0.9rem;
+}
+
+.message-date {
+    color: #666;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.new-badge {
+    background: #3B5F6C;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.message-body {
+    color: #333;
+    line-height: 1.6;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+}
+
+.message-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    background: #3B5F6C;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2d4a55;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 600px) {
+    .message-header {
+        flex-direction: column;
+    }
+
+    .message-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

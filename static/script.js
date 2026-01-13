@@ -53,53 +53,116 @@ document.addEventListener('DOMContentLoaded', () => {
         currentYearSpan.textContent = new Date().getFullYear();
     }
 
-    // 4. Lógica para o formulário de Agendamento de Confissão (simulado)
+    // 4. Lógica para o formulário de Agendamento de Confissão
     const confessionForm = document.getElementById('confessionForm');
     const formMessage = document.getElementById('formMessage');
 
     if (confessionForm && formMessage) {
-        confessionForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // Impede o envio padrão do formulário
+        confessionForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-            // Aqui você faria o envio dos dados para um backend (API, email, etc.)
-            // Por enquanto, vamos apenas simular um sucesso/erro.
+            const submitBtn = confessionForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Enviando...';
+            submitBtn.disabled = true;
 
-            // Simulação de envio (pode ser substituído por uma requisição AJAX/Fetch real)
-            setTimeout(() => {
-                const success = Math.random() > 0.1; // 90% de chance de sucesso para o exemplo
+            try {
+                const formData = new FormData(confessionForm);
+                const data = Object.fromEntries(formData.entries());
 
-                if (success) {
-                    formMessage.textContent = 'Sua solicitação de agendamento foi enviada com sucesso! Em breve, nossa secretaria entrará em contato para confirmar.';
+                const response = await fetch('/api/agendar-confissao', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    formMessage.textContent = result.message;
                     formMessage.className = 'form-message success';
-                    confessionForm.reset(); // Limpa o formulário
+                    confessionForm.reset();
                 } else {
-                    formMessage.textContent = 'Ocorreu um erro ao enviar sua solicitação. Por favor, tente novamente mais tarde.';
+                    formMessage.textContent = result.message;
                     formMessage.className = 'form-message error';
                 }
-                formMessage.style.display = 'block';
 
-                // Esconde a mensagem após alguns segundos
+                formMessage.style.display = 'block';
                 setTimeout(() => {
                     formMessage.style.display = 'none';
-                }, 7000); // Mensagem visível por 7 segundos
+                }, 7000);
 
-            }, 1000); // Simula um atraso de 1 segundo para o "envio"
+            } catch (error) {
+                formMessage.textContent = 'Erro ao enviar. Verifique sua conexão e tente novamente.';
+                formMessage.className = 'form-message error';
+                formMessage.style.display = 'block';
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 
-    // 5. Lógica para o formulário de Contato genérico (simulado)
+    // 5. Lógica para o formulário de Contato
     const simpleContactForm = document.querySelector('.simple-contact-form');
-    // Você pode adicionar uma div de mensagem para este formulário também, se desejar
-    // const contactFormMessage = document.getElementById('contactFormMessage');
 
     if (simpleContactForm) {
-        simpleContactForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // Impede o envio padrão do formulário
+        // Criar div de mensagem se não existir
+        let contactMessage = simpleContactForm.querySelector('.contact-form-message');
+        if (!contactMessage) {
+            contactMessage = document.createElement('div');
+            contactMessage.className = 'contact-form-message';
+            contactMessage.style.display = 'none';
+            simpleContactForm.appendChild(contactMessage);
+        }
 
-            // Similar ao formulário de confissão, aqui seria a lógica de backend
-            alert('Mensagem enviada! Em breve entraremos em contato.'); // Alerta simples para demonstração
-            simpleContactForm.reset();
-            // Se você adicionar uma div de mensagem, pode mostrá-la aqui
+        simpleContactForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const submitBtn = simpleContactForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Enviando...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData(simpleContactForm);
+                const data = Object.fromEntries(formData.entries());
+
+                const response = await fetch('/api/enviar-mensagem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    contactMessage.textContent = result.message;
+                    contactMessage.className = 'contact-form-message success';
+                    contactMessage.style.cssText = 'display: block; padding: 12px; margin-top: 15px; border-radius: 6px; background: #d4edda; color: #155724;';
+                    simpleContactForm.reset();
+                } else {
+                    contactMessage.textContent = result.message;
+                    contactMessage.className = 'contact-form-message error';
+                    contactMessage.style.cssText = 'display: block; padding: 12px; margin-top: 15px; border-radius: 6px; background: #f8d7da; color: #721c24;';
+                }
+
+                setTimeout(() => {
+                    contactMessage.style.display = 'none';
+                }, 7000);
+
+            } catch (error) {
+                contactMessage.textContent = 'Erro ao enviar. Tente novamente.';
+                contactMessage.className = 'contact-form-message error';
+                contactMessage.style.cssText = 'display: block; padding: 12px; margin-top: 15px; border-radius: 6px; background: #f8d7da; color: #721c24;';
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
         });
     }
 });

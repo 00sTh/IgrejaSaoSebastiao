@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia do Administrador - Igreja Sao Sebastiao</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #3B5F6C;
+            border-bottom: 3px solid #3B5F6C;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3B5F6C;
+            margin: 30px 0 15px;
+            padding-left: 10px;
+            border-left: 4px solid #3B5F6C;
+        }
+        h3 {
+            color: #555;
+            margin: 20px 0 10px;
+        }
+        p, li {
+            margin-bottom: 10px;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 20px;
+        }
+        .highlight {
+            background: #e8f4f8;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #3B5F6C;
+        }
+        .warning {
+            background: #fff3cd;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .success {
+            background: #d4edda;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #c7254e;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            counter-increment: step;
+        }
+        .step::before {
+            content: "Passo " counter(step);
+            display: block;
+            font-weight: bold;
+            color: #3B5F6C;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #3B5F6C;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3B5F6C;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .print-btn:hover {
+            background: #2d4a55;
+        }
+        @media print {
+            .print-btn { display: none; }
+            body { background: white; }
+            .container { box-shadow: none; }
+        }
+        .toc {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 {
+            margin-top: 0;
+        }
+        .toc ul {
+            list-style: none;
+            margin-left: 0;
+        }
+        .toc a {
+            color: #3B5F6C;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <button class="print-btn" onclick="window.print()">Imprimir Guia</button>
+
+    <div class="container">
+        <h1>Guia do Administrador<br><small style="font-size: 0.5em; color: #666;">Site Igreja Sao Sebastiao</small></h1>
+
+        <div class="toc">
+            <h3>Indice</h3>
+            <ul>
+                <li><a href="#acesso">1. Como Acessar o Painel</a></li>
+                <li><a href="#noticias">2. Gerenciar Noticias e Eventos</a></li>
+                <li><a href="#horarios">3. Atualizar Horarios de Missas</a></li>
+                <li><a href="#galeria">4. Adicionar Fotos na Galeria</a></li>
+                <li><a href="#conteudo">5. Editar Textos do Site</a></li>
+                <li><a href="#agendamentos">6. Ver Agendamentos de Confissao</a></li>
+                <li><a href="#mensagens">7. Ler Mensagens de Contato</a></li>
+                <li><a href="#senha">8. Trocar a Senha</a></li>
+                <li><a href="#dicas">9. Dicas Importantes</a></li>
+            </ul>
+        </div>
+
+        <h2 id="acesso">1. Como Acessar o Painel de Administracao</h2>
+
+        <div class="step">
+            Abra o navegador (Chrome, Firefox, etc.) e digite o endereco do site seguido de <code>/admin</code>
+            <br><br>
+            Exemplo: <code>https://www.seusite.com.br/admin</code>
+        </div>
+
+        <div class="step">
+            Digite seu usuario e senha para entrar.
+        </div>
+
+        <div class="warning">
+            <strong>Importante:</strong> Nunca compartilhe sua senha. Se precisar dar acesso a outra pessoa, crie um novo usuario.
+        </div>
+
+        <h2 id="noticias">2. Gerenciar Noticias e Eventos</h2>
+
+        <p>No menu lateral, clique em <strong>"Noticias e Eventos"</strong>.</p>
+
+        <h3>Para criar uma nova noticia:</h3>
+        <ol>
+            <li>Clique no botao <strong>"Nova Noticia"</strong></li>
+            <li>Preencha o titulo (obrigatorio)</li>
+            <li>Escreva o conteudo da noticia</li>
+            <li>Adicione uma imagem se desejar (opcional)</li>
+            <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+
+        <h3>Para editar uma noticia existente:</h3>
+        <ol>
+            <li>Encontre a noticia na lista</li>
+            <li>Clique no botao de <strong>editar</strong> (icone de lapis)</li>
+            <li>Faca as alteracoes necessarias</li>
+            <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+
+        <h2 id="horarios">3. Atualizar Horarios de Missas</h2>
+
+        <p>No menu, clique em <strong>"Horarios de Missas"</strong>.</p>
+
+        <div class="highlight">
+            <strong>Dica:</strong> Os horarios aparecem automaticamente no site na secao "Horarios Importantes".
+        </div>
+
+        <h3>Para adicionar um novo horario:</h3>
+        <ol>
+            <li>Clique em <strong>"Novo Horario"</strong></li>
+            <li>Selecione o dia da semana</li>
+            <li>Digite o horario (ex: 19:00)</li>
+            <li>Escolha o tipo (Missa, Missa Solene, etc.)</li>
+            <li>Marque como "Ativo" se quiser que apareca no site</li>
+            <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+
+        <h2 id="galeria">4. Adicionar Fotos na Galeria</h2>
+
+        <p>No menu, clique em <strong>"Galeria de Fotos"</strong>.</p>
+
+        <h3>Para adicionar uma nova foto:</h3>
+        <ol>
+            <li>Clique em <strong>"Nova Foto"</strong></li>
+            <li>Digite um titulo para a foto</li>
+            <li>Clique em <strong>"Escolher arquivo"</strong> e selecione a imagem do seu computador</li>
+            <li>Clique em <strong>"Salvar"</strong></li>
+        </ol>
+
+        <div class="warning">
+            <strong>Tamanho maximo:</strong> As imagens devem ter no maximo 10MB. Formatos aceitos: JPG, PNG, GIF, WebP.
+        </div>
+
+        <h2 id="conteudo">5. Editar Textos do Site</h2>
+
+        <p>No menu, clique em <strong>"Informacoes"</strong> ou use o <strong>CRUD > Informacoes da Paroquia</strong>.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Secao</th>
+                    <th>O que edita</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>hero_titulo</code></td>
+                    <td>Titulo principal do banner inicial</td>
+                </tr>
+                <tr>
+                    <td><code>hero_subtitulo</code></td>
+                    <td>Subtitulo do banner</td>
+                </tr>
+                <tr>
+                    <td><code>sobre_titulo</code></td>
+                    <td>Titulo da secao "Bem-vindo"</td>
+                </tr>
+                <tr>
+                    <td><code>sobre_texto</code></td>
+                    <td>Texto de boas-vindas</td>
+                </tr>
+                <tr>
+                    <td><code>secretaria_horarios</code></td>
+                    <td>Horario de funcionamento da secretaria</td>
+                </tr>
+                <tr>
+                    <td><code>secretaria_telefone</code></td>
+                    <td>Telefone da secretaria</td>
+                </tr>
+                <tr>
+                    <td><code>historia_texto</code></td>
+                    <td>Texto completo da historia da igreja</td>
+                </tr>
+                <tr>
+                    <td><code>localizacao_endereco</code></td>
+                    <td>Endereco completo</td>
+                </tr>
+                <tr>
+                    <td><code>localizacao_telefones</code></td>
+                    <td>Telefones para contato</td>
+                </tr>
+                <tr>
+                    <td><code>redes_facebook</code></td>
+                    <td>Link do Facebook</td>
+                </tr>
+                <tr>
+                    <td><code>redes_instagram</code></td>
+                    <td>Link do Instagram</td>
+                </tr>
+                <tr>
+                    <td><code>redes_whatsapp</code></td>
+                    <td>Link do WhatsApp</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="highlight">
+            <strong>Dica:</strong> Para horarios de confissao com multiplas linhas, separe com <code>|</code>
+            <br>Exemplo: <code>Terca a Sexta: 14h as 17h|Sabado: 9h as 12h</code>
+        </div>
+
+        <h2 id="agendamentos">6. Ver Agendamentos de Confissao</h2>
+
+        <p>No menu, clique em <strong>"Agendamentos"</strong>.</p>
+
+        <p>Aqui voce vera todas as solicitacoes de agendamento de confissao enviadas pelo site.</p>
+
+        <h3>Status disponiveis:</h3>
+        <ul>
+            <li><strong>Pendente:</strong> Aguardando confirmacao</li>
+            <li><strong>Confirmado:</strong> Agendamento confirmado com o fiel</li>
+            <li><strong>Realizado:</strong> Confissao ja realizada</li>
+            <li><strong>Cancelado:</strong> Agendamento cancelado</li>
+        </ul>
+
+        <div class="success">
+            <strong>Lembre-se:</strong> Entre em contato com a pessoa para confirmar o agendamento. O email e telefone estao disponiveis na lista.
+        </div>
+
+        <h2 id="mensagens">7. Ler Mensagens de Contato</h2>
+
+        <p>No menu, clique em <strong>"Mensagens"</strong>.</p>
+
+        <p>Aqui voce vera todas as mensagens enviadas pelo formulario de contato do site.</p>
+
+        <ul>
+            <li>Clique em <strong>"Responder"</strong> para abrir seu email e responder</li>
+            <li>Clique em <strong>"Marcar como lida"</strong> apos ler a mensagem</li>
+            <li>Mensagens novas aparecem com destaque</li>
+        </ul>
+
+        <h2 id="senha">8. Trocar a Senha</h2>
+
+        <div class="warning">
+            <strong>Importante:</strong> Troque a senha padrao assim que possivel!
+        </div>
+
+        <p>Para trocar a senha, acesse <strong>Configuracoes</strong> no menu e clique em <strong>"Alterar Senha"</strong>.</p>
+
+        <h3>Dicas para uma senha segura:</h3>
+        <ul>
+            <li>Use pelo menos 8 caracteres</li>
+            <li>Misture letras maiusculas e minusculas</li>
+            <li>Inclua numeros</li>
+            <li>Evite informacoes pessoais (datas, nomes)</li>
+        </ul>
+
+        <h2 id="dicas">9. Dicas Importantes</h2>
+
+        <div class="highlight">
+            <strong>Backup:</strong> O sistema faz backup automatico, mas e sempre bom ter uma copia extra. Na dashboard, clique em "Fazer Backup".
+        </div>
+
+        <h3>Boas praticas:</h3>
+        <ul>
+            <li>Mantenha o conteudo atualizado - fieis gostam de ver novidades</li>
+            <li>Use fotos de boa qualidade na galeria</li>
+            <li>Responda as mensagens em ate 48 horas</li>
+            <li>Confirme agendamentos de confissao o mais rapido possivel</li>
+            <li>Sempre faca logout ao terminar de usar o painel</li>
+        </ul>
+
+        <h3>Em caso de problemas:</h3>
+        <ul>
+            <li>Tente atualizar a pagina (F5)</li>
+            <li>Faca logout e entre novamente</li>
+            <li>Se o problema persistir, entre em contato com o suporte tecnico</li>
+        </ul>
+
+        <div class="success" style="margin-top: 40px; text-align: center;">
+            <strong>Pronto!</strong> Agora voce sabe usar o painel de administracao.
+            <br>Em caso de duvidas, consulte este guia novamente.
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #ddd;">
+
+        <p style="text-align: center; color: #666; font-size: 0.9em;">
+            Guia criado para Igreja Sao Sebastiao<br>
+            Versao 1.0 - Janeiro 2026
+        </p>
+    </div>
+</body>
+</html>

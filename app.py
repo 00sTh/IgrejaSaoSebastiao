@@ -114,6 +114,33 @@ def init_db():
         )
     ''')
 
+    # Tabela de agendamentos de confissão
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS agendamentos_confissao (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL,
+            telefone TEXT NOT NULL,
+            data_preferencial DATE NOT NULL,
+            hora_preferencial TIME NOT NULL,
+            observacoes TEXT,
+            status TEXT DEFAULT 'pendente',
+            data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # Tabela de mensagens de contato
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS mensagens_contato (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT NOT NULL,
+            mensagem TEXT NOT NULL,
+            lida INTEGER DEFAULT 0,
+            data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     # Inserir dados iniciais se não existirem
     insert_initial_data(conn)
 
@@ -823,6 +850,171 @@ def api_update_content():
             'message': 'Erro interno. Tente novamente.',
             'request_id': getattr(g, 'request_id', 'unknown')
         }), 500
+
+# ==================== ROTAS DE FORMULÁRIOS PÚBLICOS ====================
+
+@app.route('/api/agendar-confissao', methods=['POST'])
+def api_agendar_confissao():
+    """API para agendamento de confissão"""
+    try:
+        data = request.get_json() if request.is_json else request.form
+
+        nome = data.get('nome', '').strip()
+        email = data.get('email', '').strip()
+        telefone = data.get('telefone', '').strip()
+        data_pref = data.get('data', '').strip()
+        hora_pref = data.get('hora', '').strip()
+        observacoes = data.get('observacoes', '').strip()
+
+        # Validações
+        if not all([nome, email, telefone, data_pref, hora_pref]):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, preencha todos os campos obrigatórios.'
+            }), 400
+
+        # Salvar no banco
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO agendamentos_confissao
+            (nome, email, telefone, data_preferencial, hora_preferencial, observacoes)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (nome, email, telefone, data_pref, hora_pref, observacoes))
+        conn.commit()
+        conn.close()
+
+        log_request("Novo agendamento de confissão", nome=nome, data=data_pref)
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Solicitação de agendamento enviada com sucesso! Entraremos em contato para confirmar.'
+        })
+
+    except Exception as e:
+        log_error("Erro ao agendar confissão", exception=e)
+        return jsonify({
+            'status': 'error',
+            'message': 'Erro ao processar solicitação. Tente novamente.'
+        }), 500
+
+
+@app.route('/api/enviar-mensagem', methods=['POST'])
+def api_enviar_mensagem():
+    """API para envio de mensagem de contato"""
+    try:
+        data = request.get_json() if request.is_json else request.form
+
+        nome = data.get('nome', '').strip()
+        email = data.get('email', '').strip()
+        mensagem = data.get('mensagem', '').strip()
+
+        # Validações
+        if not all([nome, email, mensagem]):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, preencha todos os campos.'
+            }), 400
+
+        # Salvar no banco
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO mensagens_contato (nome, email, mensagem)
+            VALUES (?, ?, ?)
+        ''', (nome, email, mensagem))
+        conn.commit()
+        conn.close()
+
+        log_request("Nova mensagem de contato", nome=nome)
+
+        return jsonify({
+            'status': 'success',
+            'message': 'Mensagem enviada com sucesso! Responderemos em breve.'
+        })
+
+    except Exception as e:
+        log_error("Erro ao enviar mensagem", exception=e)
+        return jsonify({
+            'status': 'error',
+            'message': 'Erro ao enviar mensagem. Tente novamente.'
+        }), 500
+
+
+# ==================== ROTAS ADMIN PARA AGENDAMENTOS E MENSAGENS ====================
+
+@app.route('/admin/agendamentos')
+@login_required
+def admin_agendamentos():
+    """Lista agendamentos de confissão"""
+    conn = get_db_connection()
+    agendamentos = conn.execute('''
+        SELECT * FROM agendamentos_confissao
+        ORDER BY data_criacao DESC
+    ''').fetchall()
+    conn.close()
+    return render_template('admin_agendamentos.html', agendamentos=agendamentos)
+
+
+@app.route('/admin/agendamentos/<int:agendamento_id>/status', methods=['POST'])
+@login_required
+def admin_agendamento_status(agendamento_id):
+    """Atualizar status de agendamento"""
+    novo_status = request.form.get('status', 'pendente')
+    conn = get_db_connection()
+    conn.execute('UPDATE agendamentos_confissao SET status = ? WHERE id = ?',
+                (novo_status, agendamento_id))
+    conn.commit()
+    conn.close()
+    flash(f'Status atualizado para: {novo_status}', 'success')
+    return redirect(url_for('admin_agendamentos'))
+
+
+@app.route('/admin/agendamentos/<int:agendamento_id>/deletar', methods=['POST'])
+@login_required
+def admin_agendamento_delete(agendamento_id):
+    """Deletar agendamento"""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM agendamentos_confissao WHERE id = ?', (agendamento_id,))
+    conn.commit()
+    conn.close()
+    flash('Agendamento deletado.', 'success')
+    return redirect(url_for('admin_agendamentos'))
+
+
+@app.route('/admin/mensagens')
+@login_required
+def admin_mensagens():
+    """Lista mensagens de contato"""
+    conn = get_db_connection()
+    mensagens = conn.execute('''
+        SELECT * FROM mensagens_contato
+        ORDER BY data_criacao DESC
+    ''').fetchall()
+    conn.close()
+    return render_template('admin_mensagens.html', mensagens=mensagens)
+
+
+@app.route('/admin/mensagens/<int:mensagem_id>/lida', methods=['POST'])
+@login_required
+def admin_mensagem_lida(mensagem_id):
+    """Marcar mensagem como lida"""
+    conn = get_db_connection()
+    conn.execute('UPDATE mensagens_contato SET lida = 1 WHERE id = ?', (mensagem_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin_mensagens'))
+
+
+@app.route('/admin/mensagens/<int:mensagem_id>/deletar', methods=['POST'])
+@login_required
+def admin_mensagem_delete(mensagem_id):
+    """Deletar mensagem"""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM mensagens_contato WHERE id = ?', (mensagem_id,))
+    conn.commit()
+    conn.close()
+    flash('Mensagem deletada.', 'success')
+    return redirect(url_for('admin_mensagens'))
+
 
 # ==================== INICIALIZAÇÃO ====================
 
