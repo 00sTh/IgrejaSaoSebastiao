@@ -1,20 +1,35 @@
 """
 Sistema de Gerenciamento - Igreja São Sebastião
 Sistema completo com painel administrativo editável
+v2.0 - Com Middleware de Logging e Autenticação Segura
 """
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, flash, g
 import sqlite3
 import os
 from werkzeug.utils import secure_filename
-from werkzeug.security import generate_password_hash, check_password_hash
-from functools import wraps
 from datetime import datetime
 import shutil
 from config import Config
 
+# Importar middlewares
+from middleware.logger import AppLogger, log_request, log_error, log_action
+from middleware.auth import (
+    AuthManager, login_required, role_required, permission_required,
+    Permissions, RateLimiter
+)
+
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['DATABASE_PATH'] = Config.DATABASE_PATH
 app.secret_key = Config.SECRET_KEY
+
+# Inicializar middlewares
+AppLogger.setup(app)
+AuthManager.setup(app)
+
+# Inicializar CRUD Engine
+from core.routes import init_crud_routes
+init_crud_routes(app)
 
 # Configurações
 UPLOAD_FOLDER = Config.UPLOAD_FOLDER
@@ -102,6 +117,9 @@ def init_db():
     # Inserir dados iniciais se não existirem
     insert_initial_data(conn)
 
+    # Garantir que todas as seções existam (migração)
+    ensure_all_sections_exist(conn)
+
     conn.commit()
     conn.close()
     print("✅ Banco de dados inicializado com sucesso!")
@@ -129,10 +147,38 @@ def insert_initial_data(conn):
 
     # Inserir informações da paróquia padrão
     paroquia_default = [
-        ('hero', 'Igreja São Sebastião', 'Onde a Fé Encontra a Comunidade em Ponte Nova'),
-        ('sobre', 'Sobre a Paróquia', 'A Igreja São Sebastião é uma comunidade de fé dedicada a servir e acolher todos em Ponte Nova.'),
-        ('historia', 'Nossa História', 'Fundada em [ano], a Igreja São Sebastião tem uma rica história de serviço à comunidade.'),
-        ('missao', 'Nossa Missão', 'Levar a palavra de Deus e servir nossa comunidade com amor e dedicação.'),
+        ('hero_titulo', 'Igreja São Sebastião', 'Título principal do banner'),
+        ('hero_subtitulo', 'Onde a Fé Encontra a Comunidade em Ponte Nova', 'Subtítulo do banner'),
+        ('hero_botao', 'Ver Horários das Missas', 'Texto do botão do banner'),
+        ('sobre_titulo', 'Seja Bem-Vindo à Nossa Comunidade!', 'Título da seção Sobre'),
+        ('sobre_texto', 'A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade de Ponte Nova por décadas. Convidamos você a fazer parte de nossa família, a encontrar consolo na palavra e a fortalecer sua espiritualidade.', 'Texto da seção Sobre'),
+        ('horarios_titulo', 'Horários Importantes', 'Título da seção de horários'),
+        ('missas_titulo', 'Missas', 'Título do card de missas'),
+        ('confissoes_titulo', 'Confissões', 'Título do card de confissões'),
+        ('confissoes_horarios', 'Terça a Sexta: 14h às 17h|Sábado: 9h às 12h', 'Horários de confissão (separados por |)'),
+        ('secretaria_titulo', 'Secretaria', 'Título do card da secretaria'),
+        ('secretaria_horarios', 'Segunda a Sexta: 13h às 18h', 'Horário da secretaria'),
+        ('secretaria_telefone', '(31) 3295-1379', 'Telefone da secretaria'),
+        ('secretaria_email', 'contato@igrejasst.org', 'Email da secretaria'),
+        ('galeria_titulo', 'Nossa Igreja em Imagens', 'Título da seção galeria'),
+        ('historia_titulo', 'Nossa História e Legado', 'Título da seção história'),
+        ('historia_texto', '<p>Fundada em [Ano de Fundação], a Igreja São Sebastião tem uma rica história de serviço e evangelização. Desde sua construção, este santuário tem sido um ponto de encontro para gerações de fiéis, testemunhando momentos de alegria, consolo e renovação da fé.</p><p>Nossa paróquia cresceu junto com a cidade de Ponte Nova, adaptando-se aos desafios e celebrando as vitórias. Pessoas dedicadas, desde os primeiros padres até os voluntários de hoje, construíram um legado de amor e acolhimento que continua a inspirar.</p>', 'Texto da história'),
+        ('historia_marcos_titulo', 'Principais Marcos', 'Título dos marcos históricos'),
+        ('historia_marcos', '[Ano]: Fundação da paróquia|[Ano]: Início da construção da atual igreja|[Ano]: Inauguração e primeira missa solene|[Ano]: Lançamento de importantes projetos sociais', 'Marcos históricos (separados por |)'),
+        ('localizacao_titulo', 'Onde Nos Encontrar', 'Título da seção localização'),
+        ('localizacao_endereco', 'Praça Getúlio Vargas, 92 - Centro Histórico, Pte. Nova - MG, 35430-003', 'Endereço completo'),
+        ('localizacao_telefones', '(31) 98888-6796 / (31) 3881-1401', 'Telefones'),
+        ('localizacao_email', 'contato@igrejasst.org', 'Email'),
+        ('localizacao_mapa', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3739.1906006479735!2d-42.911577723851245!3d-20.41623625363568!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa497026b4d46e1%3A0x5d64af00395326ce!2sIgreja%20Matriz%20de%20S%C3%A3o%20Sebasti%C3%A3o%20-%20Ponte%20Nova!5e0!3m2!1spt-BR!2sbr!4v1757269101938!5m2!1spt-BR!2sbr', 'URL do mapa embed'),
+        ('confissao_titulo', 'Agendamento de Confissão com o Padre', 'Título do formulário de confissão'),
+        ('confissao_texto', '<p>O Sacramento da Confissão é um momento de graça e reconciliação com Deus e com a Igreja. Para facilitar seu acesso a este momento especial, oferecemos a possibilidade de agendamento online.</p><p><strong>Importante:</strong> Este formulário é para <strong>solicitação de agendamento</strong>. Nossa secretaria entrará em contato para <strong>confirmar</strong> a data e hora, bem como quaisquer detalhes necessários. Sua privacidade e o sigilo sacramental são garantidos.</p>', 'Texto informativo sobre confissão'),
+        ('contato_titulo', 'Entre em Contato', 'Título da seção contato'),
+        ('contato_subtitulo', 'Estamos Prontos para Ajudar', 'Subtítulo da seção contato'),
+        ('contato_texto', 'Tem dúvidas, sugestões ou precisa de mais informações? Fale conosco!', 'Texto da seção contato'),
+        ('rodape_texto', 'Igreja São Sebastião. Todos os direitos reservados.', 'Texto do rodapé'),
+        ('redes_facebook', '#', 'Link do Facebook'),
+        ('redes_instagram', '#', 'Link do Instagram'),
+        ('redes_whatsapp', '#', 'Link do WhatsApp'),
     ]
     for i, (secao, titulo, conteudo) in enumerate(paroquia_default):
         conn.execute('INSERT INTO paroquia_info (secao, titulo, conteudo, ordem) VALUES (?, ?, ?, ?)',
@@ -156,17 +202,53 @@ def insert_initial_data(conn):
     ]
     conn.executemany('INSERT INTO configuracoes (chave, valor, descricao) VALUES (?, ?, ?)', config_default)
 
-# ==================== DECORADORES ====================
+def ensure_all_sections_exist(conn):
+    """Garante que todas as seções necessárias existam no banco"""
+    required_sections = [
+        ('hero_titulo', 'Igreja São Sebastião', 'Título principal do banner'),
+        ('hero_subtitulo', 'Onde a Fé Encontra a Comunidade em Ponte Nova', 'Subtítulo do banner'),
+        ('hero_botao', 'Ver Horários das Missas', 'Texto do botão do banner'),
+        ('sobre_titulo', 'Seja Bem-Vindo à Nossa Comunidade!', 'Título da seção Sobre'),
+        ('sobre_texto', 'A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade de Ponte Nova por décadas.', 'Texto da seção Sobre'),
+        ('horarios_titulo', 'Horários Importantes', 'Título da seção de horários'),
+        ('missas_titulo', 'Missas', 'Título do card de missas'),
+        ('confissoes_titulo', 'Confissões', 'Título do card de confissões'),
+        ('confissoes_horarios', 'Terça a Sexta: 14h às 17h|Sábado: 9h às 12h', 'Horários de confissão'),
+        ('secretaria_titulo', 'Secretaria', 'Título do card da secretaria'),
+        ('secretaria_horarios', 'Segunda a Sexta: 13h às 18h', 'Horário da secretaria'),
+        ('secretaria_telefone', '(31) 3295-1379', 'Telefone da secretaria'),
+        ('secretaria_email', 'contato@igrejasst.org', 'Email da secretaria'),
+        ('galeria_titulo', 'Nossa Igreja em Imagens', 'Título da seção galeria'),
+        ('historia_titulo', 'Nossa História e Legado', 'Título da seção história'),
+        ('historia_texto', '<p>Fundada em [Ano], a Igreja São Sebastião tem uma rica história.</p>', 'Texto da história'),
+        ('historia_marcos_titulo', 'Principais Marcos', 'Título dos marcos históricos'),
+        ('historia_marcos', '[Ano]: Fundação da paróquia|[Ano]: Construção da igreja|[Ano]: Inauguração', 'Marcos históricos'),
+        ('localizacao_titulo', 'Onde Nos Encontrar', 'Título da seção localização'),
+        ('localizacao_endereco', 'Praça Getúlio Vargas, 92 - Centro, Ponte Nova - MG', 'Endereço'),
+        ('localizacao_telefones', '(31) 98888-6796 / (31) 3881-1401', 'Telefones'),
+        ('localizacao_email', 'contato@igrejasst.org', 'Email'),
+        ('localizacao_mapa', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3739.19!2d-42.91!3d-20.41!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa497026b4d46e1%3A0x5d64af00395326ce!2sIgreja%20Matriz%20de%20S%C3%A3o%20Sebasti%C3%A3o!5e0!3m2!1spt-BR!2sbr', 'URL do mapa'),
+        ('confissao_titulo', 'Agendamento de Confissão com o Padre', 'Título do formulário'),
+        ('confissao_texto', '<p>O Sacramento da Confissão é um momento de graça.</p>', 'Texto informativo'),
+        ('contato_titulo', 'Entre em Contato', 'Título da seção contato'),
+        ('contato_subtitulo', 'Estamos Prontos para Ajudar', 'Subtítulo'),
+        ('contato_texto', 'Tem dúvidas? Fale conosco!', 'Texto'),
+        ('rodape_texto', 'Igreja São Sebastião. Todos os direitos reservados.', 'Rodapé'),
+        ('redes_facebook', '#', 'Link do Facebook'),
+        ('redes_instagram', '#', 'Link do Instagram'),
+        ('redes_whatsapp', '#', 'Link do WhatsApp'),
+    ]
 
-def login_required(f):
-    """Decorator para proteger rotas que requerem autenticação"""
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            flash('Você precisa estar logado para acessar esta página.', 'error')
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated_function
+    for i, (secao, titulo, conteudo) in enumerate(required_sections):
+        existing = conn.execute('SELECT id FROM paroquia_info WHERE secao = ?', (secao,)).fetchone()
+        if not existing:
+            conn.execute('INSERT INTO paroquia_info (secao, titulo, conteudo, ordem) VALUES (?, ?, ?, ?)',
+                        (secao, titulo, conteudo, i))
+    conn.commit()
+
+# ==================== DECORADORES ====================
+# login_required, role_required e permission_required
+# são importados do middleware.auth
 
 # ==================== FUNÇÕES AUXILIARES ====================
 
@@ -174,11 +256,38 @@ def allowed_file(filename):
     """Verifica se o arquivo tem extensão permitida"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def save_uploaded_file(file, folder='uploads'):
-    """Salva arquivo enviado e retorna o caminho"""
-    if file and allowed_file(file.filename):
+def save_uploaded_file(file, folder='uploads', use_pipeline=True):
+    """
+    Salva arquivo enviado e retorna o caminho.
+
+    Args:
+        file: Arquivo do request
+        folder: Pasta destino (ignorado se use_pipeline=True)
+        use_pipeline: Se True, usa o MediaPipeline com resize automático
+
+    Returns:
+        URL do arquivo salvo (versão medium se pipeline, original caso contrário)
+    """
+    if not file or not file.filename:
+        return None
+
+    if use_pipeline:
+        # Usar o novo pipeline de mídia
+        try:
+            from core.media import process_upload, MediaValidationError
+            result = process_upload(file, convert_to_webp=True)
+            return result.primary_url  # Retorna URL da versão medium
+        except MediaValidationError as e:
+            log_error(f"Erro na validação de upload: {e}")
+            return None
+        except Exception as e:
+            log_error(f"Erro no pipeline de mídia", exception=e)
+            # Fallback para método antigo
+            pass
+
+    # Método antigo (fallback)
+    if allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # Adicionar timestamp para evitar conflitos
         timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
         name, ext = os.path.splitext(filename)
         filename = f"{name}_{timestamp}{ext}"
@@ -187,6 +296,7 @@ def save_uploaded_file(file, folder='uploads'):
         os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
         file.save(filepath)
         return url_for('static', filename=f'uploads/{filename}')
+
     return None
 
 def backup_database():
@@ -258,26 +368,48 @@ def index():
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin_login():
-    """Login do administrador"""
+    """Login do administrador - Com autenticação segura"""
+    # Se já está logado, redireciona
+    if session.get('logged_in'):
+        return redirect(url_for('admin_dashboard'))
+
+    error = None
+    remaining_attempts = None
+
     if request.method == 'POST':
-        username = request.form.get('username', '')
+        username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
+        ip_address = request.remote_addr
 
-        if username == Config.ADMIN_USERNAME and password == Config.ADMIN_PASSWORD:
-            session['logged_in'] = True
-            session['username'] = username
-            flash('Login realizado com sucesso!', 'success')
-            return redirect(url_for('admin_dashboard'))
+        # Verificar rate limiting
+        if RateLimiter.is_blocked(ip_address):
+            error = 'Muitas tentativas. Aguarde 15 minutos.'
+            log_request("Login bloqueado - rate limit", level='warning', ip=ip_address)
         else:
-            flash('Usuário ou senha incorretos.', 'error')
-            return render_template('admin_login.html', error='Usuário ou senha incorretos.')
+            # Autenticar com o novo sistema
+            success, user, auth_error = AuthManager.authenticate(
+                username, password, ip_address
+            )
 
-    return render_template('admin_login.html')
+            if success and user:
+                AuthManager.create_session(user)
+                AuthManager.audit_log('login', 'user', user['id'])
+                flash('Login realizado com sucesso!', 'success')
+                return redirect(url_for('admin_dashboard'))
+            else:
+                error = auth_error or 'Usuário ou senha incorretos.'
+                remaining_attempts = RateLimiter.get_remaining_attempts(ip_address)
+
+    return render_template('admin_login.html',
+                          error=error,
+                          remaining_attempts=remaining_attempts)
 
 @app.route('/logout')
 def logout():
     """Logout do administrador"""
-    session.clear()
+    if session.get('user_id'):
+        AuthManager.audit_log('logout', 'user', session.get('user_id'))
+    AuthManager.logout()
     flash('Logout realizado com sucesso!', 'success')
     return redirect(url_for('index'))
 
@@ -616,28 +748,81 @@ def admin_backup():
 
 @app.route('/api/update_content', methods=['POST'])
 @login_required
+@permission_required(Permissions.NOTICIAS_UPDATE)
 def api_update_content():
-    """API para atualização de conteúdo inline"""
+    """API para atualização de conteúdo inline - SEGURA"""
     data = request.get_json()
+
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Dados inválidos'}), 400
+
     post_id = data.get('id')
     field = data.get('field')
     new_value = data.get('value')
 
-    if not all([post_id, field, new_value]):
+    if not all([post_id, field, new_value is not None]):
         return jsonify({'status': 'error', 'message': 'Dados incompletos'}), 400
 
-    if field not in ['titulo', 'conteudo', 'subtitulo']:
+    # WHITELIST de campos permitidos (previne SQL injection)
+    ALLOWED_FIELDS = {
+        'titulo': 'titulo',
+        'conteudo': 'conteudo',
+        'subtitulo': 'subtitulo'
+    }
+
+    if field not in ALLOWED_FIELDS:
+        log_request("Tentativa de atualizar campo inválido", level='warning', field=field)
         return jsonify({'status': 'error', 'message': 'Campo inválido'}), 400
+
+    # Validar que post_id é inteiro
+    try:
+        post_id = int(post_id)
+    except (ValueError, TypeError):
+        return jsonify({'status': 'error', 'message': 'ID inválido'}), 400
 
     try:
         conn = get_db_connection()
-        query = f"UPDATE noticias SET {field} = ? WHERE id = ?"
-        conn.execute(query, (new_value, post_id))
+
+        # Buscar valor antigo para auditoria
+        old_record = conn.execute(
+            'SELECT * FROM noticias WHERE id = ?', (post_id,)
+        ).fetchone()
+
+        if not old_record:
+            conn.close()
+            return jsonify({'status': 'error', 'message': 'Registro não encontrado'}), 404
+
+        old_value = old_record[field]
+
+        # Query segura usando o nome da coluna do whitelist
+        safe_field = ALLOWED_FIELDS[field]
+        conn.execute(
+            f'UPDATE noticias SET {safe_field} = ? WHERE id = ?',
+            (new_value, post_id)
+        )
         conn.commit()
         conn.close()
+
+        # Registrar auditoria
+        AuthManager.audit_log(
+            action='update_inline',
+            entity_type='noticias',
+            entity_id=post_id,
+            old_value={field: old_value},
+            new_value={field: new_value}
+        )
+
+        log_request(f"Conteúdo atualizado via API", noticia_id=post_id, field=field)
         return jsonify({'status': 'success', 'message': f'Campo {field} atualizado'})
+
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        log_error("Erro ao atualizar conteúdo via API", exception=e, post_id=post_id)
+        # NÃO expor detalhes do erro ao cliente
+        return jsonify({
+            'status': 'error',
+            'message': 'Erro interno. Tente novamente.',
+            'request_id': getattr(g, 'request_id', 'unknown')
+        }), 500
 
 # ==================== INICIALIZAÇÃO ====================
 

@@ -1,0 +1,396 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ schema.display_name_plural }} - Admin{% endblock %}
+
+{% block content %}
+<div class="crud-list">
+    <!-- Header -->
+    <div class="crud-header">
+        <div class="crud-title">
+            <i class="{{ schema.icon }}"></i>
+            <h1>{{ schema.display_name_plural }}</h1>
+            <span class="badge">{{ pagination.total }} registro(s)</span>
+        </div>
+        {% if can_create %}
+        <a href="{{ url_for('crud.crud_create', entity_name=entity_name) }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Novo {{ schema.display_name }}
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filtros e Busca -->
+    <div class="crud-filters">
+        <form method="GET" class="filter-form">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" name="search" value="{{ search }}"
+                       placeholder="Buscar em {{ schema.search_fields | join(', ') }}...">
+            </div>
+
+            {% for field in filter_fields %}
+            <div class="filter-select">
+                <label>{{ field.label }}:</label>
+                <select name="filter_{{ field.name }}" onchange="this.form.submit()">
+                    <option value="all">Todos</option>
+                    {% for option in field.options %}
+                    <option value="{{ option.value }}"
+                            {{ 'selected' if current_filters.get(field.name) == option.value }}>
+                        {{ option.label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-secondary">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+
+            {% if search or current_filters %}
+            <a href="{{ url_for('crud.crud_list', entity_name=entity_name) }}" class="btn btn-outline">
+                <i class="fas fa-times"></i> Limpar
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Tabela -->
+    <div class="crud-table-container">
+        <table class="crud-table">
+            <thead>
+                <tr>
+                    {% for col in columns %}
+                    <th style="width: {{ col.column_width }}">{{ col.label }}</th>
+                    {% endfor %}
+                    <th style="width: 120px">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if pagination['items'] %}
+                    {% for item in pagination['items'] %}
+                    <tr>
+                        {% for col in columns %}
+                        <td>
+                            {% if col.field_type.value == 'image' %}
+                                {% if item[col.name] %}
+                                <img src="{{ item[col.name] }}" alt="" class="thumb">
+                                {% else %}
+                                <span class="no-image">Sem imagem</span>
+                                {% endif %}
+                            {% elif col.field_type.value == 'checkbox' %}
+                                {% if item[col.name] %}
+                                <span class="badge badge-success">Sim</span>
+                                {% else %}
+                                <span class="badge badge-danger">Não</span>
+                                {% endif %}
+                            {% elif col.field_type.value == 'datetime' %}
+                                {{ item[col.name][:16] if item[col.name] else '-' }}
+                            {% elif col.field_type.value == 'richtext' %}
+                                {{ item[col.name][:100] | striptags }}...
+                            {% else %}
+                                {{ item[col.name] or '-' }}
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                        <td class="actions">
+                            {% if can_update %}
+                            <a href="{{ url_for('crud.crud_edit', entity_name=entity_name, entity_id=item[schema.primary_key]) }}"
+                               class="btn-icon" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                            {% if can_delete %}
+                            <form method="POST"
+                                  action="{{ url_for('crud.crud_delete', entity_name=entity_name, entity_id=item[schema.primary_key]) }}"
+                                  class="delete-form"
+                                  onsubmit="return confirm('Tem certeza que deseja excluir este registro?')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn-icon btn-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="{{ columns | length + 1 }}" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Nenhum registro encontrado</p>
+                        {% if can_create %}
+                        <a href="{{ url_for('crud.crud_create', entity_name=entity_name) }}" class="btn btn-primary">
+                            Criar primeiro {{ schema.display_name | lower }}
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginação -->
+    {% if pagination.pages > 1 %}
+    <div class="crud-pagination">
+        <div class="pagination-info">
+            Mostrando {{ ((pagination.page - 1) * pagination.per_page) + 1 }} -
+            {{ [pagination.page * pagination.per_page, pagination.total] | min }}
+            de {{ pagination.total }}
+        </div>
+        <div class="pagination-links">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('crud.crud_list', entity_name=entity_name, page=pagination.page - 1, search=search, **current_filters) }}"
+               class="btn btn-sm">&laquo; Anterior</a>
+            {% endif %}
+
+            {% for p in range(1, pagination.pages + 1) %}
+                {% if p == pagination.page %}
+                <span class="btn btn-sm btn-primary">{{ p }}</span>
+                {% elif p == 1 or p == pagination.pages or (p >= pagination.page - 2 and p <= pagination.page + 2) %}
+                <a href="{{ url_for('crud.crud_list', entity_name=entity_name, page=p, search=search, **current_filters) }}"
+                   class="btn btn-sm">{{ p }}</a>
+                {% elif p == pagination.page - 3 or p == pagination.page + 3 %}
+                <span class="btn btn-sm disabled">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.has_next %}
+            <a href="{{ url_for('crud.crud_list', entity_name=entity_name, page=pagination.page + 1, search=search, **current_filters) }}"
+               class="btn btn-sm">Próximo &raquo;</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.crud-list {
+    padding: 20px;
+}
+
+.crud-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.crud-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.crud-title i {
+    font-size: 1.5rem;
+    color: var(--primary-color, #3B5F6C);
+}
+
+.crud-title h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.crud-title .badge {
+    background: #e0e0e0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.crud-filters {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+.search-box {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 12px 10px 38px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.filter-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-select label {
+    font-size: 0.9rem;
+    color: #666;
+    white-space: nowrap;
+}
+
+.filter-select select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-width: 120px;
+}
+
+.crud-table-container {
+    overflow-x: auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.crud-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.crud-table th {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: #666;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.crud-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.crud-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.crud-table .thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.crud-table .no-image {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.crud-table .actions {
+    display: flex;
+    gap: 8px;
+}
+
+.crud-table .delete-form {
+    display: inline;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    background: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: #3B5F6C;
+    color: white;
+}
+
+.btn-icon.btn-danger:hover {
+    background: #dc3545;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.badge-danger {
+    background: #dc3545;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px !important;
+    color: #999;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+}
+
+.crud-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.pagination-links {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.btn-sm.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+</style>
+{% endblock %}

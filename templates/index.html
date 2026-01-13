@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<body>
-    <input type="hidden" id="isAdmin" value="{{ 'true' if is_admin else 'false' }}">
-    ...
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Igreja São Sebastião - Onde a Fé Encontra a Comunidade</title>
-    <!-- Link para o Google Fonts - Fontes sugeridas: Playfair Display (serif) e Open Sans (sans-serif) -->
+    <title>{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }} - Onde a Fé Encontra a Comunidade</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-    <!-- Link para Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Link para seu arquivo CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <input type="hidden" id="isAdmin" value="{{ 'true' if is_admin else 'false' }}">
 
     <!-- CABEÇALHO -->
     <header class="main-header" id="mainHeader">
         <div class="container">
             <div class="logo">
-                <!-- Substitua pelo logo da sua igreja -->
                 <a href="#"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Igreja São Sebastião"></a>
             </div>
             <nav class="main-nav">
@@ -45,18 +39,18 @@
     <section id="hero" class="hero-section">
         <div class="hero-overlay"></div>
         <div class="container">
-            <h1>Igreja São Sebastião</h1>
-            <p class="hero-subtitle">Onde a Fé Encontra a Comunidade em Ponte Nova</p>
-            <a href="#missas-horarios" class="btn btn-secondary hero-cta">Ver Horários das Missas</a>
+            <h1>{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }}</h1>
+            <p class="hero-subtitle">{{ info_paroquia.get('hero_subtitulo', {}).get('titulo', 'Onde a Fé Encontra a Comunidade em Ponte Nova') }}</p>
+            <a href="#missas-horarios" class="btn btn-secondary hero-cta">{{ info_paroquia.get('hero_botao', {}).get('titulo', 'Ver Horários das Missas') }}</a>
         </div>
     </section>
 
-    <!-- SEÇÃO DE A PARÓQUIA (Um breve resumo ou convite) -->
+    <!-- SEÇÃO DE A PARÓQUIA -->
     <section id="a-paroquia" class="about-section section-padding">
         <div class="container">
             <div class="about-content">
-                <h2>Seja Bem-Vindo à Nossa Comunidade!</h2>
-                <p>A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade de Ponte Nova por décadas. Convidamos você a fazer parte de nossa família, a encontrar consolo na palavra e a fortalecer sua espiritualidade.</p>
+                <h2>{{ info_paroquia.get('sobre_titulo', {}).get('titulo', 'Seja Bem-Vindo à Nossa Comunidade!') }}</h2>
+                <p>{{ info_paroquia.get('sobre_texto', {}).get('titulo', 'A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade.') }}</p>
                 <a href="#historia" class="btn btn-outline">Saiba Mais Sobre Nós</a>
             </div>
             <div class="about-image">
@@ -68,111 +62,89 @@
     <!-- SEÇÃO DE HORÁRIOS (Missas, Confissões, Secretaria) -->
     <section id="missas-horarios" class="hours-section section-padding bg-light">
         <div class="container">
-            <h2>Horários Importantes</h2>
+            <h2>{{ info_paroquia.get('horarios_titulo', {}).get('titulo', 'Horários Importantes') }}</h2>
             <div class="hours-grid">
+                <!-- Card Missas -->
                 <div class="hour-card">
                     <i class="fas fa-church icon-lg"></i>
-                    <h3>Missas</h3>
+                    <h3>{{ info_paroquia.get('missas_titulo', {}).get('titulo', 'Missas') }}</h3>
                     <ul>
-                        <li><i class="fas fa-calendar-alt"></i> Segunda a Sexta: 7h, 12h30, 18h30</li>
-                        <li><i class="fas fa-calendar-alt"></i> Sábado: 7h, 18h30</li>
-                        <li><i class="fas fa-calendar-alt"></i> Domingo: 7h, 9h, 11h, 19h</li>
+                        {% for horario in horarios %}
+                        {% if horario.tipo == 'Missa' or horario.tipo == 'Missa Solene' %}
+                        <li><i class="fas fa-calendar-alt"></i> {{ horario.dia_semana }}: {{ horario.horario }}</li>
+                        {% endif %}
+                        {% endfor %}
+                        {% if not horarios %}
+                        <li><i class="fas fa-info-circle"></i> Horários em breve</li>
+                        {% endif %}
                     </ul>
                 </div>
+
+                <!-- Card Confissões -->
                 <div class="hour-card">
                     <i class="fas fa-cross icon-lg"></i>
-                    <h3>Confissões</h3>
+                    <h3>{{ info_paroquia.get('confissoes_titulo', {}).get('titulo', 'Confissões') }}</h3>
                     <ul>
-                        <li><i class="fas fa-calendar-alt"></i> Terça a Sexta: 14h às 17h</li>
-                        <li><i class="fas fa-calendar-alt"></i> Sábado: 9h às 12h</li>
+                        {% set confissoes_horarios = info_paroquia.get('confissoes_horarios', {}).get('titulo', 'Terça a Sexta: 14h às 17h|Sábado: 9h às 12h') %}
+                        {% for item in confissoes_horarios.split('|') %}
+                        <li><i class="fas fa-calendar-alt"></i> {{ item }}</li>
+                        {% endfor %}
                         <li><i class="fas fa-info-circle"></i> Ou <a href="#agendamento-confissao">agende online</a></li>
                     </ul>
                 </div>
+
+                <!-- Card Secretaria -->
                 <div class="hour-card">
                     <i class="fas fa-users icon-lg"></i>
-                    <h3>Secretaria</h3>
+                    <h3>{{ info_paroquia.get('secretaria_titulo', {}).get('titulo', 'Secretaria') }}</h3>
                     <ul>
-                        <li><i class="fas fa-calendar-alt"></i> Segunda a Sexta: 13h às 18h</li>
-                        <li><i class="fas fa-phone-alt"></i> (31) 3295-1379</li>
-                        <li><i class="fas fa-envelope"></i> contato@igrejasst.org</li>
+                        <li><i class="fas fa-calendar-alt"></i> {{ info_paroquia.get('secretaria_horarios', {}).get('titulo', 'Segunda a Sexta: 13h às 18h') }}</li>
+                        <li><i class="fas fa-phone-alt"></i> {{ info_paroquia.get('secretaria_telefone', {}).get('titulo', '(31) 3295-1379') }}</li>
+                        <li><i class="fas fa-envelope"></i> {{ info_paroquia.get('secretaria_email', {}).get('titulo', 'contato@igrejasst.org') }}</li>
                     </ul>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- SEÇÃO EVENTOS E AVISOS (Card-based) -->
+    <!-- SEÇÃO EVENTOS E AVISOS -->
     <section id="eventos-avisos" class="events-section section-padding">
-        <div class="container"> 
+        <div class="container">
             <h2>Próximos Eventos e Avisos</h2>
             <div class="events-grid">
-                
-               {% for noticia in noticias %}
-<div class="event-card">
-    
-    {% if noticia.imagem_url %}
-        <div class="card-image">
-            <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}">
-        </div>
-    {% endif %}
-
-    <div class="card-content">
-        <h3 
-            id="titulo-{{ noticia.id }}" 
-            data-id="{{ noticia.id }}"
-            data-field="titulo"
-            class="editable-text">
-            {{ noticia.titulo }}
-        </h3>
-
-        {% if noticia.subtitulo %}
-        <p class="event-subtitulo editable-text" 
-            id="subtitulo-{{ noticia.id }}" 
-            data-id="{{ noticia.id }}"
-            data-field="subtitulo">
-            {{ noticia.subtitulo }}
-        </p>
-        {% endif %}
-
-        <div class="event-content-text editable-text"
-            id="conteudo-{{ noticia.id }}" 
-            data-id="{{ noticia.id }}"
-            data-field="conteudo">
-            {{ noticia.conteudo | safe }} </div>
-
-        <span class="event-date">Publicado em: {{ noticia.data_criacao }}</span>
-
-        {% if is_admin %}
-            <a href="{{ url_for('admin_edit', post_id=noticia['id']) }}" class="btn btn-admin-edit">
-                <i class="fas fa-edit"></i> Editar no Painel
-            </a>
-        {% endif %}
-
-    </div>
-</div>
-{% endfor %}
-                </div>
-        </div> </section>
-                <!-- Card 2: Inscrições Acólitos e Coroinhas -->
+                {% for noticia in noticias %}
                 <div class="event-card">
-                    <img src="https://via.placeholder.com/400x250/C7B094/4A2C3E?text=Acolitos+Coroinhas" alt="Imagem Acólitos e Coroinhas">
+                    {% if noticia.imagem_url %}
+                    <div class="card-image">
+                        <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}">
+                    </div>
+                    {% endif %}
+
                     <div class="card-content">
-                        <h3>Inscrições Abertas para Acólitos e Coroinhas!</h3>
-                        <p class="event-date"><i class="fas fa-calendar-alt"></i> Até 12 de Setembro</p>
-                        <p>Meninos e meninas a partir de 6 anos (coroinhas) e rapazes a partir de 15 anos (acólitos). Faça parte!</p>
-                        <a href="#" class="btn btn-link">Inscreva-se <i class="fas fa-arrow-right"></i></a>
+                        <h3>{{ noticia.titulo }}</h3>
+                        {% if noticia.subtitulo %}
+                        <p class="event-subtitulo">{{ noticia.subtitulo }}</p>
+                        {% endif %}
+                        <div class="event-content-text">{{ noticia.conteudo | safe }}</div>
+                        <span class="event-date">Publicado em: {{ noticia.data_criacao[:10] if noticia.data_criacao else '' }}</span>
+
+                        {% if is_admin %}
+                        <a href="{{ url_for('admin_noticia_edit', post_id=noticia['id']) }}" class="btn btn-admin-edit">
+                            <i class="fas fa-edit"></i> Editar no Painel
+                        </a>
+                        {% endif %}
                     </div>
                 </div>
-                <!-- Card 3: Novo Horário de Missa -->
+                {% endfor %}
+
+                {% if not noticias %}
                 <div class="event-card">
-                    <img src="https://via.placeholder.com/400x250/8B7E5E/F8F4E3?text=Novo+Horario" alt="Imagem Novo Horário de Missa">
                     <div class="card-content">
-                        <h3>Comunicado: Novo Horário de Missa</h3>
-                        <p class="event-date"><i class="fas fa-calendar-alt"></i> A partir de [Data]</p>
-                        <p>Informamos a comunidade sobre uma alteração em nossos horários de missa. Consulte nossa programação atualizada.</p>
-                        <a href="#missas-horarios" class="btn btn-link">Ver Horários <i class="fas fa-arrow-right"></i></a>
+                        <h3>Nenhum evento no momento</h3>
+                        <p>Em breve teremos novidades. Fique atento!</p>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </section>
@@ -180,39 +152,38 @@
     <!-- SEÇÃO GALERIA DE IMAGENS -->
     <section id="galeria" class="gallery-section section-padding bg-light">
         <div class="container">
-            <h2>Nossa Igreja em Imagens</h2>
+            <h2>{{ info_paroquia.get('galeria_titulo', {}).get('titulo', 'Nossa Igreja em Imagens') }}</h2>
             <div class="gallery-grid">
-                <img src="img/gallery/vitral-principal.jpg" alt="Vitral principal da Igreja" class="gallery-item">
-                <img src="img/gallery/altar-mor.jpg" alt="Altar Mor da Igreja" class="gallery-item">
-                <img src="img/gallery/nave-central.jpg" alt="Nave central da Igreja" class="gallery-item">
-                <img src="img/gallery/detalhe-interior.jpg" alt="Detalhe de escultura ou pintura interior" class="gallery-item">
-                <img src="img/gallery/missa-solene.jpg" alt="Missa Solene na Igreja" class="gallery-item">
-                <img src="img/gallery/fachada-noturna.jpg" alt="Fachada da Igreja a noite" class="gallery-item">
-                <img src="img/gallery/jardim-interno.jpg" alt="Jardim interno da igreja" class="gallery-item">
-                <img src="img/gallery/comunidade.jpg" alt="Comunidade em evento" class="gallery-item">
+                {% for foto in galeria %}
+                <img src="{{ foto.imagem_url }}" alt="{{ foto.titulo }}" class="gallery-item" title="{{ foto.titulo }}">
+                {% endfor %}
+
+                {% if not galeria %}
+                <p style="text-align: center; grid-column: 1/-1; color: #666;">
+                    Nenhuma imagem na galeria ainda.
+                    {% if is_admin %}
+                    <a href="{{ url_for('crud.crud_list', entity_name='galeria') }}">Adicionar fotos</a>
+                    {% endif %}
+                </p>
+                {% endif %}
             </div>
-            <!-- Botão para ver mais imagens (opcional) -->
-            <!-- <div class="text-center mt-5">
-                <a href="#" class="btn btn-primary">Ver Mais Fotos</a>
-            </div> -->
         </div>
     </section>
 
     <!-- SEÇÃO HISTÓRIA -->
     <section id="historia" class="history-section section-padding">
         <div class="container">
-            <h2>Nossa História e Legado</h2>
+            <h2>{{ info_paroquia.get('historia_titulo', {}).get('titulo', 'Nossa História e Legado') }}</h2>
             <div class="history-content">
-                <p>Fundada em [Ano de Fundação], a Igreja São Sebastião tem uma rica história de serviço e evangelização. Desde sua construção, este santuário tem sido um ponto de encontro para gerações de fiéis, testemunhando momentos de alegria, consolo e renovação da fé.</p>
-                <p>Nossa paróquia cresceu junto com a cidade de Belo Horizonte, adaptando-se aos desafios e celebrando as vitórias. Pessoas dedicadas, desde os primeiros padres até os voluntários de hoje, construíram um legado de amor e acolhimento que continua a inspirar.</p>
-                <p>Convidamos você a explorar mais sobre os marcos que moldaram nossa igreja, as personalidades que a edificaram e a comunidade vibrante que a mantém viva. A cada pedra, a cada vitral, uma história de fé e devoção é contada.</p>
+                {{ info_paroquia.get('historia_texto', {}).get('titulo', '<p>História da igreja em breve.</p>') | safe }}
+
                 <div class="history-milestones">
-                    <h3>Principais Marcos</h3>
+                    <h3>{{ info_paroquia.get('historia_marcos_titulo', {}).get('titulo', 'Principais Marcos') }}</h3>
                     <ul>
-                        <li><i class="fas fa-scroll"></i> **[Ano]**: Fundação da paróquia.</li>
-                        <li><i class="fas fa-gavel"></i> **[Ano]**: Início da construção da atual igreja.</li>
-                        <li><i class="fas fa-cross"></i> **[Ano]**: Inauguração e primeira missa solene.</li>
-                        <li><i class="fas fa-users-cog"></i> **[Ano]**: Lançamento de importantes projetos sociais.</li>
+                        {% set marcos = info_paroquia.get('historia_marcos', {}).get('titulo', '[Ano]: Fundação|[Ano]: Construção|[Ano]: Inauguração') %}
+                        {% for marco in marcos.split('|') %}
+                        <li><i class="fas fa-scroll"></i> {{ marco }}</li>
+                        {% endfor %}
                     </ul>
                 </div>
             </div>
@@ -222,17 +193,15 @@
     <!-- SEÇÃO LOCALIZAÇÃO -->
     <section id="localizacao" class="location-section section-padding bg-light">
         <div class="container">
-            <h2>Onde Nos Encontrar</h2>
+            <h2>{{ info_paroquia.get('localizacao_titulo', {}).get('titulo', 'Onde Nos Encontrar') }}</h2>
             <div class="location-details">
                 <address>
-                    <p><i class="fas fa-map-marker-alt"></i> Praça Getúlio Vargas, 92 - Centro Histórico, Pte. Nova - MG, 35430-003</p>
-                    <p><i class="fas fa-phone-alt"></i> (31) 98888-6796 / (31) 3881 -1401</p>
-                    <p><i class="fas fa-envelope"></i> contato@igrejasst.org</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{ info_paroquia.get('localizacao_endereco', {}).get('titulo', 'Praça Getúlio Vargas, 92 - Centro, Ponte Nova - MG') }}</p>
+                    <p><i class="fas fa-phone-alt"></i> {{ info_paroquia.get('localizacao_telefones', {}).get('titulo', '(31) 98888-6796') }}</p>
+                    <p><i class="fas fa-envelope"></i> {{ info_paroquia.get('localizacao_email', {}).get('titulo', 'contato@igrejasst.org') }}</p>
                 </address>
                 <div class="map-container">
-                    <!-- EMBED DO GOOGLE MAPS -->
-                    <!-- Vá no Google Maps, procure pelo endereço da igreja, clique em "Compartilhar", depois "Incorporar um mapa" e copie o iframe. -->
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3739.1906006479735!2d-42.911577723851245!3d-20.41623625363568!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa497026b4d46e1%3A0x5d64af00395326ce!2sIgreja%20Matriz%20de%20S%C3%A3o%20Sebasti%C3%A3o%20-%20Ponte%20Nova!5e0!3m2!1spt-BR!2sbr!4v1757269101938!5m2!1spt-BR!2sbr" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="{{ info_paroquia.get('localizacao_mapa', {}).get('titulo', 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3739.19!2d-42.91!3d-20.41!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa497026b4d46e1%3A0x5d64af00395326ce!2sIgreja%20Matriz!5e0!3m2!1spt-BR!2sbr') }}" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>
@@ -241,10 +210,9 @@
     <!-- SEÇÃO AGENDAMENTO DE CONFISSÃO -->
     <section id="agendamento-confissao" class="confession-section section-padding">
         <div class="container">
-            <h2>Agendamento de Confissão com o Padre</h2>
+            <h2>{{ info_paroquia.get('confissao_titulo', {}).get('titulo', 'Agendamento de Confissão com o Padre') }}</h2>
             <div class="confession-info">
-                <p>O Sacramento da Confissão é um momento de graça e reconciliação com Deus e com a Igreja. Para facilitar seu acesso a este momento especial, oferecemos a possibilidade de agendamento online.</p>
-                <p><strong>Importante:</strong> Este formulário é para **solicitação de agendamento**. Nossa secretaria entrará em contato para **confirmar** a data e hora, bem como quaisquer detalhes necessários. Sua privacidade e o sigilo sacramental são garantidos.</p>
+                {{ info_paroquia.get('confissao_texto', {}).get('titulo', '<p>O Sacramento da Confissão é um momento de graça e reconciliação.</p>') | safe }}
             </div>
             <form id="confessionForm" class="confession-form">
                 <div class="form-group">
@@ -277,24 +245,24 @@
         </div>
     </section>
 
-    <!-- SEÇÃO CONTATO (Com informações rápidas e formulário de contato genérico) -->
+    <!-- SEÇÃO CONTATO -->
     <section id="contato" class="contact-section section-padding bg-dark">
         <div class="container">
-            <h2>Entre em Contato</h2>
+            <h2>{{ info_paroquia.get('contato_titulo', {}).get('titulo', 'Entre em Contato') }}</h2>
             <div class="contact-grid">
                 <div class="contact-info">
-                    <h3>Estamos Prontos para Ajudar</h3>
-                    <p>Tem dúvidas, sugestões ou precisa de mais informações? Fale conosco!</p>
+                    <h3>{{ info_paroquia.get('contato_subtitulo', {}).get('titulo', 'Estamos Prontos para Ajudar') }}</h3>
+                    <p>{{ info_paroquia.get('contato_texto', {}).get('titulo', 'Tem dúvidas, sugestões ou precisa de mais informações? Fale conosco!') }}</p>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> Av. Augusto de Lima, 1655 - Barro Preto, BH/MG</li>
-                        <li><i class="fas fa-phone-alt"></i> (31) 3295-1379 / (31) 2552-5483</li>
-                        <li><i class="fas fa-envelope"></i> <a href="mailto:contato@igrejasst.org">contato@igrejasst.org</a></li>
-                        <li><i class="fas fa-clock"></i> Secretaria: Segunda a Sexta, 13h às 18h</li>
+                        <li><i class="fas fa-map-marker-alt"></i> {{ info_paroquia.get('localizacao_endereco', {}).get('titulo', 'Praça Getúlio Vargas, 92 - Centro, Ponte Nova') }}</li>
+                        <li><i class="fas fa-phone-alt"></i> {{ info_paroquia.get('localizacao_telefones', {}).get('titulo', '(31) 98888-6796') }}</li>
+                        <li><i class="fas fa-envelope"></i> <a href="mailto:{{ info_paroquia.get('localizacao_email', {}).get('titulo', 'contato@igrejasst.org') }}">{{ info_paroquia.get('localizacao_email', {}).get('titulo', 'contato@igrejasst.org') }}</a></li>
+                        <li><i class="fas fa-clock"></i> Secretaria: {{ info_paroquia.get('secretaria_horarios', {}).get('titulo', 'Segunda a Sexta, 13h às 18h') }}</li>
                     </ul>
                     <div class="social-icons">
-                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="#" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="{{ info_paroquia.get('redes_facebook', {}).get('titulo', '#') }}" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="{{ info_paroquia.get('redes_instagram', {}).get('titulo', '#') }}" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="{{ info_paroquia.get('redes_whatsapp', {}).get('titulo', '#') }}" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
                     </div>
                 </div>
                 <div class="contact-form-container">
@@ -322,7 +290,7 @@
     <!-- RODAPÉ -->
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; <span id="currentYear"></span> Igreja São Sebastião. Todos os direitos reservados.</p>
+            <p>&copy; <span id="currentYear"></span> {{ info_paroquia.get('rodape_texto', {}).get('titulo', 'Igreja São Sebastião. Todos os direitos reservados.') }}</p>
             <ul class="footer-links">
                 <li><a href="#">Política de Privacidade</a></li>
                 <li><a href="#">Termos de Uso</a></li>
@@ -331,7 +299,52 @@
         </div>
     </footer>
 
-    <!-- Link para seu arquivo JavaScript -->
+    <!-- Link para Admin -->
+    {% if is_admin %}
+    <a href="{{ url_for('admin_dashboard') }}" class="admin-float-btn" title="Painel Admin">
+        <i class="fas fa-cog"></i>
+    </a>
+    <style>
+        .admin-float-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: #3B5F6C;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            transition: transform 0.2s;
+        }
+        .admin-float-btn:hover {
+            transform: scale(1.1);
+            background: #2d4a55;
+        }
+        .btn-admin-edit {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #3B5F6C;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .btn-admin-edit:hover {
+            background: #2d4a55;
+        }
+    </style>
+    {% endif %}
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>

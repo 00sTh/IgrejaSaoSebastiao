@@ -1,0 +1,414 @@
+{% extends "admin_base.html" %}
+
+{% block title %}
+{{ 'Editar' if is_edit else 'Novo' }} {{ schema.display_name }} - Admin
+{% endblock %}
+
+{% block content %}
+<div class="crud-form">
+    <!-- Header -->
+    <div class="crud-header">
+        <div class="crud-title">
+            <a href="{{ url_for('crud.crud_list', entity_name=entity_name) }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <i class="{{ schema.icon }}"></i>
+            <h1>{{ 'Editar' if is_edit else 'Novo' }} {{ schema.display_name }}</h1>
+        </div>
+    </div>
+
+    <!-- Formulário -->
+    <form method="POST" action="{{ action_url }}" enctype="multipart/form-data" class="form-container">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="form-grid">
+            {% for field in fields %}
+                {% if field.field_type != FieldType.HIDDEN %}
+                <div class="form-group {{ 'full-width' if field.field_type in [FieldType.RICHTEXT, FieldType.TEXTAREA] }}">
+                    <label for="{{ field.name }}">
+                        {{ field.label }}
+                        {% if field.required %}<span class="required">*</span>{% endif %}
+                    </label>
+
+                    {% set value = record[field.name] if record else field.default %}
+
+                    {% if field.field_type == FieldType.TEXT %}
+                        <input type="text"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value or '' }}"
+                               placeholder="{{ field.placeholder }}"
+                               {% if field.max_length %}maxlength="{{ field.max_length }}"{% endif %}
+                               {% if field.required %}required{% endif %}
+                               {% if not field.editable %}readonly{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.TEXTAREA %}
+                        <textarea id="{{ field.name }}"
+                                  name="{{ field.name }}"
+                                  placeholder="{{ field.placeholder }}"
+                                  rows="4"
+                                  {% if field.required %}required{% endif %}
+                                  {% if not field.editable %}readonly{% endif %}
+                                  class="form-control">{{ value or '' }}</textarea>
+
+                    {% elif field.field_type == FieldType.RICHTEXT %}
+                        <textarea id="{{ field.name }}"
+                                  name="{{ field.name }}"
+                                  placeholder="{{ field.placeholder }}"
+                                  rows="10"
+                                  {% if field.required %}required{% endif %}
+                                  class="form-control richtext">{{ value or '' }}</textarea>
+
+                    {% elif field.field_type == FieldType.NUMBER %}
+                        <input type="number"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value if value is not none else '' }}"
+                               {% if field.min_value is not none %}min="{{ field.min_value }}"{% endif %}
+                               {% if field.max_value is not none %}max="{{ field.max_value }}"{% endif %}
+                               {% if field.required %}required{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.EMAIL %}
+                        <input type="email"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value or '' }}"
+                               placeholder="{{ field.placeholder or 'email@exemplo.com' }}"
+                               {% if field.required %}required{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.PASSWORD %}
+                        <input type="password"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               placeholder="{{ 'Deixe em branco para manter a senha atual' if is_edit else field.placeholder }}"
+                               {% if field.min_length %}minlength="{{ field.min_length }}"{% endif %}
+                               {% if field.required and not is_edit %}required{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.SELECT %}
+                        <select id="{{ field.name }}"
+                                name="{{ field.name }}"
+                                {% if field.required %}required{% endif %}
+                                {% if not field.editable %}disabled{% endif %}
+                                class="form-control">
+                            <option value="">Selecione...</option>
+                            {% for option in field.options %}
+                            <option value="{{ option.value }}"
+                                    {{ 'selected' if value == option.value }}>
+                                {{ option.label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    {% elif field.field_type == FieldType.CHECKBOX %}
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox"
+                                   id="{{ field.name }}"
+                                   name="{{ field.name }}"
+                                   {{ 'checked' if value }}>
+                            <label for="{{ field.name }}" class="checkbox-label">
+                                {{ field.help_text or 'Ativar' }}
+                            </label>
+                        </div>
+
+                    {% elif field.field_type == FieldType.TIME %}
+                        <input type="time"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value or '' }}"
+                               {% if field.required %}required{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.DATE %}
+                        <input type="date"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value or '' }}"
+                               {% if field.required %}required{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.DATETIME %}
+                        <input type="datetime-local"
+                               id="{{ field.name }}"
+                               name="{{ field.name }}"
+                               value="{{ value[:16] if value else '' }}"
+                               {% if field.required %}required{% endif %}
+                               {% if not field.editable %}readonly{% endif %}
+                               class="form-control">
+
+                    {% elif field.field_type == FieldType.IMAGE %}
+                        <div class="image-upload">
+                            {% if value %}
+                            <div class="current-image">
+                                <img src="{{ value }}" alt="Imagem atual">
+                                <span>Imagem atual</span>
+                            </div>
+                            {% endif %}
+                            <input type="file"
+                                   id="{{ field.name }}"
+                                   name="{{ field.name }}"
+                                   accept="image/*"
+                                   {% if field.required and not value %}required{% endif %}
+                                   class="form-control-file">
+                        </div>
+
+                    {% elif field.field_type == FieldType.READONLY %}
+                        <input type="text"
+                               value="{{ value or '' }}"
+                               readonly
+                               class="form-control readonly">
+                        <input type="hidden" name="{{ field.name }}" value="{{ value or '' }}">
+
+                    {% endif %}
+
+                    {% if field.help_text and field.field_type != FieldType.CHECKBOX %}
+                    <small class="help-text">{{ field.help_text }}</small>
+                    {% endif %}
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Botões -->
+        <div class="form-actions">
+            <a href="{{ url_for('crud.crud_list', entity_name=entity_name) }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> {{ 'Salvar Alterações' if is_edit else 'Criar' }}
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+.crud-form {
+    padding: 20px;
+    max-width: 900px;
+}
+
+.crud-header {
+    margin-bottom: 25px;
+}
+
+.crud-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.back-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    border-radius: 8px;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #3B5F6C;
+    color: white;
+}
+
+.crud-title i:not(.fa-arrow-left) {
+    font-size: 1.3rem;
+    color: var(--primary-color, #3B5F6C);
+}
+
+.crud-title h1 {
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.form-group label .required {
+    color: #dc3545;
+}
+
+.form-control {
+    padding: 10px 14px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3B5F6C;
+    box-shadow: 0 0 0 3px rgba(59, 95, 108, 0.1);
+}
+
+.form-control.readonly {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.form-control-file {
+    padding: 8px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.form-control-file:hover {
+    border-color: #3B5F6C;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+textarea.richtext {
+    min-height: 200px;
+    font-family: inherit;
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.checkbox-label {
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.image-upload {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.current-image {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.current-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.current-image span {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.help-text {
+    color: #666;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3B5F6C 0%, #2a454f 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 95, 108, 0.3);
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+{% endblock %}

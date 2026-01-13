@@ -103,7 +103,7 @@
                         {{ 'Notícia' if noticia.tipo == 'noticia' else 'Evento' }}
                     </span>
                 </td>
-                <td>{{ noticia.data_criacao.strftime('%d/%m/%Y') if noticia.data_criacao else 'N/A' }}</td>
+                <td>{{ noticia.data_criacao[:10] if noticia.data_criacao else 'N/A' }}</td>
                 <td>
                     <a href="{{ url_for('admin_noticia_edit', post_id=noticia.id) }}" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                         <i class="fas fa-edit"></i>

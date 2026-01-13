@@ -128,7 +128,7 @@
                     onclick="if(confirm('Tem certeza que deseja excluir esta notícia? Esta ação não pode ser desfeita.')) {
                         var form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ url_for('admin_noticia_delete', noticia_id=noticia.id) }}';
+                        form.action = '{{ url_for('admin_noticia_delete', post_id=noticia.id) }}';
                         document.body.appendChild(form);
                         form.submit();
                     }">
