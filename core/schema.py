@@ -574,8 +574,8 @@ class SchemaRegistry:
                     max_length=100,
                     column_width="200px"
                 ),
-                "password": FieldSchema(
-                    name="password",
+                "password_hash": FieldSchema(
+                    name="password_hash",
                     field_type=FieldType.PASSWORD,
                     label="Senha",
                     required=True,
