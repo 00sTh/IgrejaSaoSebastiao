@@ -276,9 +276,9 @@ class SchemaRegistry:
             icon="fas fa-images",
             primary_key="id",
             order_by="data_upload DESC",
-            list_display=["titulo", "imagem_url", "data_upload", "ativo"],
-            search_fields=["titulo", "descricao"],
-            filter_fields=["ativo"],
+            list_display=["titulo", "categoria", "imagem_url", "data_upload", "ativo"],
+            search_fields=["titulo", "descricao", "categoria"],
+            filter_fields=["ativo", "categoria"],
             soft_delete=True,
             permissions={
                 "list": "galeria:read",
@@ -314,6 +314,22 @@ class SchemaRegistry:
                     required=False,
                     placeholder="Descrição opcional",
                     show_in_list=False
+                ),
+                "categoria": FieldSchema(
+                    name="categoria",
+                    field_type=FieldType.SELECT,
+                    label="Categoria",
+                    required=False,
+                    options=[
+                        {"value": "", "label": "Sem categoria"},
+                        {"value": "Igreja", "label": "Igreja"},
+                        {"value": "Eventos", "label": "Eventos"},
+                        {"value": "Comunidade", "label": "Comunidade"},
+                        {"value": "Celebrações", "label": "Celebrações"},
+                        {"value": "Outros", "label": "Outros"}
+                    ],
+                    filterable=True,
+                    column_width="120px"
                 ),
                 "imagem_url": FieldSchema(
                     name="imagem_url",
@@ -451,6 +467,63 @@ class SchemaRegistry:
                     label="Descrição",
                     editable=False,
                     column_width="250px"
+                )
+            }
+        ))
+
+        # ==================== PAROQUIA INFO ====================
+        self.register(EntitySchema(
+            name="paroquia_info",
+            table="paroquia_info",
+            display_name="Informação da Paróquia",
+            display_name_plural="Informações da Paróquia",
+            icon="fas fa-church",
+            primary_key="id",
+            order_by="ordem ASC",
+            list_display=["secao", "titulo", "ordem"],
+            search_fields=["secao", "titulo", "conteudo"],
+            readonly_fields=["secao"],
+            permissions={
+                "list": "config:read",
+                "read": "config:read",
+                "update": "config:update"
+            },
+            fields={
+                "id": FieldSchema(
+                    name="id",
+                    field_type=FieldType.HIDDEN,
+                    label="ID",
+                    show_in_list=False,
+                    show_in_form=False,
+                    editable=False
+                ),
+                "secao": FieldSchema(
+                    name="secao",
+                    field_type=FieldType.READONLY,
+                    label="Seção",
+                    editable=False,
+                    column_width="200px"
+                ),
+                "titulo": FieldSchema(
+                    name="titulo",
+                    field_type=FieldType.TEXT,
+                    label="Valor",
+                    required=True,
+                    column_width="300px"
+                ),
+                "conteudo": FieldSchema(
+                    name="conteudo",
+                    field_type=FieldType.TEXTAREA,
+                    label="Descrição",
+                    required=False,
+                    show_in_list=False
+                ),
+                "ordem": FieldSchema(
+                    name="ordem",
+                    field_type=FieldType.NUMBER,
+                    label="Ordem",
+                    default=0,
+                    column_width="80px"
                 )
             }
         ))

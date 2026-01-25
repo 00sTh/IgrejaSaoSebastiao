@@ -88,11 +88,18 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             titulo TEXT NOT NULL,
             descricao TEXT,
+            categoria TEXT,
             imagem_url TEXT NOT NULL,
             data_upload TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
             ativo INTEGER DEFAULT 1
         )
     ''')
+
+    # Migração: adicionar coluna categoria se não existir
+    try:
+        conn.execute('ALTER TABLE galeria ADD COLUMN categoria TEXT')
+    except:
+        pass  # Coluna já existe
 
     # Tabela de contatos
     conn.execute('''
@@ -1246,6 +1253,27 @@ def api_enviar_mensagem():
             return jsonify({
                 'status': 'error',
                 'message': 'Por favor, preencha todos os campos.'
+            }), 400
+
+        # Validar email
+        if not validar_email(email):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, informe um email válido.'
+            }), 400
+
+        # Validar tamanho mínimo do nome
+        if len(nome) < 3:
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, informe seu nome completo.'
+            }), 400
+
+        # Validar tamanho mínimo da mensagem
+        if len(mensagem) < 10:
+            return jsonify({
+                'status': 'error',
+                'message': 'A mensagem deve ter pelo menos 10 caracteres.'
             }), 400
 
         # Salvar no banco
