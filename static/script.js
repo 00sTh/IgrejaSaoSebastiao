@@ -53,7 +53,72 @@ document.addEventListener('DOMContentLoaded', () => {
         currentYearSpan.textContent = new Date().getFullYear();
     }
 
-    // 4. Lógica para o formulário de Agendamento de Confissão
+    // 4. Lógica para buscar horários disponíveis de confissão
+    const mesSelect = document.getElementById('mes');
+    const diaSelect = document.getElementById('dia');
+    const horarioSelect = document.getElementById('horario');
+    const horarioInfo = document.getElementById('horarioInfo');
+
+    async function buscarHorariosDisponiveis() {
+        const mes = mesSelect.value;
+        const dia = diaSelect.value;
+
+        if (!mes || !dia) {
+            horarioSelect.disabled = true;
+            horarioSelect.innerHTML = '<option value="">Primeiro selecione o mês e dia</option>';
+            if (horarioInfo) horarioInfo.textContent = '';
+            return;
+        }
+
+        // Mostrar loading
+        horarioSelect.disabled = true;
+        horarioSelect.innerHTML = '<option value="">Carregando horários...</option>';
+        if (horarioInfo) horarioInfo.textContent = '';
+
+        try {
+            const response = await fetch(`/api/horarios-disponiveis?mes=${mes}&dia=${dia}`);
+            const data = await response.json();
+
+            if (data.status === 'success') {
+                if (data.horarios.length > 0) {
+                    horarioSelect.innerHTML = '<option value="">Selecione um horário</option>';
+                    data.horarios.forEach(h => {
+                        horarioSelect.innerHTML += `<option value="${h}">${h}</option>`;
+                    });
+                    horarioSelect.disabled = false;
+                    if (horarioInfo) {
+                        horarioInfo.textContent = `${data.horarios.length} horário(s) disponível(is) - ${data.dia_semana}`;
+                        horarioInfo.style.color = '#28a745';
+                    }
+                } else {
+                    horarioSelect.innerHTML = '<option value="">Nenhum horário disponível</option>';
+                    if (horarioInfo) {
+                        horarioInfo.textContent = `Não há confissões disponíveis neste dia (${data.dia_semana})`;
+                        horarioInfo.style.color = '#dc3545';
+                    }
+                }
+            } else {
+                horarioSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                if (horarioInfo) {
+                    horarioInfo.textContent = data.message || 'Data inválida';
+                    horarioInfo.style.color = '#dc3545';
+                }
+            }
+        } catch (error) {
+            horarioSelect.innerHTML = '<option value="">Erro de conexão</option>';
+            if (horarioInfo) {
+                horarioInfo.textContent = 'Erro ao buscar horários. Tente novamente.';
+                horarioInfo.style.color = '#dc3545';
+            }
+        }
+    }
+
+    if (mesSelect && diaSelect && horarioSelect) {
+        mesSelect.addEventListener('change', buscarHorariosDisponiveis);
+        diaSelect.addEventListener('change', buscarHorariosDisponiveis);
+    }
+
+    // 5. Lógica para o formulário de Agendamento de Confissão
     const confessionForm = document.getElementById('confessionForm');
     const formMessage = document.getElementById('formMessage');
 
@@ -84,6 +149,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     formMessage.textContent = result.message;
                     formMessage.className = 'form-message success';
                     confessionForm.reset();
+                    // Resetar o select de horários após submit bem-sucedido
+                    if (horarioSelect) {
+                        horarioSelect.disabled = true;
+                        horarioSelect.innerHTML = '<option value="">Primeiro selecione o mês e dia</option>';
+                    }
+                    if (horarioInfo) horarioInfo.textContent = '';
                 } else {
                     formMessage.textContent = result.message;
                     formMessage.className = 'form-message error';
@@ -105,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 5. Lógica para o formulário de Contato
+    // 6. Lógica para o formulário de Contato
     const simpleContactForm = document.querySelector('.simple-contact-form');
 
     if (simpleContactForm) {

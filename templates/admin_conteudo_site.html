@@ -1,0 +1,585 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Conteúdo do Site{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1><i class="fas fa-edit"></i> Editar Conteúdo do Site</h1>
+    <p class="breadcrumb">Painel Administrativo / Conteúdo do Site</p>
+</div>
+
+<!-- Ajuda -->
+<div class="help-banner">
+    <i class="fas fa-info-circle"></i>
+    <div>
+        <strong>Edite os textos que aparecem no site</strong>
+        <p>Cada seção abaixo corresponde a uma parte do site. Clique para expandir e editar.</p>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('admin_conteudo_site_save') }}" id="formConteudo">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+    <!-- SEÇÃO: BANNER PRINCIPAL -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('hero')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #8b5cf6;">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div>
+                    <h3>Banner Principal (Hero)</h3>
+                    <p>Primeira coisa que as pessoas veem no site</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-hero"></i>
+        </div>
+        <div class="section-content" id="content-hero">
+            <div class="field-group">
+                <label>Título Principal</label>
+                <input type="text" name="hero_titulo" value="{{ dados.hero_titulo or '' }}" class="field-input" placeholder="Ex: Igreja São Sebastião">
+                <span class="field-help">O nome grande que aparece no banner</span>
+            </div>
+            <div class="field-group">
+                <label>Subtítulo</label>
+                <input type="text" name="hero_subtitulo" value="{{ dados.hero_subtitulo or '' }}" class="field-input" placeholder="Ex: Onde a Fé Encontra a Comunidade">
+                <span class="field-help">Frase menor abaixo do título</span>
+            </div>
+            <div class="field-group">
+                <label>Texto do Botão</label>
+                <input type="text" name="hero_botao" value="{{ dados.hero_botao or '' }}" class="field-input" placeholder="Ex: Ver Horários das Missas">
+                <span class="field-help">Texto do botão de ação</span>
+            </div>
+            <div class="preview-box">
+                <strong><i class="fas fa-eye"></i> Onde aparece:</strong>
+                <p>Logo no início da página, com a foto grande de fundo</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: SOBRE A PARÓQUIA -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('sobre')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #10b981;">
+                    <i class="fas fa-church"></i>
+                </div>
+                <div>
+                    <h3>Sobre a Paróquia</h3>
+                    <p>Apresentação da igreja para os visitantes</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-sobre"></i>
+        </div>
+        <div class="section-content" id="content-sobre">
+            <div class="field-group">
+                <label>Título da Seção</label>
+                <input type="text" name="sobre_titulo" value="{{ dados.sobre_titulo or '' }}" class="field-input" placeholder="Ex: Seja Bem-Vindo à Nossa Comunidade!">
+            </div>
+            <div class="field-group">
+                <label>Texto de Apresentação</label>
+                <textarea name="sobre_texto" class="field-textarea" rows="4" placeholder="Conte um pouco sobre a paróquia...">{{ dados.sobre_texto or '' }}</textarea>
+                <span class="field-help">Este texto aparece ao lado da foto da comunidade</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: HORÁRIOS -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('horarios')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #f59e0b;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h3>Seção de Horários</h3>
+                    <p>Títulos dos cards de horários</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-horarios"></i>
+        </div>
+        <div class="section-content" id="content-horarios">
+            <div class="field-group">
+                <label>Título da Seção</label>
+                <input type="text" name="horarios_titulo" value="{{ dados.horarios_titulo or '' }}" class="field-input" placeholder="Ex: Horários Importantes">
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label>Título "Missas"</label>
+                    <input type="text" name="missas_titulo" value="{{ dados.missas_titulo or '' }}" class="field-input" placeholder="Ex: Missas">
+                </div>
+                <div class="field-group">
+                    <label>Título "Confissões"</label>
+                    <input type="text" name="confissoes_titulo" value="{{ dados.confissoes_titulo or '' }}" class="field-input" placeholder="Ex: Confissões">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Horários de Confissão</label>
+                <textarea name="confissoes_horarios" class="field-textarea" rows="2" placeholder="Ex: Sábado: 15h às 17h">{{ dados.confissoes_horarios or '' }}</textarea>
+                <span class="field-help">Use | para separar linhas. Ex: Segunda: 14h|Terça: 15h</span>
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label>Título "Secretaria"</label>
+                    <input type="text" name="secretaria_titulo" value="{{ dados.secretaria_titulo or '' }}" class="field-input" placeholder="Ex: Secretaria">
+                </div>
+                <div class="field-group">
+                    <label>Horário Secretaria</label>
+                    <input type="text" name="secretaria_horarios" value="{{ dados.secretaria_horarios or '' }}" class="field-input" placeholder="Ex: Seg a Sex: 8h às 17h">
+                </div>
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label>Telefone Secretaria</label>
+                    <input type="text" name="secretaria_telefone" value="{{ dados.secretaria_telefone or '' }}" class="field-input" placeholder="Ex: (31) 3881-1234">
+                </div>
+                <div class="field-group">
+                    <label>Email Secretaria</label>
+                    <input type="email" name="secretaria_email" value="{{ dados.secretaria_email or '' }}" class="field-input" placeholder="Ex: contato@igreja.com">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: GALERIA -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('galeria')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #ec4899;">
+                    <i class="fas fa-images"></i>
+                </div>
+                <div>
+                    <h3>Galeria de Fotos</h3>
+                    <p>Título da seção de fotos</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-galeria"></i>
+        </div>
+        <div class="section-content" id="content-galeria">
+            <div class="field-group">
+                <label>Título da Galeria</label>
+                <input type="text" name="galeria_titulo" value="{{ dados.galeria_titulo or '' }}" class="field-input" placeholder="Ex: Nossa Igreja em Imagens">
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: HISTÓRIA -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('historia')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #6366f1;">
+                    <i class="fas fa-book-open"></i>
+                </div>
+                <div>
+                    <h3>História da Igreja</h3>
+                    <p>Conte a história e os marcos da paróquia</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-historia"></i>
+        </div>
+        <div class="section-content" id="content-historia">
+            <div class="field-group">
+                <label>Título da Seção</label>
+                <input type="text" name="historia_titulo" value="{{ dados.historia_titulo or '' }}" class="field-input" placeholder="Ex: Nossa História e Legado">
+            </div>
+            <div class="field-group">
+                <label>Texto da História</label>
+                <textarea name="historia_texto" class="field-textarea" rows="6" placeholder="Conte a história da paróquia...">{{ dados.historia_texto or '' }}</textarea>
+                <span class="field-help">Pode usar parágrafos com &lt;p&gt;texto&lt;/p&gt;</span>
+            </div>
+            <div class="field-group">
+                <label>Título "Marcos Históricos"</label>
+                <input type="text" name="historia_marcos_titulo" value="{{ dados.historia_marcos_titulo or '' }}" class="field-input" placeholder="Ex: Principais Marcos">
+            </div>
+            <div class="field-group">
+                <label>Lista de Marcos</label>
+                <textarea name="historia_marcos" class="field-textarea" rows="4" placeholder="1920: Fundação|1950: Reforma|2000: Jubileu">{{ dados.historia_marcos or '' }}</textarea>
+                <span class="field-help">Use | para separar cada marco. Ex: 1920: Fundação da paróquia|1950: Grande reforma</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: LOCALIZAÇÃO -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('localizacao')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #ef4444;">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                    <h3>Localização</h3>
+                    <p>Endereço e contatos da paróquia</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-localizacao"></i>
+        </div>
+        <div class="section-content" id="content-localizacao">
+            <div class="field-group">
+                <label>Título da Seção</label>
+                <input type="text" name="localizacao_titulo" value="{{ dados.localizacao_titulo or '' }}" class="field-input" placeholder="Ex: Onde Nos Encontrar">
+            </div>
+            <div class="field-group">
+                <label>Endereço Completo</label>
+                <textarea name="localizacao_endereco" class="field-textarea" rows="2" placeholder="Rua, número, bairro, cidade/UF, CEP">{{ dados.localizacao_endereco or '' }}</textarea>
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label>Telefones</label>
+                    <input type="text" name="localizacao_telefones" value="{{ dados.localizacao_telefones or '' }}" class="field-input" placeholder="Ex: (31) 3881-1234 / (31) 98888-0000">
+                </div>
+                <div class="field-group">
+                    <label>Email</label>
+                    <input type="email" name="localizacao_email" value="{{ dados.localizacao_email or '' }}" class="field-input" placeholder="Ex: contato@igreja.com">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Link do Mapa (Google Maps Embed)</label>
+                <textarea name="localizacao_mapa" class="field-textarea" rows="2" placeholder="Cole aqui o link embed do Google Maps">{{ dados.localizacao_mapa or '' }}</textarea>
+                <span class="field-help">Vá no Google Maps → Compartilhar → Incorporar mapa → Copie o link</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: CONFISSÃO -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('confissao')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #14b8a6;">
+                    <i class="fas fa-pray"></i>
+                </div>
+                <div>
+                    <h3>Agendamento de Confissão</h3>
+                    <p>Textos do formulário de agendamento</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-confissao"></i>
+        </div>
+        <div class="section-content" id="content-confissao">
+            <div class="field-group">
+                <label>Título do Formulário</label>
+                <input type="text" name="confissao_titulo" value="{{ dados.confissao_titulo or '' }}" class="field-input" placeholder="Ex: Agendamento de Confissão com o Padre">
+            </div>
+            <div class="field-group">
+                <label>Texto Explicativo</label>
+                <textarea name="confissao_texto" class="field-textarea" rows="4" placeholder="Explique sobre o sacramento da confissão...">{{ dados.confissao_texto or '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: CONTATO -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('contato')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #0ea5e9;">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                    <h3>Seção de Contato</h3>
+                    <p>Títulos e textos da área de contato</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-contato"></i>
+        </div>
+        <div class="section-content" id="content-contato">
+            <div class="fields-row">
+                <div class="field-group">
+                    <label>Título</label>
+                    <input type="text" name="contato_titulo" value="{{ dados.contato_titulo or '' }}" class="field-input" placeholder="Ex: Entre em Contato">
+                </div>
+                <div class="field-group">
+                    <label>Subtítulo</label>
+                    <input type="text" name="contato_subtitulo" value="{{ dados.contato_subtitulo or '' }}" class="field-input" placeholder="Ex: Estamos Prontos para Ajudar">
+                </div>
+            </div>
+            <div class="field-group">
+                <label>Texto de Apresentação</label>
+                <textarea name="contato_texto" class="field-textarea" rows="2" placeholder="Ex: Fale conosco!">{{ dados.contato_texto or '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO: RODAPÉ E REDES SOCIAIS -->
+    <div class="section-card">
+        <div class="section-header" onclick="toggleSection('rodape')">
+            <div class="section-title">
+                <div class="section-icon" style="background: #64748b;">
+                    <i class="fas fa-share-alt"></i>
+                </div>
+                <div>
+                    <h3>Rodapé e Redes Sociais</h3>
+                    <p>Links das redes e texto do rodapé</p>
+                </div>
+            </div>
+            <i class="fas fa-chevron-down toggle-icon" id="icon-rodape"></i>
+        </div>
+        <div class="section-content" id="content-rodape">
+            <div class="field-group">
+                <label>Texto do Rodapé</label>
+                <input type="text" name="rodape_texto" value="{{ dados.rodape_texto or '' }}" class="field-input" placeholder="Ex: Igreja São Sebastião. Todos os direitos reservados.">
+            </div>
+            <div class="fields-row">
+                <div class="field-group">
+                    <label><i class="fab fa-facebook" style="color:#1877f2;"></i> Facebook</label>
+                    <input type="url" name="redes_facebook" value="{{ dados.redes_facebook or '' }}" class="field-input" placeholder="https://facebook.com/suapagina">
+                </div>
+                <div class="field-group">
+                    <label><i class="fab fa-instagram" style="color:#e4405f;"></i> Instagram</label>
+                    <input type="url" name="redes_instagram" value="{{ dados.redes_instagram or '' }}" class="field-input" placeholder="https://instagram.com/suapagina">
+                </div>
+            </div>
+            <div class="field-group">
+                <label><i class="fab fa-whatsapp" style="color:#25d366;"></i> WhatsApp</label>
+                <input type="text" name="redes_whatsapp" value="{{ dados.redes_whatsapp or '' }}" class="field-input" placeholder="https://wa.me/5531999999999">
+                <span class="field-help">Use o formato: https://wa.me/55 + DDD + número (sem espaços)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÃO SALVAR FIXO -->
+    <div class="save-bar">
+        <button type="submit" class="btn-save">
+            <i class="fas fa-save"></i>
+            Salvar Todas as Alterações
+        </button>
+    </div>
+</form>
+
+<style>
+.help-banner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: white;
+    margin-bottom: 25px;
+}
+
+.help-banner i {
+    font-size: 2rem;
+    opacity: 0.9;
+}
+
+.help-banner strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.help-banner p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.section-card {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.section-header:hover {
+    background: #f9fafb;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.section-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+}
+
+.section-title h3 {
+    margin: 0 0 3px 0;
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+
+.section-title p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.toggle-icon {
+    color: #9ca3af;
+    transition: transform 0.3s;
+}
+
+.section-content {
+    display: none;
+    padding: 0 20px 20px 20px;
+    border-top: 1px solid #f3f4f6;
+    animation: slideDown 0.3s ease;
+}
+
+.section-content.active {
+    display: block;
+}
+
+.toggle-icon.active {
+    transform: rotate(180deg);
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.field-group {
+    margin-bottom: 20px;
+}
+
+.field-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.field-input, .field-textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.field-input:focus, .field-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.field-help {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.preview-box {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    border-left: 4px solid #22c55e;
+}
+
+.preview-box strong {
+    color: #166534;
+    font-size: 0.85rem;
+}
+
+.preview-box p {
+    margin: 5px 0 0 0;
+    color: #166534;
+    font-size: 0.85rem;
+}
+
+.save-bar {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+.btn-save {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+    .fields-row {
+        grid-template-columns: 1fr;
+    }
+
+    .section-title h3 {
+        font-size: 1rem;
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
+</style>
+
+<script>
+function toggleSection(sectionId) {
+    const content = document.getElementById('content-' + sectionId);
+    const icon = document.getElementById('icon-' + sectionId);
+
+    content.classList.toggle('active');
+    icon.classList.toggle('active');
+}
+
+// Abrir primeira seção por padrão
+document.addEventListener('DOMContentLoaded', function() {
+    toggleSection('hero');
+
+    // Garantir que o botão salvar funcione
+    document.querySelector('.btn-save').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('formConteudo').submit();
+    });
+});
+</script>
+{% endblock %}

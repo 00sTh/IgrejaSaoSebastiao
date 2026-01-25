@@ -14,36 +14,39 @@
         <table class="admin-table">
             <thead>
                 <tr>
-                    <th>Data/Hora</th>
+                    <th>Criado em</th>
                     <th>Nome</th>
                     <th>Contato</th>
-                    <th>Preferência</th>
+                    <th>Data/Horário</th>
                     <th>Status</th>
                     <th>Ações</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ag in agendamentos %}
-                <tr class="{% if ag.status == 'pendente' %}status-pendente{% elif ag.status == 'confirmado' %}status-confirmado{% endif %}">
+                <tr class="{% if ag.status == 'pendente' %}status-pendente{% elif ag.status == 'confirmado' %}status-confirmado{% elif ag.status == 'realizado' %}status-realizado{% elif ag.status == 'cancelado' %}status-cancelado{% endif %}">
                     <td>
                         <small>{{ ag.data_criacao[:16] if ag.data_criacao else '' }}</small>
                     </td>
                     <td>
                         <strong>{{ ag.nome }}</strong>
+                        {% if ag.observacoes %}
+                        <br><small class="text-muted"><i class="fas fa-comment"></i> {{ ag.observacoes[:30] }}{% if ag.observacoes|length > 30 %}...{% endif %}</small>
+                        {% endif %}
                     </td>
                     <td>
                         <div><i class="fas fa-envelope"></i> {{ ag.email }}</div>
                         <div><i class="fas fa-phone"></i> {{ ag.telefone }}</div>
                     </td>
                     <td>
-                        <div><i class="fas fa-calendar"></i> {{ ag.data_preferencial }}</div>
-                        <div><i class="fas fa-clock"></i> {{ ag.hora_preferencial }}</div>
-                        {% if ag.observacoes %}
-                        <small class="text-muted"><i class="fas fa-comment"></i> {{ ag.observacoes[:50] }}...</small>
-                        {% endif %}
+                        <div class="data-horario">
+                            <span class="data"><i class="fas fa-calendar"></i> {{ ag.dia }}/{{ '%02d'|format(ag.mes) }}</span>
+                            <span class="horario"><i class="fas fa-clock"></i> {{ ag.horario }}</span>
+                        </div>
                     </td>
                     <td>
                         <form action="{{ url_for('admin_agendamento_status', agendamento_id=ag.id) }}" method="POST" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <select name="status" onchange="this.form.submit()" class="status-select status-{{ ag.status }}">
                                 <option value="pendente" {% if ag.status == 'pendente' %}selected{% endif %}>Pendente</option>
                                 <option value="confirmado" {% if ag.status == 'confirmado' %}selected{% endif %}>Confirmado</option>
@@ -52,10 +55,14 @@
                             </select>
                         </form>
                     </td>
-                    <td>
+                    <td class="acoes">
+                        <button type="button" class="btn btn-edit btn-sm" onclick="abrirModalEdicao({{ ag.id }}, '{{ ag.nome }}', '{{ ag.email }}', '{{ ag.telefone }}', {{ ag.mes }}, {{ ag.dia }}, '{{ ag.horario }}', '{{ ag.observacoes|default("", true)|replace("'", "\\'") }}')" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
                         <form action="{{ url_for('admin_agendamento_delete', agendamento_id=ag.id) }}" method="POST"
                               onsubmit="return confirm('Deletar este agendamento?');" style="display: inline;">
-                            <button type="submit" class="btn btn-danger btn-sm">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <button type="submit" class="btn btn-danger btn-sm" title="Deletar">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -72,6 +79,80 @@
         <p>Quando alguém solicitar agendamento pelo site, aparecerá aqui.</p>
     </div>
     {% endif %}
+</div>
+
+<!-- Modal de Edição -->
+<div id="modalEdicao" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Editar Agendamento</h3>
+            <button type="button" class="modal-close" onclick="fecharModal()">&times;</button>
+        </div>
+        <form id="formEdicao" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_nome">Nome Completo</label>
+                        <input type="text" id="edit_nome" name="nome" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-row two-cols">
+                    <div class="form-group">
+                        <label for="edit_email">E-mail</label>
+                        <input type="email" id="edit_email" name="email" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_telefone">Telefone</label>
+                        <input type="tel" id="edit_telefone" name="telefone" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-row three-cols">
+                    <div class="form-group">
+                        <label for="edit_mes">Mês</label>
+                        <select id="edit_mes" name="mes" required class="form-control">
+                            <option value="1">Janeiro</option>
+                            <option value="2">Fevereiro</option>
+                            <option value="3">Março</option>
+                            <option value="4">Abril</option>
+                            <option value="5">Maio</option>
+                            <option value="6">Junho</option>
+                            <option value="7">Julho</option>
+                            <option value="8">Agosto</option>
+                            <option value="9">Setembro</option>
+                            <option value="10">Outubro</option>
+                            <option value="11">Novembro</option>
+                            <option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_dia">Dia</label>
+                        <select id="edit_dia" name="dia" required class="form-control">
+                            {% for d in range(1, 32) %}
+                            <option value="{{ d }}">{{ d }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_horario">Horário</label>
+                        <input type="time" id="edit_horario" name="horario" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_observacoes">Observações</label>
+                        <textarea id="edit_observacoes" name="observacoes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Salvar Alterações
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <style>
@@ -92,7 +173,7 @@
 }
 
 .badge {
-    background: #3B5F6C;
+    background: #667eea;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -124,20 +205,35 @@
 .admin-table td {
     padding: 14px;
     border-bottom: 1px solid #eee;
-    vertical-align: top;
+    vertical-align: middle;
 }
 
 .admin-table tr:hover {
     background: #f8f9fa;
 }
 
-.status-pendente {
-    border-left: 4px solid #ffc107;
+.data-horario {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.status-confirmado {
-    border-left: 4px solid #28a745;
+.data-horario .data,
+.data-horario .horario {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
+
+.data-horario i {
+    color: #667eea;
+    width: 16px;
+}
+
+.status-pendente { border-left: 4px solid #ffc107; }
+.status-confirmado { border-left: 4px solid #28a745; }
+.status-realizado { border-left: 4px solid #17a2b8; }
+.status-cancelado { border-left: 4px solid #dc3545; }
 
 .status-select {
     padding: 6px 10px;
@@ -147,41 +243,43 @@
     cursor: pointer;
 }
 
-.status-select.status-pendente {
-    background: #fff3cd;
-    color: #856404;
-}
+.status-select.status-pendente { background: #fff3cd; color: #856404; }
+.status-select.status-confirmado { background: #d4edda; color: #155724; }
+.status-select.status-realizado { background: #cce5ff; color: #004085; }
+.status-select.status-cancelado { background: #f8d7da; color: #721c24; }
 
-.status-select.status-confirmado {
-    background: #d4edda;
-    color: #155724;
-}
-
-.status-select.status-realizado {
-    background: #cce5ff;
-    color: #004085;
-}
-
-.status-select.status-cancelado {
-    background: #f8d7da;
-    color: #721c24;
+.acoes {
+    white-space: nowrap;
 }
 
 .btn-sm {
-    padding: 6px 12px;
+    padding: 6px 10px;
     font-size: 0.85rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-edit {
+    background: #e3f2fd;
+    color: #1976d2;
+    margin-right: 5px;
+}
+
+.btn-edit:hover {
+    background: #1976d2;
+    color: white;
 }
 
 .btn-danger {
-    background: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    background: #ffebee;
+    color: #c62828;
 }
 
 .btn-danger:hover {
-    background: #c82333;
+    background: #c62828;
+    color: white;
 }
 
 .text-muted {
@@ -197,11 +295,183 @@
 .empty-state i {
     font-size: 4rem;
     margin-bottom: 20px;
-    opacity: 0.5;
+    opacity: 0.4;
 }
 
-.empty-state h3 {
-    margin-bottom: 10px;
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.2rem;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.form-row {
+    margin-bottom: 15px;
+}
+
+.form-row.two-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-row.three-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a6fd6;
+}
+
+@media (max-width: 600px) {
+    .form-row.two-cols,
+    .form-row.three-cols {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
 }
 </style>
+
+<script>
+function abrirModalEdicao(id, nome, email, telefone, mes, dia, horario, observacoes) {
+    document.getElementById('formEdicao').action = '/admin/agendamentos/' + id + '/editar';
+    document.getElementById('edit_nome').value = nome;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_telefone').value = telefone;
+    document.getElementById('edit_mes').value = mes;
+    document.getElementById('edit_dia').value = dia;
+    document.getElementById('edit_horario').value = horario;
+    document.getElementById('edit_observacoes').value = observacoes;
+    document.getElementById('modalEdicao').classList.add('active');
+}
+
+function fecharModal() {
+    document.getElementById('modalEdicao').classList.remove('active');
+}
+
+// Fechar modal ao clicar fora
+document.getElementById('modalEdicao').addEventListener('click', function(e) {
+    if (e.target === this) {
+        fecharModal();
+    }
+});
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        fecharModal();
+    }
+});
+</script>
 {% endblock %}

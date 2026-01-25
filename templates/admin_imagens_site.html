@@ -1,0 +1,313 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Imagens do Site - Admin{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1><i class="fas fa-images"></i> Imagens do Site</h1>
+    <p class="breadcrumb">Painel Administrativo / Imagens do Site</p>
+</div>
+
+<div class="info-card">
+    <i class="fas fa-info-circle"></i>
+    <div>
+        <strong>Gerencie todas as imagens do site</strong>
+        <p>Aqui você pode trocar as imagens principais que aparecem no site. Clique em "Trocar Imagem" para fazer upload de uma nova.</p>
+    </div>
+</div>
+
+<div class="images-grid">
+    <!-- Logo -->
+    <div class="image-card">
+        <div class="image-header">
+            <h3><i class="fas fa-church"></i> Logo da Igreja</h3>
+            <span class="image-location">Aparece no cabeçalho do site</span>
+        </div>
+        <div class="image-preview">
+            <img src="{{ url_for('static', filename='img/logo.png') }}?v={{ cache_bust }}" alt="Logo">
+        </div>
+        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="imagem_tipo" value="logo">
+            <input type="hidden" name="imagem_nome" value="logo.png">
+            <div class="file-input-wrapper">
+                <input type="file" name="imagem" accept="image/png,image/jpg,image/jpeg,image/webp" required onchange="previewImage(this, 'preview-logo')">
+                <span class="file-hint">PNG recomendado (fundo transparente)</span>
+            </div>
+            <img id="preview-logo" class="upload-preview" style="display:none;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Trocar Logo
+            </button>
+        </form>
+    </div>
+
+    <!-- Hero Background -->
+    <div class="image-card">
+        <div class="image-header">
+            <h3><i class="fas fa-image"></i> Imagem Principal (Hero)</h3>
+            <span class="image-location">Imagem de fundo da página inicial</span>
+        </div>
+        <div class="image-preview large">
+            <img src="{{ url_for('static', filename='img/hero-background.jpg') }}?v={{ cache_bust }}" alt="Hero Background">
+        </div>
+        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="imagem_tipo" value="hero">
+            <input type="hidden" name="imagem_nome" value="hero-background.jpg">
+            <div class="file-input-wrapper">
+                <input type="file" name="imagem" accept="image/jpg,image/jpeg,image/png,image/webp" required onchange="previewImage(this, 'preview-hero')">
+                <span class="file-hint">Recomendado: 1920x1080 pixels</span>
+            </div>
+            <img id="preview-hero" class="upload-preview" style="display:none;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Trocar Imagem
+            </button>
+        </form>
+    </div>
+
+    <!-- Comunidade Acolhedora -->
+    <div class="image-card">
+        <div class="image-header">
+            <h3><i class="fas fa-users"></i> Seção "Sobre a Paróquia"</h3>
+            <span class="image-location">Imagem na seção sobre a igreja</span>
+        </div>
+        <div class="image-preview large">
+            <img src="{{ url_for('static', filename='img/Comunidade_acolhedora.jpg') }}?v={{ cache_bust }}" alt="Comunidade">
+        </div>
+        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="imagem_tipo" value="about">
+            <input type="hidden" name="imagem_nome" value="Comunidade_acolhedora.jpg">
+            <div class="file-input-wrapper">
+                <input type="file" name="imagem" accept="image/jpg,image/jpeg,image/png,image/webp" required onchange="previewImage(this, 'preview-about')">
+                <span class="file-hint">Recomendado: 800x600 pixels</span>
+            </div>
+            <img id="preview-about" class="upload-preview" style="display:none;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> Trocar Imagem
+            </button>
+        </form>
+    </div>
+
+    <!-- Confession Background (opcional) -->
+    <div class="image-card">
+        <div class="image-header">
+            <h3><i class="fas fa-pray"></i> Seção Confissão</h3>
+            <span class="image-location">Fundo da seção de agendamento</span>
+        </div>
+        <div class="image-preview large">
+            {% if confession_bg_exists %}
+            <img src="{{ url_for('static', filename='img/confession-background.jpg') }}?v={{ cache_bust }}" alt="Confissão">
+            {% else %}
+            <div class="no-image">
+                <i class="fas fa-image"></i>
+                <p>Nenhuma imagem definida</p>
+                <small>Adicione uma imagem de fundo para a seção</small>
+            </div>
+            {% endif %}
+        </div>
+        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="imagem_tipo" value="confession">
+            <input type="hidden" name="imagem_nome" value="confession-background.jpg">
+            <div class="file-input-wrapper">
+                <input type="file" name="imagem" accept="image/jpg,image/jpeg,image/png,image/webp" required onchange="previewImage(this, 'preview-confession')">
+                <span class="file-hint">Recomendado: 1920x1080 pixels</span>
+            </div>
+            <img id="preview-confession" class="upload-preview" style="display:none;">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-upload"></i> {{ 'Trocar' if confession_bg_exists else 'Adicionar' }} Imagem
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+.info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 20px;
+    background: #eff6ff;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 25px;
+}
+
+.info-card i {
+    color: #3b82f6;
+    font-size: 1.5rem;
+    margin-top: 2px;
+}
+
+.info-card strong {
+    display: block;
+    color: #1e40af;
+    margin-bottom: 5px;
+}
+
+.info-card p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 0.9rem;
+}
+
+.images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 25px;
+}
+
+.image-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.image-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.image-header h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #1f2937;
+}
+
+.image-header h3 i {
+    color: #667eea;
+}
+
+.image-location {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.image-preview {
+    background: #f3f4f6;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+}
+
+.image-preview.large {
+    min-height: 200px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.no-image {
+    text-align: center;
+    color: #9ca3af;
+    padding: 30px;
+}
+
+.no-image i {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.no-image p {
+    margin: 0 0 5px 0;
+    font-weight: 500;
+}
+
+.no-image small {
+    font-size: 0.8rem;
+}
+
+.image-form {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.file-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.file-input-wrapper input[type="file"] {
+    padding: 10px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.file-input-wrapper input[type="file"]:hover {
+    border-color: #667eea;
+    background: #f8fafc;
+}
+
+.file-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.upload-preview {
+    max-width: 100%;
+    max-height: 150px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #667eea;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #5a6fd6;
+}
+
+@media (max-width: 768px) {
+    .images-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function previewImage(input, previewId) {
+    const preview = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+{% endblock %}

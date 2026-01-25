@@ -198,6 +198,11 @@ class AuthManager:
         @app.before_request
         def csrf_protect():
             if request.method in ['POST', 'PUT', 'DELETE']:
+                # Rotas públicas isentas de CSRF (formulários públicos do site)
+                public_routes = ['/api/agendar-confissao', '/api/enviar-mensagem']
+                if request.path in public_routes:
+                    return  # Permite sem CSRF
+
                 # Ignorar API com autenticação diferente (futuro)
                 if request.path.startswith('/api/') and request.is_json:
                     # Para API, verificar header X-CSRF-Token

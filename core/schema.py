@@ -342,67 +342,6 @@ class SchemaRegistry:
             }
         ))
 
-        # ==================== INFORMAÇÕES DA PARÓQUIA ====================
-        self.register(EntitySchema(
-            name="paroquia_info",
-            table="paroquia_info",
-            display_name="Informação",
-            display_name_plural="Informações da Paróquia",
-            icon="fas fa-church",
-            primary_key="id",
-            order_by="ordem ASC",
-            list_display=["secao", "titulo", "ordem"],
-            search_fields=["titulo", "conteudo"],
-            readonly_fields=["secao"],  # Seção não pode ser alterada
-            permissions={
-                "list": "config:read",
-                "read": "config:read",
-                "update": "config:update"
-            },
-            fields={
-                "id": FieldSchema(
-                    name="id",
-                    field_type=FieldType.HIDDEN,
-                    label="ID",
-                    show_in_list=False,
-                    show_in_form=False,
-                    editable=False
-                ),
-                "secao": FieldSchema(
-                    name="secao",
-                    field_type=FieldType.READONLY,
-                    label="Seção",
-                    editable=False,
-                    help_text="Identificador interno da seção",
-                    column_width="120px"
-                ),
-                "titulo": FieldSchema(
-                    name="titulo",
-                    field_type=FieldType.TEXT,
-                    label="Título",
-                    required=True,
-                    max_length=200,
-                    column_width="200px"
-                ),
-                "conteudo": FieldSchema(
-                    name="conteudo",
-                    field_type=FieldType.RICHTEXT,
-                    label="Conteúdo",
-                    required=True,
-                    show_in_list=False
-                ),
-                "ordem": FieldSchema(
-                    name="ordem",
-                    field_type=FieldType.NUMBER,
-                    label="Ordem",
-                    default=0,
-                    min_value=0,
-                    help_text="Ordem de exibição",
-                    column_width="80px"
-                )
-            }
-        ))
-
         # ==================== CONTATOS ====================
         self.register(EntitySchema(
             name="contatos",

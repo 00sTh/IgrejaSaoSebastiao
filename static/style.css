@@ -658,6 +658,37 @@ ul {
 		border: 1px solid #f5c6cb;
 	}
 
+/* Select de horários - estados */
+.confession-form select {
+	width: 100%;
+	padding: var(--spacing-sm);
+	border: 1px solid var(--color-gray-medium);
+	border-radius: var(--border-radius);
+	font-size: 1rem;
+	font-family: 'Open Sans', sans-serif;
+	background-color: white;
+	cursor: pointer;
+}
+
+.confession-form select:disabled {
+	background-color: #f5f5f5;
+	color: #999;
+	cursor: not-allowed;
+}
+
+.confession-form select:focus {
+	outline: none;
+	border-color: var(--color-primary);
+}
+
+/* Info de horários */
+.form-help {
+	font-size: 0.85rem;
+	margin-top: 5px;
+	display: block;
+	font-weight: 500;
+}
+
 /* ==================== */
 /* SEÇÃO CONTATO */
 /* ==================== */

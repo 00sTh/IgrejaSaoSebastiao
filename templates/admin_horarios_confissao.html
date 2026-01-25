@@ -1,0 +1,364 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Horários de Confissão - Admin{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <div class="section-header">
+        <h1><i class="fas fa-clock"></i> Horários de Confissão</h1>
+        <p class="section-desc">Gerencie os dias e horários disponíveis para agendamento de confissões</p>
+    </div>
+
+    <div class="content-grid">
+        <!-- Formulário para adicionar novo horário -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Adicionar Novo Horário</h3>
+            </div>
+            <form action="{{ url_for('admin_horario_confissao_add') }}" method="POST" class="form-add">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dia_semana">Dia da Semana</label>
+                        <select name="dia_semana" id="dia_semana" required class="form-control">
+                            <option value="">Selecione o dia</option>
+                            <option value="Domingo">Domingo</option>
+                            <option value="Segunda-feira">Segunda-feira</option>
+                            <option value="Terça-feira">Terça-feira</option>
+                            <option value="Quarta-feira">Quarta-feira</option>
+                            <option value="Quinta-feira">Quinta-feira</option>
+                            <option value="Sexta-feira">Sexta-feira</option>
+                            <option value="Sábado">Sábado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="horario">Horário</label>
+                        <input type="time" name="horario" id="horario" required class="form-control">
+                    </div>
+                    <div class="form-group btn-group">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de horários por dia -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-list"></i> Horários Cadastrados</h3>
+                <span class="badge">{{ horarios|length }} horário(s)</span>
+            </div>
+
+            {% if horarios_por_dia %}
+            <div class="horarios-grid">
+                {% for dia, lista_horarios in horarios_por_dia.items() %}
+                <div class="dia-card">
+                    <div class="dia-header">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>{{ dia }}</span>
+                        <span class="count">{{ lista_horarios|length }}</span>
+                    </div>
+                    <div class="horarios-lista">
+                        {% for h in lista_horarios %}
+                        <div class="horario-item {% if not h.ativo %}inativo{% endif %}">
+                            <span class="horario-time">
+                                <i class="fas fa-clock"></i> {{ h.horario }}
+                            </span>
+                            <div class="horario-actions">
+                                <form action="{{ url_for('admin_horario_confissao_toggle', horario_id=h.id) }}" method="POST" style="display:inline;">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn-icon {% if h.ativo %}btn-warning{% else %}btn-success{% endif %}" title="{% if h.ativo %}Desativar{% else %}Ativar{% endif %}">
+                                        <i class="fas fa-{% if h.ativo %}pause{% else %}play{% endif %}"></i>
+                                    </button>
+                                </form>
+                                <form action="{{ url_for('admin_horario_confissao_delete', horario_id=h.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Remover este horário?');">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                    <button type="submit" class="btn-icon btn-danger" title="Remover">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Nenhum horário cadastrado</h3>
+                <p>Adicione os dias e horários em que o padre estará disponível para confissões.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.admin-section {
+    padding: 20px;
+}
+
+.section-header {
+    margin-bottom: 25px;
+}
+
+.section-header h1 {
+    margin: 0 0 8px 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-desc {
+    color: #666;
+    margin: 0;
+}
+
+.content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.badge {
+    background: #667eea;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+/* Formulário */
+.form-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.form-group.btn-group {
+    flex: 0;
+    min-width: auto;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Grid de horários por dia */
+.horarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.dia-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.dia-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.dia-header .count {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.horarios-lista {
+    padding: 10px;
+}
+
+.horario-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    background: white;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.horario-item:last-child {
+    margin-bottom: 0;
+}
+
+.horario-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.horario-item.inativo {
+    opacity: 0.5;
+    background: #f0f0f0;
+}
+
+.horario-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.horario-time i {
+    color: #667eea;
+}
+
+.horario-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.btn-icon {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon.btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.btn-icon.btn-danger:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.btn-icon.btn-warning {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.btn-icon.btn-warning:hover {
+    background: #d97706;
+    color: white;
+}
+
+.btn-icon.btn-success {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.btn-icon.btn-success:hover {
+    background: #16a34a;
+    color: white;
+}
+
+.btn-success {
+    background: #22c55e;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-success:hover {
+    background: #16a34a;
+}
+
+/* Empty state */
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #666;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    opacity: 0.4;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    .horarios-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}

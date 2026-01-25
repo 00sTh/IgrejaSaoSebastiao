@@ -35,12 +35,47 @@ def init_crud_routes(app):
         # Agrupar por categoria
         categories = {
             "Conteúdo": ["noticias", "galeria"],
-            "Configurações": ["horarios_missas", "paroquia_info", "contatos", "configuracoes"],
+            "Configurações": ["horarios_missas", "contatos", "configuracoes"],
             "Sistema": ["users"]
+        }
+
+        # Links personalizados (não-CRUD)
+        custom_links = {
+            "Configurações": [
+                {
+                    "name": "conteudo_site",
+                    "display_name": "Conteúdo do Site",
+                    "icon": "fas fa-edit",
+                    "url": url_for('admin_conteudo_site'),
+                    "has_access": True,
+                    "position": 0  # Primeiro item
+                },
+                {
+                    "name": "imagens_site",
+                    "display_name": "Imagens do Site",
+                    "icon": "fas fa-image",
+                    "url": url_for('admin_imagens_site'),
+                    "has_access": True,
+                    "position": 1  # Segundo item
+                }
+            ]
         }
 
         for category, entities in categories.items():
             items = []
+
+            # Adicionar links personalizados primeiro (se houver)
+            if category in custom_links:
+                for link in sorted(custom_links[category], key=lambda x: x.get('position', 99)):
+                    items.append({
+                        "name": link["name"],
+                        "display_name": link["display_name"],
+                        "icon": link["icon"],
+                        "url": link["url"],
+                        "has_access": link["has_access"]
+                    })
+
+            # Adicionar itens do CRUD
             for entity_name in entities:
                 schema = registry.get(entity_name)
                 if schema:

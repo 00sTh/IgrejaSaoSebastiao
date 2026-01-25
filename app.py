@@ -114,6 +114,16 @@ def init_db():
         )
     ''')
 
+    # Tabela de horários disponíveis para confissão
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS horarios_confissao (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dia_semana TEXT NOT NULL,
+            horario TEXT NOT NULL,
+            ativo INTEGER DEFAULT 1
+        )
+    ''')
+
     # Tabela de agendamentos de confissão
     conn.execute('''
         CREATE TABLE IF NOT EXISTS agendamentos_confissao (
@@ -121,8 +131,9 @@ def init_db():
             nome TEXT NOT NULL,
             email TEXT NOT NULL,
             telefone TEXT NOT NULL,
-            data_preferencial DATE NOT NULL,
-            hora_preferencial TIME NOT NULL,
+            mes INTEGER NOT NULL,
+            dia INTEGER NOT NULL,
+            horario TEXT NOT NULL,
             observacoes TEXT,
             status TEXT DEFAULT 'pendente',
             data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -171,6 +182,26 @@ def insert_initial_data(conn):
         ('Domingo', '19:00', 'Missa'),
     ]
     conn.executemany('INSERT INTO horarios_missas (dia_semana, horario, tipo) VALUES (?, ?, ?)', missas_default)
+
+    # Inserir horários de confissão padrão
+    confissao_default = [
+        ('Terça-feira', '14:00'),
+        ('Terça-feira', '15:00'),
+        ('Terça-feira', '16:00'),
+        ('Quarta-feira', '14:00'),
+        ('Quarta-feira', '15:00'),
+        ('Quarta-feira', '16:00'),
+        ('Quinta-feira', '14:00'),
+        ('Quinta-feira', '15:00'),
+        ('Quinta-feira', '16:00'),
+        ('Sexta-feira', '14:00'),
+        ('Sexta-feira', '15:00'),
+        ('Sexta-feira', '16:00'),
+        ('Sábado', '09:00'),
+        ('Sábado', '10:00'),
+        ('Sábado', '11:00'),
+    ]
+    conn.executemany('INSERT INTO horarios_confissao (dia_semana, horario) VALUES (?, ?)', confissao_default)
 
     # Inserir informações da paróquia padrão
     paroquia_default = [
@@ -450,8 +481,30 @@ def admin_dashboard():
 
     # Estatísticas
     total_noticias = conn.execute('SELECT COUNT(*) as count FROM noticias').fetchone()['count']
-    total_galeria = conn.execute('SELECT COUNT(*) as count FROM galeria WHERE ativo = 1').fetchone()['count']
+    total_galeria = conn.execute('SELECT COUNT(*) as count FROM galeria').fetchone()['count']
     total_missas = conn.execute('SELECT COUNT(*) as count FROM horarios_missas WHERE ativo = 1').fetchone()['count']
+
+    # Tentar buscar total_informacoes (pode não existir a tabela)
+    try:
+        total_informacoes = conn.execute('SELECT COUNT(*) as count FROM informacoes').fetchone()['count']
+    except:
+        total_informacoes = 0
+
+    # Agendamentos pendentes
+    try:
+        agendamentos_pendentes = conn.execute(
+            "SELECT COUNT(*) as count FROM agendamentos_confissao WHERE status = 'pendente'"
+        ).fetchone()['count']
+    except:
+        agendamentos_pendentes = 0
+
+    # Mensagens não lidas
+    try:
+        mensagens_nao_lidas = conn.execute(
+            "SELECT COUNT(*) as count FROM mensagens_contato WHERE lida = 0"
+        ).fetchone()['count']
+    except:
+        mensagens_nao_lidas = 0
 
     noticias_recentes = conn.execute(
         'SELECT * FROM noticias ORDER BY data_criacao DESC LIMIT 5'
@@ -461,8 +514,11 @@ def admin_dashboard():
 
     return render_template('admin_dashboard.html',
                          total_noticias=total_noticias,
-                         total_galeria=total_galeria,
-                         total_missas=total_missas,
+                         total_fotos=total_galeria,
+                         total_horarios=total_missas,
+                         total_informacoes=total_informacoes,
+                         agendamentos_pendentes=agendamentos_pendentes,
+                         mensagens_nao_lidas=mensagens_nao_lidas,
                          noticias_recentes=noticias_recentes)
 
 # ==================== ROTAS DE NOTÍCIAS ====================
@@ -657,38 +713,68 @@ def admin_galeria():
     conn.close()
     return render_template('admin_galeria.html', galeria=galeria)
 
-@app.route('/admin/galeria/nova', methods=['GET', 'POST'])
+@app.route('/admin/galeria/editar/<int:foto_id>', methods=['GET', 'POST'])
+@app.route('/admin/galeria/editar', defaults={'foto_id': None}, methods=['GET', 'POST'])
 @login_required
-def admin_galeria_nova():
-    """Adicionar foto à galeria"""
+def admin_galeria_edit(foto_id=None):
+    """Editar ou adicionar foto à galeria"""
+    conn = get_db_connection()
+    foto = None
+
+    if foto_id:
+        foto = conn.execute('SELECT * FROM galeria WHERE id = ?', (foto_id,)).fetchone()
+        if not foto:
+            conn.close()
+            flash('Foto não encontrada.', 'error')
+            return redirect(url_for('admin_galeria'))
+
     if request.method == 'POST':
         titulo = request.form.get('titulo', '').strip()
         descricao = request.form.get('descricao', '').strip()
+        categoria = request.form.get('categoria', '').strip()
 
         if not titulo:
             flash('Título é obrigatório.', 'error')
-            return render_template('admin_galeria_edit.html')
+            return render_template('admin_galeria_edit.html', foto=foto)
 
-        if 'imagem' not in request.files or not request.files['imagem'].filename:
-            flash('Imagem é obrigatória.', 'error')
-            return render_template('admin_galeria_edit.html')
+        imagem_url = None
+        if 'imagem' in request.files and request.files['imagem'].filename:
+            imagem_url = save_uploaded_file(request.files['imagem'])
+            if not imagem_url:
+                flash('Erro ao fazer upload da imagem.', 'error')
+                return render_template('admin_galeria_edit.html', foto=foto)
+        elif not foto:
+            flash('Imagem é obrigatória para nova foto.', 'error')
+            return render_template('admin_galeria_edit.html', foto=foto)
 
-        imagem_url = save_uploaded_file(request.files['imagem'])
-        if not imagem_url:
-            flash('Erro ao fazer upload da imagem.', 'error')
-            return render_template('admin_galeria_edit.html')
+        if foto:
+            # Atualizar foto existente
+            if imagem_url:
+                conn.execute(
+                    'UPDATE galeria SET titulo = ?, descricao = ?, categoria = ?, imagem_url = ? WHERE id = ?',
+                    (titulo, descricao, categoria, imagem_url, foto_id)
+                )
+            else:
+                conn.execute(
+                    'UPDATE galeria SET titulo = ?, descricao = ?, categoria = ? WHERE id = ?',
+                    (titulo, descricao, categoria, foto_id)
+                )
+            flash('Foto atualizada com sucesso!', 'success')
+        else:
+            # Nova foto
+            conn.execute(
+                'INSERT INTO galeria (titulo, descricao, categoria, imagem_url) VALUES (?, ?, ?, ?)',
+                (titulo, descricao, categoria, imagem_url)
+            )
+            flash('Foto adicionada com sucesso!', 'success')
 
-        conn = get_db_connection()
-        conn.execute(
-            'INSERT INTO galeria (titulo, descricao, imagem_url) VALUES (?, ?, ?)',
-            (titulo, descricao, imagem_url)
-        )
         conn.commit()
         conn.close()
-        flash('Foto adicionada com sucesso!', 'success')
         return redirect(url_for('admin_galeria'))
 
-    return render_template('admin_galeria_edit.html')
+    conn.close()
+    return render_template('admin_galeria_edit.html', foto=foto)
+
 
 @app.route('/admin/galeria/deletar/<int:foto_id>', methods=['POST'])
 @login_required
@@ -700,6 +786,133 @@ def admin_galeria_delete(foto_id):
     conn.close()
     flash('Foto deletada com sucesso!', 'success')
     return redirect(url_for('admin_galeria'))
+
+
+# ==================== ROTAS DE IMAGENS DO SITE ====================
+
+@app.route('/admin/imagens-site')
+@login_required
+def admin_imagens_site():
+    """Gerenciar imagens do site"""
+    import time
+    # Verificar se a imagem de confissão existe
+    confession_bg_exists = os.path.exists(
+        os.path.join(app.root_path, 'static', 'img', 'confession-background.jpg')
+    )
+    return render_template('admin_imagens_site.html',
+                          confession_bg_exists=confession_bg_exists,
+                          cache_bust=int(time.time()))
+
+
+@app.route('/admin/imagens-site/upload', methods=['POST'])
+@login_required
+def admin_imagem_upload():
+    """Upload de imagem do site"""
+    if 'imagem' not in request.files:
+        flash('Nenhuma imagem selecionada.', 'error')
+        return redirect(url_for('admin_imagens_site'))
+
+    file = request.files['imagem']
+    imagem_nome = request.form.get('imagem_nome', '')
+
+    if file.filename == '':
+        flash('Nenhuma imagem selecionada.', 'error')
+        return redirect(url_for('admin_imagens_site'))
+
+    if not imagem_nome:
+        flash('Tipo de imagem não especificado.', 'error')
+        return redirect(url_for('admin_imagens_site'))
+
+    # Validar extensão
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'webp'}
+    file_ext = file.filename.rsplit('.', 1)[-1].lower() if '.' in file.filename else ''
+    if file_ext not in allowed_extensions:
+        flash('Formato de arquivo não suportado. Use PNG, JPG ou WEBP.', 'error')
+        return redirect(url_for('admin_imagens_site'))
+
+    try:
+        # Determinar o nome final do arquivo mantendo a extensão original do destino
+        dest_ext = imagem_nome.rsplit('.', 1)[-1].lower()
+        dest_name = imagem_nome.rsplit('.', 1)[0]
+
+        # Se a extensão do upload for diferente, converter para a extensão destino
+        img_path = os.path.join(app.root_path, 'static', 'img', imagem_nome)
+
+        # Salvar arquivo
+        from PIL import Image
+        img = Image.open(file.stream)
+
+        # Converter para RGB se necessário (para salvar como JPG)
+        if dest_ext in ['jpg', 'jpeg'] and img.mode in ('RGBA', 'P'):
+            img = img.convert('RGB')
+
+        # Salvar com qualidade apropriada
+        if dest_ext in ['jpg', 'jpeg']:
+            img.save(img_path, 'JPEG', quality=90)
+        elif dest_ext == 'png':
+            img.save(img_path, 'PNG')
+        elif dest_ext == 'webp':
+            img.save(img_path, 'WEBP', quality=90)
+        else:
+            img.save(img_path)
+
+        flash('Imagem atualizada com sucesso!', 'success')
+    except Exception as e:
+        flash(f'Erro ao salvar imagem: {str(e)}', 'error')
+
+    return redirect(url_for('admin_imagens_site'))
+
+
+# ==================== ROTAS DE CONTEÚDO DO SITE (EDITOR AMIGÁVEL) ====================
+
+@app.route('/admin/conteudo-site')
+@login_required
+def admin_conteudo_site():
+    """Editor amigável de conteúdo do site"""
+    conn = get_db_connection()
+
+    # Carregar dados da tabela paroquia_info
+    paroquia_info = conn.execute('SELECT secao, titulo FROM paroquia_info').fetchall()
+    conn.close()
+
+    # Converter para dicionário: secao -> titulo (valor)
+    dados = {row['secao']: row['titulo'] for row in paroquia_info}
+
+    return render_template('admin_conteudo_site.html', dados=dados)
+
+
+@app.route('/admin/conteudo-site/salvar', methods=['POST'])
+@login_required
+def admin_conteudo_site_save():
+    """Salvar alterações do conteúdo do site"""
+    conn = get_db_connection()
+
+    # Lista de campos que podem ser atualizados (correspondem à coluna 'secao')
+    campos_permitidos = [
+        'hero_titulo', 'hero_subtitulo', 'hero_botao',
+        'sobre_titulo', 'sobre_texto',
+        'horarios_titulo', 'missas_titulo', 'confissoes_titulo', 'confissoes_horarios',
+        'secretaria_titulo', 'secretaria_horarios', 'secretaria_telefone', 'secretaria_email',
+        'galeria_titulo',
+        'historia_titulo', 'historia_texto', 'historia_marcos_titulo', 'historia_marcos',
+        'localizacao_titulo', 'localizacao_endereco', 'localizacao_telefones',
+        'localizacao_email', 'localizacao_mapa',
+        'confissao_titulo', 'confissao_texto',
+        'contato_titulo', 'contato_subtitulo', 'contato_texto',
+        'rodape_texto', 'redes_facebook', 'redes_instagram', 'redes_whatsapp'
+    ]
+
+    for campo in campos_permitidos:
+        valor = request.form.get(campo, '').strip()
+        # Atualiza o campo na tabela paroquia_info (coluna 'titulo' contém o valor)
+        conn.execute('UPDATE paroquia_info SET titulo = ? WHERE secao = ?', (valor, campo))
+
+    conn.commit()
+    conn.close()
+
+    flash('Conteúdo do site atualizado com sucesso!', 'success')
+    return redirect(url_for('admin_conteudo_site'))
+
 
 # ==================== ROTAS DE CONFIGURAÇÕES ====================
 
@@ -853,41 +1066,161 @@ def api_update_content():
 
 # ==================== ROTAS DE FORMULÁRIOS PÚBLICOS ====================
 
+import re
+
+def validar_email(email):
+    """Valida formato de email"""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def validar_telefone(telefone):
+    """Valida telefone brasileiro (aceita vários formatos)"""
+    # Remove tudo que não é número
+    numeros = re.sub(r'\D', '', telefone)
+    # Deve ter entre 10 e 11 dígitos (com DDD)
+    return len(numeros) >= 10 and len(numeros) <= 11
+
+def validar_nome_completo(nome):
+    """Valida nome completo (pelo menos 2 palavras)"""
+    partes = nome.strip().split()
+    return len(partes) >= 2 and all(len(p) >= 2 for p in partes)
+
+
+@app.route('/api/horarios-disponiveis', methods=['GET'])
+def api_horarios_disponiveis():
+    """Retorna horários disponíveis para uma data específica"""
+    mes = request.args.get('mes', type=int)
+    dia = request.args.get('dia', type=int)
+
+    if not mes or not dia:
+        return jsonify({'status': 'error', 'message': 'Mês e dia são obrigatórios'}), 400
+
+    # Determinar dia da semana
+    from datetime import date
+    ano = date.today().year
+    # Se o mês já passou, usa o próximo ano
+    if mes < date.today().month or (mes == date.today().month and dia < date.today().day):
+        ano += 1
+
+    try:
+        data_selecionada = date(ano, mes, dia)
+    except ValueError:
+        return jsonify({'status': 'error', 'message': 'Data inválida'}), 400
+
+    dias_semana = ['Segunda-feira', 'Terça-feira', 'Quarta-feira',
+                   'Quinta-feira', 'Sexta-feira', 'Sábado', 'Domingo']
+    dia_semana = dias_semana[data_selecionada.weekday()]
+
+    conn = get_db_connection()
+
+    # Buscar horários disponíveis para este dia da semana
+    horarios = conn.execute('''
+        SELECT horario FROM horarios_confissao
+        WHERE dia_semana = ? AND ativo = 1
+        ORDER BY horario
+    ''', (dia_semana,)).fetchall()
+
+    # Buscar horários já agendados para esta data (que não foram cancelados)
+    agendados = conn.execute('''
+        SELECT horario FROM agendamentos_confissao
+        WHERE mes = ? AND dia = ? AND status != 'cancelado'
+    ''', (mes, dia)).fetchall()
+
+    conn.close()
+
+    horarios_ocupados = {a['horario'] for a in agendados}
+    horarios_disponiveis = [
+        h['horario'] for h in horarios
+        if h['horario'] not in horarios_ocupados
+    ]
+
+    return jsonify({
+        'status': 'success',
+        'dia_semana': dia_semana,
+        'horarios': horarios_disponiveis
+    })
+
+
 @app.route('/api/agendar-confissao', methods=['POST'])
 def api_agendar_confissao():
-    """API para agendamento de confissão"""
+    """API para agendamento de confissão com validações"""
     try:
         data = request.get_json() if request.is_json else request.form
 
         nome = data.get('nome', '').strip()
         email = data.get('email', '').strip()
         telefone = data.get('telefone', '').strip()
-        data_pref = data.get('data', '').strip()
-        hora_pref = data.get('hora', '').strip()
+        mes = data.get('mes', '')
+        dia = data.get('dia', '')
+        horario = data.get('horario', '').strip()
         observacoes = data.get('observacoes', '').strip()
 
-        # Validações
-        if not all([nome, email, telefone, data_pref, hora_pref]):
+        # Validações de campos obrigatórios
+        if not all([nome, email, telefone, mes, dia, horario]):
             return jsonify({
                 'status': 'error',
                 'message': 'Por favor, preencha todos os campos obrigatórios.'
             }), 400
 
-        # Salvar no banco
+        # Validar nome completo
+        if not validar_nome_completo(nome):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, informe seu nome completo (nome e sobrenome).'
+            }), 400
+
+        # Validar email
+        if not validar_email(email):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, informe um email válido.'
+            }), 400
+
+        # Validar telefone
+        if not validar_telefone(telefone):
+            return jsonify({
+                'status': 'error',
+                'message': 'Por favor, informe um telefone válido com DDD.'
+            }), 400
+
+        # Converter mes e dia para int
+        try:
+            mes = int(mes)
+            dia = int(dia)
+        except (ValueError, TypeError):
+            return jsonify({
+                'status': 'error',
+                'message': 'Data inválida.'
+            }), 400
+
+        # Verificar se horário ainda está disponível
         conn = get_db_connection()
+        existe = conn.execute('''
+            SELECT id FROM agendamentos_confissao
+            WHERE mes = ? AND dia = ? AND horario = ? AND status != 'cancelado'
+        ''', (mes, dia, horario)).fetchone()
+
+        if existe:
+            conn.close()
+            return jsonify({
+                'status': 'error',
+                'message': 'Este horário já foi reservado. Por favor, escolha outro.'
+            }), 400
+
+        # Salvar agendamento
         conn.execute('''
             INSERT INTO agendamentos_confissao
-            (nome, email, telefone, data_preferencial, hora_preferencial, observacoes)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (nome, email, telefone, data_pref, hora_pref, observacoes))
+            (nome, email, telefone, mes, dia, horario, observacoes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (nome, email, telefone, mes, dia, horario, observacoes))
         conn.commit()
         conn.close()
 
-        log_request("Novo agendamento de confissão", nome=nome, data=data_pref)
+        log_request("Novo agendamento de confissão", nome=nome, mes=mes, dia=dia, horario=horario)
 
         return jsonify({
             'status': 'success',
-            'message': 'Solicitação de agendamento enviada com sucesso! Entraremos em contato para confirmar.'
+            'message': f'Agendamento confirmado para dia {dia}/{mes:02d} às {horario}. Entraremos em contato se necessário.'
         })
 
     except Exception as e:
@@ -968,6 +1301,35 @@ def admin_agendamento_status(agendamento_id):
     return redirect(url_for('admin_agendamentos'))
 
 
+@app.route('/admin/agendamentos/<int:agendamento_id>/editar', methods=['POST'])
+@login_required
+def admin_agendamento_edit(agendamento_id):
+    """Editar agendamento de confissão"""
+    nome = request.form.get('nome')
+    email = request.form.get('email')
+    telefone = request.form.get('telefone')
+    mes = request.form.get('mes')
+    dia = request.form.get('dia')
+    horario = request.form.get('horario')
+    observacoes = request.form.get('observacoes', '')
+
+    if not all([nome, email, telefone, mes, dia, horario]):
+        flash('Preencha todos os campos obrigatórios.', 'error')
+        return redirect(url_for('admin_agendamentos'))
+
+    conn = get_db_connection()
+    conn.execute('''
+        UPDATE agendamentos_confissao
+        SET nome = ?, email = ?, telefone = ?, mes = ?, dia = ?, horario = ?, observacoes = ?
+        WHERE id = ?
+    ''', (nome, email, telefone, mes, dia, horario, observacoes, agendamento_id))
+    conn.commit()
+    conn.close()
+
+    flash('Agendamento atualizado com sucesso.', 'success')
+    return redirect(url_for('admin_agendamentos'))
+
+
 @app.route('/admin/agendamentos/<int:agendamento_id>/deletar', methods=['POST'])
 @login_required
 def admin_agendamento_delete(agendamento_id):
@@ -978,6 +1340,105 @@ def admin_agendamento_delete(agendamento_id):
     conn.close()
     flash('Agendamento deletado.', 'success')
     return redirect(url_for('admin_agendamentos'))
+
+
+# ==================== ROTAS ADMIN PARA HORÁRIOS DE CONFISSÃO ====================
+
+@app.route('/admin/horarios-confissao')
+@login_required
+def admin_horarios_confissao():
+    """Gerenciar horários disponíveis para confissão"""
+    conn = get_db_connection()
+    horarios = conn.execute('''
+        SELECT * FROM horarios_confissao
+        ORDER BY
+            CASE dia_semana
+                WHEN 'Domingo' THEN 1
+                WHEN 'Segunda-feira' THEN 2
+                WHEN 'Terça-feira' THEN 3
+                WHEN 'Quarta-feira' THEN 4
+                WHEN 'Quinta-feira' THEN 5
+                WHEN 'Sexta-feira' THEN 6
+                WHEN 'Sábado' THEN 7
+            END,
+            horario
+    ''').fetchall()
+    conn.close()
+
+    # Organizar por dia da semana
+    horarios_por_dia = {}
+    for h in horarios:
+        dia = h['dia_semana']
+        if dia not in horarios_por_dia:
+            horarios_por_dia[dia] = []
+        horarios_por_dia[dia].append(h)
+
+    return render_template('admin_horarios_confissao.html',
+                          horarios=horarios,
+                          horarios_por_dia=horarios_por_dia)
+
+
+@app.route('/admin/horarios-confissao/adicionar', methods=['POST'])
+@login_required
+def admin_horario_confissao_add():
+    """Adicionar novo horário de confissão"""
+    dia_semana = request.form.get('dia_semana')
+    horario = request.form.get('horario')
+
+    if not dia_semana or not horario:
+        flash('Preencha todos os campos.', 'error')
+        return redirect(url_for('admin_horarios_confissao'))
+
+    conn = get_db_connection()
+
+    # Verificar se já existe
+    existe = conn.execute('''
+        SELECT id FROM horarios_confissao
+        WHERE dia_semana = ? AND horario = ?
+    ''', (dia_semana, horario)).fetchone()
+
+    if existe:
+        flash('Este horário já está cadastrado.', 'error')
+    else:
+        conn.execute('''
+            INSERT INTO horarios_confissao (dia_semana, horario, ativo)
+            VALUES (?, ?, 1)
+        ''', (dia_semana, horario))
+        conn.commit()
+        flash(f'Horário {horario} adicionado para {dia_semana}.', 'success')
+
+    conn.close()
+    return redirect(url_for('admin_horarios_confissao'))
+
+
+@app.route('/admin/horarios-confissao/<int:horario_id>/toggle', methods=['POST'])
+@login_required
+def admin_horario_confissao_toggle(horario_id):
+    """Ativar/desativar horário de confissão"""
+    conn = get_db_connection()
+    horario = conn.execute('SELECT * FROM horarios_confissao WHERE id = ?', (horario_id,)).fetchone()
+
+    if horario:
+        novo_status = 0 if horario['ativo'] else 1
+        conn.execute('UPDATE horarios_confissao SET ativo = ? WHERE id = ?', (novo_status, horario_id))
+        conn.commit()
+        status_texto = 'ativado' if novo_status else 'desativado'
+        flash(f'Horário {status_texto}.', 'success')
+
+    conn.close()
+    return redirect(url_for('admin_horarios_confissao'))
+
+
+@app.route('/admin/horarios-confissao/<int:horario_id>/deletar', methods=['POST'])
+@login_required
+def admin_horario_confissao_delete(horario_id):
+    """Remover horário de confissão"""
+    conn = get_db_connection()
+    conn.execute('DELETE FROM horarios_confissao WHERE id = ?', (horario_id,))
+    conn.commit()
+    conn.close()
+    flash('Horário removido.', 'success')
+    return redirect(url_for('admin_horarios_confissao'))
 
 
 @app.route('/admin/mensagens')

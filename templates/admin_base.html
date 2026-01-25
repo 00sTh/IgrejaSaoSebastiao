@@ -428,13 +428,17 @@
                     <i class="fas fa-clock"></i>
                     <span>Horarios de Missas</span>
                 </a>
-                <a href="{{ url_for('admin_informacoes') }}" class="menu-item {% if 'informacao' in request.endpoint or 'informacoes' in request.endpoint %}active{% endif %}">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Informacoes</span>
+                <a href="{{ url_for('admin_conteudo_site') }}" class="menu-item {% if 'conteudo_site' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-edit"></i>
+                    <span>Conteudo do Site</span>
                 </a>
                 <a href="{{ url_for('admin_galeria') }}" class="menu-item {% if 'galeria' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-images"></i>
                     <span>Galeria de Fotos</span>
+                </a>
+                <a href="{{ url_for('admin_imagens_site') }}" class="menu-item {% if 'imagens_site' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-image"></i>
+                    <span>Imagens do Site</span>
                 </a>
                 <a href="{{ url_for('admin_configuracoes') }}" class="menu-item {% if 'configuracoes' in request.endpoint or 'contato' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-cog"></i>
@@ -444,7 +448,12 @@
 
                 <div class="menu-divider"></div>
 
-                <a href="{{ url_for('admin_agendamentos') }}" class="menu-item {% if 'agendamento' in request.endpoint %}active{% endif %}">
+                <span class="menu-category-title">Confissões</span>
+                <a href="{{ url_for('admin_horarios_confissao') }}" class="menu-item {% if 'horarios_confissao' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-clock"></i>
+                    <span>Horários Disponíveis</span>
+                </a>
+                <a href="{{ url_for('admin_agendamentos') }}" class="menu-item {% if 'agendamento' in request.endpoint and 'horarios' not in request.endpoint %}active{% endif %}">
                     <i class="fas fa-calendar-check"></i>
                     <span>Agendamentos</span>
                 </a>
