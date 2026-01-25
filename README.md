@@ -1,64 +1,82 @@
-# 🙏 Sistema de Gerenciamento - Igreja São Sebastião
+# Igreja Sao Sebastiao - Sistema de Gerenciamento
 
-Sistema completo de gerenciamento de site para a Igreja São Sebastião, com painel administrativo moderno e totalmente editável.
+Sistema completo de gerenciamento de site para a Igreja Sao Sebastiao, com painel administrativo moderno e totalmente editavel.
 
-## 📋 Índice
+## Indice
 
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Funcionalidades](#funcionalidades)
 - [Requisitos](#requisitos)
-- [Instalação](#instalação)
-- [Configuração](#configuração)
+- [Instalacao](#instalacao)
+- [Configuracao](#configuracao)
 - [Como Usar](#como-usar)
 - [Painel Administrativo](#painel-administrativo)
-- [Backup e Segurança](#backup-e-segurança)
+- [Sistema de Mensagens](#sistema-de-mensagens)
+- [Agendamento de Confissoes](#agendamento-de-confissoes)
+- [Gerenciamento de Usuarios](#gerenciamento-de-usuarios)
+- [Configuracao de Email SMTP](#configuracao-de-email-smtp)
+- [Validacoes do Sistema](#validacoes-do-sistema)
+- [Backup e Seguranca](#backup-e-seguranca)
 - [Problemas Comuns](#problemas-comuns)
-- [Suporte](#suporte)
+- [Changelog](#changelog)
 
-## 🎯 Sobre o Projeto
+## Sobre o Projeto
 
-Este é um sistema web completo desenvolvido especialmente para a Igreja São Sebastião em Ponte Nova/MG. O sistema permite gerenciar todo o conteúdo do site através de um painel administrativo intuitivo e moderno.
+Este e um sistema web completo desenvolvido especialmente para a Igreja Sao Sebastiao em Ponte Nova/MG. O sistema permite gerenciar todo o conteudo do site atraves de um painel administrativo intuitivo e moderno.
 
-### Versão Atual: 2.0.0 Beta (Fase de Testes)
+### Versao Atual: 2.1.0 (Producao)
 
-## ✨ Funcionalidades
+## Funcionalidades
 
-### Site Público
-- ✅ Página inicial moderna e responsiva
-- ✅ Seção de notícias e eventos
-- ✅ Horários de missas atualizáveis
-- ✅ Galeria de fotos
-- ✅ História e informações da paróquia
-- ✅ Informações de contato e localização
-- ✅ Agendamento de confissões
-- ✅ Design totalmente responsivo
+### Site Publico
+- Pagina inicial moderna e responsiva
+- Secao de noticias e eventos
+- Horarios de missas atualizaveis
+- Galeria de fotos com categorias
+- Historia e informacoes da paroquia
+- Informacoes de contato e localizacao
+- **Agendamento online de confissoes**
+- **Formulario de contato com validacao**
+- Design totalmente responsivo
 
 ### Painel Administrativo
-- ✅ Dashboard com estatísticas
-- ✅ Gerenciamento completo de notícias e eventos
-- ✅ Gerenciamento de horários de missas
-- ✅ Edição de informações da paróquia
-- ✅ Gerenciamento de galeria de fotos
-- ✅ Configurações gerais editáveis
-- ✅ Sistema de backup automático
-- ✅ Interface moderna e intuitiva
+- Dashboard com estatisticas
+- Gerenciamento completo de noticias e eventos
+- Gerenciamento de horarios de missas
+- Edicao de informacoes da paroquia
+- Gerenciamento de galeria de fotos
+- **Sistema de resposta a mensagens**
+- **Gerenciamento de usuarios (CRUD completo)**
+- **Gerenciamento de agendamentos de confissao**
+- Configuracoes gerais editaveis
+- Sistema de backup automatico
+- Interface moderna e intuitiva
 
-## 💻 Requisitos
+### Seguranca
+- Autenticacao com sessoes seguras
+- Protecao CSRF em todos os formularios
+- Rate limiting contra brute force
+- Senhas com hash PBKDF2-SHA256
+- Sistema de permissoes por roles (RBAC)
+- Validacao de email com verificacao DNS
+- Validacao de telefone brasileiro
+
+## Requisitos
 
 - Python 3.8 ou superior
 - Navegador web moderno (Chrome, Firefox, Safari, Edge)
 - Sistema operacional: Windows, Linux ou macOS
 
-## 🚀 Instalação
+## Instalacao
 
-### 1. Clone o Repositório (se aplicável)
+### 1. Clone o Repositorio
 
 ```bash
-git clone https://github.com/seu-usuario/IgrejaSaoSebastiao.git
+git clone https://github.com/00sTh/IgrejaSaoSebastiao.git
 cd IgrejaSaoSebastiao
 ```
 
-### 2. Crie um Ambiente Virtual (Recomendado)
+### 2. Crie um Ambiente Virtual
 
 **Windows:**
 ```bash
@@ -72,15 +90,15 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### 3. Instale as Dependências
+### 3. Instale as Dependencias
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## ⚙️ Configuração
+## Configuracao
 
-### 1. Configure as Variáveis de Ambiente
+### 1. Configure as Variaveis de Ambiente
 
 Copie o arquivo `.env.example` para `.env`:
 
@@ -90,33 +108,47 @@ cp .env.example .env
 
 ### 2. Edite o arquivo `.env`
 
-Abra o arquivo `.env` e configure:
-
 ```env
-# Chave secreta (IMPORTANTE: Mude isso!)
+# Chave secreta (IMPORTANTE: Gere uma chave unica!)
+# Use: python -c "import secrets; print(secrets.token_hex(32))"
 SECRET_KEY=sua_chave_secreta_muito_segura_aqui
 
 # Credenciais do Admin
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=sua_senha_segura
 
-# Outras configurações
+# Banco de Dados
 DATABASE_PATH=database.db
+
+# Uploads
 UPLOAD_FOLDER=static/uploads
 MAX_FILE_SIZE=5242880
-DEBUG=True
+
+# Ambiente (PRODUCAO: DEBUG=False)
+FLASK_ENV=production
+DEBUG=False
 ```
 
-**⚠️ IMPORTANTE:**
+**IMPORTANTE:**
 - Nunca compartilhe seu arquivo `.env`
-- Use senhas fortes em produção
-- Gere uma chave secreta aleatória
+- Use senhas fortes em producao
+- Mantenha `DEBUG=False` em producao
 
-### 3. Inicialize o Banco de Dados
+### 3. Configuracao de Email (Opcional)
 
-O banco de dados será criado automaticamente na primeira execução.
+Para enviar respostas por email, adicione no `.env`:
 
-## 🎮 Como Usar
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu_email@gmail.com
+SMTP_PASS=sua_senha_de_app
+SMTP_FROM=contato@igrejasaosebastiao.com.br
+```
+
+**Para Gmail:** Use uma "Senha de App" (Configuracoes > Seguranca > Senhas de app)
+
+## Como Usar
 
 ### Iniciando o Servidor
 
@@ -124,115 +156,228 @@ O banco de dados será criado automaticamente na primeira execução.
 python app.py
 ```
 
-O servidor iniciará em: `http://localhost:5000`
+O servidor iniciara em: `http://localhost:5000`
 
-### Acessando o Site
+### Acessando o Sistema
 
-- **Site Público:** `http://localhost:5000`
-- **Painel Admin:** `http://localhost:5000/admin`
+| Pagina | URL |
+|--------|-----|
+| Site Publico | `http://localhost:5000` |
+| Painel Admin | `http://localhost:5000/admin` |
 
-### Credenciais Padrão
+### Credenciais Padrao
 
 ```
-Usuário: admin
-Senha: admin123
+Usuario: admin
+Senha: (definida no .env)
 ```
 
-**⚠️ MUDE A SENHA IMEDIATAMENTE EM PRODUÇÃO!**
-
-## 🎛️ Painel Administrativo
+## Painel Administrativo
 
 ### Dashboard
 
-Ao fazer login, você verá:
-- Estatísticas do site (notícias, fotos, horários)
-- Ações rápidas
-- Notícias recentes
-- Informações do sistema
+Ao fazer login, voce vera:
+- Estatisticas do site (noticias, fotos, horarios)
+- Mensagens nao lidas
+- Agendamentos pendentes
+- Acoes rapidas
+- Informacoes do sistema
 
-### Gerenciamento de Notícias e Eventos
+### Menu Lateral
 
-**Criar Nova Notícia:**
-1. Acesse "Notícias e Eventos" no menu
-2. Clique em "Nova Notícia"
-3. Preencha:
-   - Título
-   - Tipo (Notícia ou Evento)
-   - Subtítulo (opcional)
-   - Conteúdo
-   - Imagem (opcional)
-4. Clique em "Salvar"
+O menu esta organizado em categorias:
 
-**Editar Notícia:**
-1. Na lista de notícias, clique em "Editar"
-2. Faça as alterações desejadas
-3. Clique em "Salvar"
+**Conteudo:**
+- Noticias - Gerenciar noticias e eventos
+- Galeria de Fotos - Upload e organizacao de imagens
 
-**Excluir Notícia:**
-1. Na lista, clique em "Excluir"
-2. Confirme a ação
+**Configuracoes:**
+- Conteudo do Site - Editar textos das secoes
+- Imagens do Site - Trocar imagens de fundo
+- Horarios de Missas - Gerenciar horarios
+- Contatos - Informacoes de contato
+- Configuracoes - Configuracoes gerais
 
-### Gerenciamento de Horários de Missas
+**Sistema:**
+- Usuarios - Gerenciar usuarios do painel
 
-**Adicionar Horário:**
-1. Acesse "Horários de Missas"
-2. Clique em "Novo Horário"
+**Confissoes:**
+- Horarios Disponiveis - Definir horarios de confissao
+- Agendamentos - Ver e gerenciar agendamentos
+
+**Comunicacao:**
+- Mensagens - Responder mensagens de contato
+
+## Sistema de Mensagens
+
+### Recebendo Mensagens
+
+Quando alguem envia uma mensagem pelo formulario de contato do site:
+1. A mensagem aparece em **Mensagens** no painel
+2. Mensagens novas ficam destacadas com badge "Nova"
+3. O dashboard mostra contador de mensagens nao lidas
+
+### Respondendo Mensagens
+
+1. Acesse **Mensagens** no menu lateral
+2. Clique em **Responder** na mensagem desejada
+3. Digite sua resposta no formulario
+4. Clique em **Enviar Resposta**
+
+**Com SMTP configurado:** A resposta e enviada automaticamente por email
+
+**Sem SMTP:** A resposta e salva no sistema e voce pode:
+- Usar o botao "Abrir no Email" para enviar pelo seu cliente de email
+- Copiar a resposta manualmente
+
+### Indicadores de Status
+
+| Badge | Significado |
+|-------|-------------|
+| Nova | Mensagem nao lida |
+| Respondida | Mensagem ja foi respondida |
+
+## Agendamento de Confissoes
+
+### Configurando Horarios Disponiveis
+
+1. Acesse **Horarios Disponiveis** no menu
+2. Clique em **Adicionar Horario**
 3. Preencha:
    - Dia da semana
-   - Horário
-   - Tipo (Missa, Adoração, etc.)
-4. Marque "Ativo"
-5. Clique em "Salvar"
+   - Horario de inicio
+   - Horario de fim
+   - Vagas por horario
+4. Ative o horario
+5. Clique em **Salvar**
 
-**Dica:** Você pode ter múltiplos horários no mesmo dia!
+### Gerenciando Agendamentos
 
-### Gerenciamento de Informações
+1. Acesse **Agendamentos** no menu
+2. Veja todos os agendamentos com:
+   - Nome do fiel
+   - Data e horario
+   - Status (pendente/confirmado/cancelado)
+3. Acoes disponiveis:
+   - Confirmar agendamento
+   - Cancelar agendamento
+   - Editar informacoes
 
-**Editar Seções do Site:**
-1. Acesse "Informações"
-2. Clique em "Editar" na seção desejada
-3. Altere o título e conteúdo
-4. Clique em "Salvar"
+### Como Funciona para o Fiel
 
-**Seções Disponíveis:**
-- Hero (Cabeçalho principal)
-- Sobre a Paróquia
-- Nossa História
-- Nossa Missão
-- E mais...
+1. No site, acessa a secao "Confissao"
+2. Seleciona mes e dia
+3. Sistema mostra horarios disponiveis
+4. Preenche nome, email e telefone
+5. Confirma agendamento
+6. Recebe confirmacao na tela
 
-### Galeria de Fotos
+## Gerenciamento de Usuarios
 
-**Adicionar Fotos:**
-1. Acesse "Galeria de Fotos"
-2. Clique em "Adicionar Foto"
-3. Selecione a imagem (formatos: JPG, PNG, JPEG, GIF, WEBP)
-4. Adicione título e descrição
-5. Clique em "Salvar"
+### Niveis de Acesso (Roles)
 
-**Limites:**
-- Tamanho máximo: 5MB por foto
-- Formatos aceitos: JPG, PNG, JPEG, GIF, WEBP
+| Role | Permissoes |
+|------|-----------|
+| super_admin | Acesso total, incluindo gestao de usuarios |
+| admin | Tudo exceto gestao de usuarios |
+| editor | Criar e editar conteudo, sem deletar |
+| viewer | Apenas visualizar |
 
-### Configurações Gerais
+### Criando Novo Usuario
 
-**Editar Informações Básicas:**
-1. Acesse "Configurações"
-2. Edite:
-   - Nome do site
-   - Descrição
-   - Endereço
-   - Telefone
+1. Acesse **Usuarios** no menu (categoria Sistema)
+2. Clique em **Novo Usuario**
+3. Preencha:
+   - Nome de usuario (unico)
    - Email
-   - Redes sociais
-3. Clique em "Salvar Configurações"
+   - Senha (minimo 8 caracteres)
+   - Nivel de acesso (role)
+4. Clique em **Criar**
 
-## 🔒 Backup e Segurança
+### Editando Usuario
+
+1. Na lista de usuarios, clique em **Editar**
+2. Altere os campos desejados
+3. Deixe a senha em branco para manter a atual
+4. Clique em **Salvar**
+
+## Configuracao de Email SMTP
+
+Para enviar emails automaticamente (respostas, notificacoes):
+
+### Gmail
+
+```env
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=seu_email@gmail.com
+SMTP_PASS=xxxx xxxx xxxx xxxx
+SMTP_FROM=contato@suaigreja.com.br
+```
+
+**Obter Senha de App do Gmail:**
+1. Acesse myaccount.google.com
+2. Seguranca > Verificacao em duas etapas (ativar)
+3. Seguranca > Senhas de app
+4. Gere uma senha para "Email"
+5. Use essa senha no SMTP_PASS
+
+### Outlook/Hotmail
+
+```env
+SMTP_HOST=smtp-mail.outlook.com
+SMTP_PORT=587
+SMTP_USER=seu_email@outlook.com
+SMTP_PASS=sua_senha
+SMTP_FROM=seu_email@outlook.com
+```
+
+### Outros Provedores
+
+Consulte a documentacao do seu provedor de email para obter:
+- Servidor SMTP (SMTP_HOST)
+- Porta (geralmente 587 para TLS)
+- Credenciais de acesso
+
+## Validacoes do Sistema
+
+### Validacao de Email
+
+O sistema valida emails de forma rigorosa:
+
+| Verificacao | Descricao |
+|-------------|-----------|
+| Formato | Verifica se o formato e valido |
+| Dominio | Verifica se o dominio existe (DNS) |
+| Temporarios | Bloqueia emails descartaveis |
+
+**Dominios bloqueados:** tempmail.com, mailinator.com, guerrillamail.com, 10minutemail.com, yopmail.com, e outros.
+
+### Validacao de Telefone
+
+O sistema valida telefones brasileiros:
+
+| Verificacao | Descricao |
+|-------------|-----------|
+| DDD | Verifica se o DDD e valido (11-99) |
+| Celular | 11 digitos, comeca com 9 apos DDD |
+| Fixo | 10 digitos, NAO comeca com 9 apos DDD |
+
+**Exemplos validos:**
+- Celular: (31) 99999-8888 ou 31999998888
+- Fixo: (31) 3295-1379 ou 3132951379
+
+**Exemplos invalidos:**
+- DDD 00 ou 01 (nao existem)
+- Celular sem o 9: 31899998888
+- Menos de 10 digitos
+
+## Backup e Seguranca
 
 ### Criar Backup Manual
 
-1. No Dashboard, clique em "Fazer Backup"
-2. O backup será salvo em `backups/`
+1. No Dashboard, clique em **Fazer Backup**
+2. O backup sera salvo em `backups/`
 3. Nome do arquivo: `database_backup_YYYYMMDD_HHMMSS.db`
 
 ### Restaurar Backup
@@ -241,111 +386,126 @@ Ao fazer login, você verá:
 2. Substitua `database.db` pelo arquivo de backup
 3. Reinicie o servidor
 
-### Segurança
+### Boas Praticas de Seguranca
 
-**Recomendações:**
-- ✅ Altere as credenciais padrão
-- ✅ Use senhas fortes
-- ✅ Faça backups regulares
-- ✅ Mantenha o sistema atualizado
-- ✅ Não compartilhe credenciais
-- ✅ Use HTTPS em produção
+- Altere as credenciais padrao imediatamente
+- Use senhas fortes (minimo 12 caracteres)
+- Faca backups regulares (diarios recomendado)
+- Mantenha DEBUG=False em producao
+- Use HTTPS em producao
+- Nao compartilhe o arquivo .env
+- Revise os logs periodicamente
 
-## 🐛 Problemas Comuns
+## Problemas Comuns
 
-### Erro: "ModuleNotFoundError: No module named 'flask'"
+### Erro: "ModuleNotFoundError"
 
-**Solução:**
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Erro: "Address already in use"
 
-**Solução:**
-Outra aplicação está usando a porta 5000. Pare-a ou mude a porta em `app.py`:
+Outra aplicacao esta usando a porta 5000. Mude a porta:
 ```python
 app.run(debug=Config.DEBUG, host='0.0.0.0', port=5001)
 ```
 
 ### Erro ao fazer upload de imagem
 
-**Verificar:**
-- Tamanho do arquivo (máximo 5MB)
+Verificar:
+- Tamanho do arquivo (maximo 5MB)
 - Formato do arquivo (JPG, PNG, JPEG, GIF, WEBP)
-- Permissões da pasta `static/uploads/`
+- Permissoes da pasta `static/uploads/`
 
-### Site não carrega estilos
+### Email nao enviado
 
-**Solução:**
-1. Limpe o cache do navegador (Ctrl + F5)
-2. Verifique se os arquivos CSS estão em `static/`
+Verificar:
+- Variaveis SMTP configuradas no .env
+- Senha de app correta (Gmail)
+- Porta correta (587 para TLS)
 
-## 📚 Estrutura de Arquivos
+### Telefone/Email rejeitado
+
+O sistema valida rigorosamente:
+- Email deve ter dominio real (verificado via DNS)
+- Telefone deve ter DDD brasileiro valido
+- Celular deve ter 11 digitos com 9 na frente
+
+## Estrutura de Arquivos
 
 ```
 IgrejaSaoSebastiao/
-├── app.py                  # Aplicação principal
-├── config.py               # Configurações
-├── requirements.txt        # Dependências Python
-├── .env                    # Variáveis de ambiente (não commitar!)
-├── .env.example            # Exemplo de configuração
-├── database.db             # Banco de dados (criado automaticamente)
-├── static/                 # Arquivos estáticos
-│   ├── uploads/            # Uploads de usuários
+├── app.py                  # Aplicacao principal
+├── config.py               # Configuracoes
+├── requirements.txt        # Dependencias Python
+├── .env                    # Variaveis de ambiente (NAO COMMITAR!)
+├── .env.example            # Exemplo de configuracao
+├── database.db             # Banco de dados SQLite
+├── core/                   # Modulos do sistema
+│   ├── crud.py             # Engine CRUD dinamico
+│   ├── schema.py           # Schemas das entidades
+│   ├── routes.py           # Rotas do CRUD
+│   ├── cache.py            # Sistema de cache
+│   └── media.py            # Processamento de imagens
+├── middleware/             # Middlewares
+│   ├── auth.py             # Autenticacao e RBAC
+│   └── logger.py           # Sistema de logs
+├── static/                 # Arquivos estaticos
+│   ├── uploads/            # Uploads de usuarios
 │   ├── img/                # Imagens do site
 │   ├── style.css           # Estilos
 │   └── script.js           # Scripts
 ├── templates/              # Templates HTML
-│   ├── index.html          # Página inicial
+│   ├── index.html          # Pagina inicial
 │   ├── admin_*.html        # Templates do admin
-│   └── ...
-└── backups/                # Backups do banco de dados
+│   └── crud/               # Templates do CRUD
+├── tests/                  # Testes automatizados
+└── backups/                # Backups do banco
 ```
 
-## 🔄 Atualizações
+## Changelog
 
-### Como Atualizar o Sistema
+### Versao 2.1.0 (25 de Janeiro de 2026)
+- **Sistema de resposta a mensagens** - Responda mensagens diretamente pelo painel
+- **Validacao avancada de email** - Verifica se o dominio existe via DNS
+- **Validacao de telefone brasileiro** - Valida DDD e formato correto
+- **Bloqueio de emails temporarios** - Impede cadastros com emails descartaveis
+- **Envio de email via SMTP** - Configure para enviar respostas automaticamente
+- **CRUD de usuarios completo** - Crie e gerencie usuarios do sistema
+- **Correcoes de bugs** - Diversos ajustes e melhorias
 
-1. Faça backup do banco de dados
-2. Faça backup do arquivo `.env`
-3. Baixe a nova versão
-4. Restaure o `.env`
-5. Instale novas dependências: `pip install -r requirements.txt`
-6. Reinicie o servidor
+### Versao 2.0.0 (12 de Janeiro de 2026)
+- Novo painel administrativo moderno
+- Sistema de gerenciamento completo
+- CRUD dinamico baseado em schemas
+- Sistema de agendamento de confissoes
+- Galeria de fotos com categorias
+- Editor de conteudo do site
+- Sistema de autenticacao com RBAC
+- Cache inteligente
+- Processamento de imagens
+- Sistema de backup integrado
+- Interface responsiva
+- Melhorias de seguranca
 
-## 📝 Changelog
+### Versao 1.0.0
+- Lancamento inicial
 
-### Versão 2.0.0 Beta (2026-01-12)
-- ✨ Novo painel administrativo moderno
-- ✨ Sistema de gerenciamento completo
-- ✨ Configurações via variáveis de ambiente
-- ✨ Sistema de backup integrado
-- ✨ Interface responsiva
-- 🔒 Melhorias de segurança
-- 🐛 Correções de bugs
+## Suporte
 
-### Versão 1.0.0
-- 🎉 Lançamento inicial
+Em caso de problemas ou duvidas:
 
-## 🤝 Suporte
+1. Verifique a secao [Problemas Comuns](#problemas-comuns)
+2. Consulte a documentacao completa
+3. Abra uma issue no GitHub
 
-Em caso de problemas ou dúvidas:
+## Licenca
 
-1. Verifique a seção [Problemas Comuns](#problemas-comuns)
-2. Consulte a documentação completa
-3. Entre em contato com o suporte técnico
-
-## 📄 Licença
-
-Este projeto foi desenvolvido especialmente para a Igreja São Sebastião.
-
-## 👨‍💻 Desenvolvido com ❤️
-
-Sistema desenvolvido para servir a comunidade da Igreja São Sebastião em Ponte Nova/MG.
+Este projeto foi desenvolvido especialmente para a Igreja Sao Sebastiao.
 
 ---
 
-**Versão:** 2.0.0 Beta
-**Status:** Fase de Testes
-**Última Atualização:** 12 de Janeiro de 2026
+**Versao:** 2.1.0
+**Status:** Producao
+**Ultima Atualizacao:** 25 de Janeiro de 2026
