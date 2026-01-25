@@ -155,9 +155,21 @@ def init_db():
             email TEXT NOT NULL,
             mensagem TEXT NOT NULL,
             lida INTEGER DEFAULT 0,
+            resposta TEXT,
+            data_resposta TIMESTAMP,
             data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # Migração: adicionar colunas de resposta se não existirem
+    try:
+        conn.execute('ALTER TABLE mensagens_contato ADD COLUMN resposta TEXT')
+    except:
+        pass
+    try:
+        conn.execute('ALTER TABLE mensagens_contato ADD COLUMN data_resposta TIMESTAMP')
+    except:
+        pass
 
     # Inserir dados iniciais se não existirem
     insert_initial_data(conn)
@@ -1584,6 +1596,140 @@ def admin_mensagem_delete(mensagem_id):
     conn.close()
     flash('Mensagem deletada.', 'success')
     return redirect(url_for('admin_mensagens'))
+
+
+@app.route('/admin/mensagens/<int:mensagem_id>/responder', methods=['GET', 'POST'])
+@login_required
+def admin_mensagem_responder(mensagem_id):
+    """Responder mensagem de contato"""
+    conn = get_db_connection()
+
+    # Buscar mensagem
+    mensagem = conn.execute(
+        'SELECT * FROM mensagens_contato WHERE id = ?', (mensagem_id,)
+    ).fetchone()
+
+    if not mensagem:
+        conn.close()
+        flash('Mensagem não encontrada.', 'error')
+        return redirect(url_for('admin_mensagens'))
+
+    if request.method == 'POST':
+        resposta = request.form.get('resposta', '').strip()
+
+        if not resposta:
+            flash('A resposta não pode estar vazia.', 'error')
+        else:
+            # Salvar resposta no banco
+            from datetime import datetime
+            conn.execute('''
+                UPDATE mensagens_contato
+                SET resposta = ?, data_resposta = ?, lida = 1
+                WHERE id = ?
+            ''', (resposta, datetime.now().isoformat(), mensagem_id))
+            conn.commit()
+
+            # Tentar enviar email
+            email_enviado = enviar_email_resposta(
+                destinatario=mensagem['email'],
+                nome=mensagem['nome'],
+                mensagem_original=mensagem['mensagem'],
+                resposta=resposta
+            )
+
+            if email_enviado:
+                flash('Resposta enviada com sucesso por email!', 'success')
+            else:
+                flash('Resposta salva! Configure SMTP para enviar por email.', 'warning')
+
+            conn.close()
+            return redirect(url_for('admin_mensagens'))
+
+    conn.close()
+    return render_template('admin_mensagem_responder.html', mensagem=mensagem)
+
+
+def enviar_email_resposta(destinatario, nome, mensagem_original, resposta):
+    """
+    Tenta enviar email de resposta via SMTP.
+    Retorna True se enviou, False se não conseguiu.
+    """
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    # Verificar se SMTP está configurado
+    smtp_host = os.environ.get('SMTP_HOST')
+    smtp_port = os.environ.get('SMTP_PORT', 587)
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_pass = os.environ.get('SMTP_PASS')
+    smtp_from = os.environ.get('SMTP_FROM', 'noreply@igrejasaosebastiao.com.br')
+
+    if not all([smtp_host, smtp_user, smtp_pass]):
+        # SMTP não configurado
+        return False
+
+    try:
+        # Criar mensagem
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = 'Re: Contato - Igreja São Sebastião'
+        msg['From'] = smtp_from
+        msg['To'] = destinatario
+
+        # Corpo do email
+        corpo_texto = f"""
+Olá {nome},
+
+Obrigado por entrar em contato com a Igreja São Sebastião.
+
+Sua mensagem:
+"{mensagem_original}"
+
+Nossa resposta:
+{resposta}
+
+Atenciosamente,
+Igreja São Sebastião
+        """.strip()
+
+        corpo_html = f"""
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h2 style="color: #3B5F6C;">Igreja São Sebastião</h2>
+        <p>Olá <strong>{nome}</strong>,</p>
+        <p>Obrigado por entrar em contato conosco.</p>
+
+        <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #666; margin: 0 0 10px 0;"><strong>Sua mensagem:</strong></p>
+            <p style="margin: 0; font-style: italic;">"{mensagem_original}"</p>
+        </div>
+
+        <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid #3B5F6C;">
+            <p style="color: #3B5F6C; margin: 0 0 10px 0;"><strong>Nossa resposta:</strong></p>
+            <p style="margin: 0;">{resposta}</p>
+        </div>
+
+        <p style="margin-top: 30px;">Atenciosamente,<br><strong>Igreja São Sebastião</strong></p>
+    </div>
+</body>
+</html>
+        """.strip()
+
+        msg.attach(MIMEText(corpo_texto, 'plain'))
+        msg.attach(MIMEText(corpo_html, 'html'))
+
+        # Enviar
+        with smtplib.SMTP(smtp_host, int(smtp_port)) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_pass)
+            server.send_message(msg)
+
+        return True
+
+    except Exception as e:
+        print(f"Erro ao enviar email: {e}")
+        return False
 
 
 # ==================== INICIALIZAÇÃO ====================

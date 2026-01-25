@@ -33,9 +33,14 @@
                 {{ msg.mensagem }}
             </div>
             <div class="message-actions">
-                <a href="mailto:{{ msg.email }}?subject=Re: Contato Igreja São Sebastião" class="btn btn-primary btn-sm">
+                <a href="{{ url_for('admin_mensagem_responder', mensagem_id=msg.id) }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-reply"></i> Responder
                 </a>
+                {% if msg.resposta %}
+                <span class="badge badge-success">
+                    <i class="fas fa-check"></i> Respondida
+                </span>
+                {% endif %}
                 {% if not msg.lida %}
                 <form action="{{ url_for('admin_mensagem_lida', mensagem_id=msg.id) }}" method="POST" style="display: inline;">
                     <button type="submit" class="btn btn-secondary btn-sm">
@@ -91,6 +96,11 @@
 .badge-warning {
     background: #ffc107;
     color: #333;
+}
+
+.badge-success {
+    background: #28a745;
+    color: white;
 }
 
 .messages-grid {

@@ -1,0 +1,318 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Responder Mensagem - Admin{% endblock %}
+
+{% block content %}
+<div class="responder-section">
+    <div class="section-header">
+        <a href="{{ url_for('admin_mensagens') }}" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1><i class="fas fa-reply"></i> Responder Mensagem</h1>
+    </div>
+
+    <!-- Mensagem Original -->
+    <div class="original-message">
+        <div class="message-info">
+            <div class="sender">
+                <i class="fas fa-user"></i>
+                <strong>{{ mensagem.nome }}</strong>
+            </div>
+            <div class="email">
+                <i class="fas fa-envelope"></i>
+                <a href="mailto:{{ mensagem.email }}">{{ mensagem.email }}</a>
+            </div>
+            <div class="date">
+                <i class="fas fa-clock"></i>
+                {{ mensagem.data_criacao[:16] if mensagem.data_criacao else '' }}
+            </div>
+        </div>
+        <div class="message-content">
+            <label>Mensagem recebida:</label>
+            <div class="message-text">{{ mensagem.mensagem }}</div>
+        </div>
+    </div>
+
+    <!-- Formulário de Resposta -->
+    <form method="POST" class="reply-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+        <div class="form-group">
+            <label for="resposta">
+                <i class="fas fa-pen"></i> Sua resposta para {{ mensagem.nome }}:
+            </label>
+            <textarea
+                id="resposta"
+                name="resposta"
+                rows="8"
+                required
+                placeholder="Digite sua resposta aqui..."
+            >{% if mensagem.resposta %}{{ mensagem.resposta }}{% endif %}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('admin_mensagens') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Cancelar
+            </a>
+
+            <a href="mailto:{{ mensagem.email }}?subject=Re: Contato Igreja São Sebastião&body={{ mensagem.mensagem | urlencode }}"
+               class="btn btn-outline" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Abrir no Email
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane"></i> Enviar Resposta
+            </button>
+        </div>
+
+        {% if mensagem.resposta %}
+        <div class="previous-reply">
+            <p><i class="fas fa-check-circle"></i> Esta mensagem já foi respondida em {{ mensagem.data_resposta[:16] if mensagem.data_resposta else '' }}</p>
+        </div>
+        {% endif %}
+    </form>
+
+    <!-- Dica sobre SMTP -->
+    <div class="smtp-info">
+        <i class="fas fa-info-circle"></i>
+        <div>
+            <strong>Envio de Email</strong>
+            <p>Para enviar emails automaticamente, configure as variáveis SMTP no arquivo .env:</p>
+            <code>SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM</code>
+        </div>
+    </div>
+</div>
+
+<style>
+.responder-section {
+    padding: 20px;
+    max-width: 800px;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.section-header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.back-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    border-radius: 8px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background: #3B5F6C;
+    color: white;
+}
+
+.original-message {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    border-left: 4px solid #3B5F6C;
+}
+
+.message-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.message-info > div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #666;
+}
+
+.message-info i {
+    color: #3B5F6C;
+}
+
+.message-info a {
+    color: #3B5F6C;
+}
+
+.message-content label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.message-text {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.reply-form {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.form-group label i {
+    color: #3B5F6C;
+    margin-right: 5px;
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    min-height: 150px;
+    transition: border-color 0.2s;
+}
+
+.form-group textarea:focus {
+    outline: none;
+    border-color: #3B5F6C;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3B5F6C 0%, #2a454f 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 95, 108, 0.3);
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid #3B5F6C;
+    color: #3B5F6C;
+}
+
+.btn-outline:hover {
+    background: #3B5F6C;
+    color: white;
+}
+
+.previous-reply {
+    margin-top: 20px;
+    padding: 15px;
+    background: #d4edda;
+    border-radius: 8px;
+    color: #155724;
+}
+
+.previous-reply i {
+    margin-right: 8px;
+}
+
+.smtp-info {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 8px;
+    color: #856404;
+    font-size: 0.9rem;
+}
+
+.smtp-info i {
+    font-size: 1.2rem;
+    margin-top: 2px;
+}
+
+.smtp-info strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.smtp-info code {
+    display: block;
+    margin-top: 5px;
+    background: rgba(0,0,0,0.1);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 600px) {
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .message-info {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+</style>
+{% endblock %}
