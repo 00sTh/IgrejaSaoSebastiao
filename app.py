@@ -1074,18 +1074,99 @@ def api_update_content():
 # ==================== ROTAS DE FORMULÁRIOS PÚBLICOS ====================
 
 import re
+import socket
 
 def validar_email(email):
-    """Valida formato de email"""
+    """
+    Valida email de forma eficaz:
+    1. Verifica formato com regex
+    2. Verifica se o domínio existe (DNS)
+    3. Bloqueia domínios temporários conhecidos
+    """
+    if not email or len(email) > 254:
+        return False
+
+    # Formato básico
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return re.match(pattern, email) is not None
+    if not re.match(pattern, email):
+        return False
+
+    # Extrair domínio
+    dominio = email.split('@')[1].lower()
+
+    # Lista de domínios temporários/descartáveis (bloquear)
+    dominios_bloqueados = [
+        'tempmail.com', 'throwaway.email', 'guerrillamail.com',
+        'mailinator.com', '10minutemail.com', 'yopmail.com',
+        'temp-mail.org', 'fakeinbox.com', 'trashmail.com',
+        'tempail.com', 'mohmal.com', 'getnada.com'
+    ]
+
+    if dominio in dominios_bloqueados:
+        return False
+
+    # Verificar se o domínio existe (DNS)
+    try:
+        socket.gethostbyname(dominio)
+        return True
+    except socket.gaierror:
+        # Domínio não existe
+        return False
 
 def validar_telefone(telefone):
-    """Valida telefone brasileiro (aceita vários formatos)"""
+    """
+    Valida telefone brasileiro de forma eficaz:
+    1. Verifica quantidade de dígitos (10-11)
+    2. Verifica DDD válido (11-99)
+    3. Verifica formato de celular (9 na frente) ou fixo
+    """
+    if not telefone:
+        return False
+
     # Remove tudo que não é número
     numeros = re.sub(r'\D', '', telefone)
-    # Deve ter entre 10 e 11 dígitos (com DDD)
-    return len(numeros) >= 10 and len(numeros) <= 11
+
+    # Deve ter 10 (fixo) ou 11 (celular) dígitos
+    if len(numeros) < 10 or len(numeros) > 11:
+        return False
+
+    # DDDs válidos do Brasil (11-99, exceto alguns inválidos)
+    ddd = int(numeros[:2])
+    ddds_validos = [
+        11, 12, 13, 14, 15, 16, 17, 18, 19,  # SP
+        21, 22, 24,                           # RJ
+        27, 28,                               # ES
+        31, 32, 33, 34, 35, 37, 38,          # MG
+        41, 42, 43, 44, 45, 46,              # PR
+        47, 48, 49,                           # SC
+        51, 53, 54, 55,                       # RS
+        61,                                   # DF
+        62, 64,                               # GO
+        63,                                   # TO
+        65, 66,                               # MT
+        67,                                   # MS
+        68,                                   # AC
+        69,                                   # RO
+        71, 73, 74, 75, 77,                  # BA
+        79,                                   # SE
+        81, 82, 83, 84, 85, 86, 87, 88, 89, # NE
+        91, 92, 93, 94, 95, 96, 97, 98, 99  # Norte
+    ]
+
+    if ddd not in ddds_validos:
+        return False
+
+    # Se tem 11 dígitos, é celular e deve começar com 9
+    if len(numeros) == 11:
+        if numeros[2] != '9':
+            return False
+
+    # Se tem 10 dígitos, é fixo e NÃO deve começar com 9
+    if len(numeros) == 10:
+        if numeros[2] == '9':
+            return False
+
+    return True
 
 def validar_nome_completo(nome):
     """Valida nome completo (pelo menos 2 palavras)"""
