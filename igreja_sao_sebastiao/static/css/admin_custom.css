@@ -1,0 +1,879 @@
+/* ===================================================================
+   Igreja São Sebastião - Custom Admin Styles
+   Matches the Flask admin purple gradient design + improvements
+   =================================================================== */
+
+/* ---- Stats Grid ---- */
+.igreja-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.igreja-stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.dark .igreja-stat-card {
+    background: oklch(21% .034 264.665);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.igreja-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+.igreja-stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.igreja-stat-icon.blue { background: #dbeafe; color: #2563eb; }
+.igreja-stat-icon.green { background: #dcfce7; color: #16a34a; }
+.igreja-stat-icon.purple { background: #f3e8ff; color: #9333ea; }
+.igreja-stat-icon.yellow { background: #fef3c7; color: #d97706; }
+.igreja-stat-icon.pink { background: #fce7f3; color: #db2777; }
+
+.dark .igreja-stat-icon.blue { background: rgba(37, 99, 235, 0.15); }
+.dark .igreja-stat-icon.green { background: rgba(22, 163, 106, 0.15); }
+.dark .igreja-stat-icon.purple { background: rgba(147, 51, 234, 0.15); }
+.dark .igreja-stat-icon.yellow { background: rgba(217, 119, 6, 0.15); }
+.dark .igreja-stat-icon.pink { background: rgba(219, 39, 119, 0.15); }
+
+.igreja-stat-number {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.1;
+}
+
+.dark .igreja-stat-number { color: #f3f4f6; }
+
+.igreja-stat-label {
+    color: #6b7280;
+    font-size: 0.85rem;
+    margin-top: 2px;
+}
+
+.dark .igreja-stat-label { color: #9ca3af; }
+
+/* ---- Cards ---- */
+.igreja-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.dark .igreja-card {
+    background: oklch(21% .034 264.665);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.igreja-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .igreja-card-header { border-bottom-color: oklch(27.8% .033 256.848); }
+
+.igreja-card-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dark .igreja-card-title { color: #e5e7eb; }
+
+/* ---- Quick Actions ---- */
+.igreja-actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.igreja-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.igreja-action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.igreja-action-btn.primary { background: #667eea; color: #fff; }
+.igreja-action-btn.success { background: #22c55e; color: #fff; }
+.igreja-action-btn.amber { background: #fef3c7; color: #92400e; }
+.igreja-action-btn.indigo { background: #dbeafe; color: #1e40af; }
+.igreja-action-btn.violet { background: #f3e8ff; color: #7c3aed; }
+.igreja-action-btn.slate { background: #f1f5f9; color: #334155; }
+.dark .igreja-action-btn.amber { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+.dark .igreja-action-btn.indigo { background: rgba(37, 99, 235, 0.2); color: #93c5fd; }
+.dark .igreja-action-btn.violet { background: rgba(124, 58, 237, 0.2); color: #c4b5fd; }
+.dark .igreja-action-btn.slate { background: rgba(100, 116, 139, 0.2); color: #cbd5e1; }
+
+/* ---- Table ---- */
+.igreja-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.igreja-table th {
+    background: #f9fafb;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.825rem;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.dark .igreja-table th {
+    background: oklch(24% .028 261.692);
+    color: #d1d5db;
+    border-bottom-color: oklch(27.8% .033 256.848);
+}
+
+.igreja-table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.dark .igreja-table td {
+    border-bottom-color: oklch(27.8% .033 256.848);
+    color: #d1d5db;
+}
+
+.igreja-table tr:hover td {
+    background: #f9fafb;
+}
+
+.dark .igreja-table tr:hover td {
+    background: oklch(24% .028 261.692);
+}
+
+.igreja-badge {
+    display: inline-block;
+    padding: 0.2rem 0.625rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.igreja-badge.blue { background: #dbeafe; color: #1e40af; }
+.igreja-badge.yellow { background: #fef3c7; color: #92400e; }
+.igreja-badge.green { background: #dcfce7; color: #166534; }
+.igreja-badge.red { background: #fee2e2; color: #991b1b; }
+
+/* ---- System Info ---- */
+.igreja-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.dark .igreja-info-row { background: oklch(24% .028 261.692); }
+
+.igreja-info-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.dark .igreja-info-label { color: #d1d5db; }
+
+.igreja-info-value {
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.dark .igreja-info-value { color: #9ca3af; }
+
+.igreja-status-online {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+/* ---- Content Editor ---- */
+.igreja-help-banner {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.igreja-help-banner .help-icon {
+    font-size: 2rem;
+    opacity: 0.9;
+}
+
+.igreja-help-banner strong {
+    display: block;
+    margin-bottom: 4px;
+}
+
+.igreja-help-banner p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 0.9rem;
+}
+
+.igreja-section-card {
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.dark .igreja-section-card {
+    background: oklch(21% .034 264.665);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.igreja-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.igreja-section-header:hover {
+    background: #f9fafb;
+}
+
+.dark .igreja-section-header:hover { background: oklch(24% .028 261.692); }
+
+.igreja-section-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.igreja-section-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.igreja-section-title h3 {
+    margin: 0 0 2px 0;
+    font-size: 1.05rem;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.dark .igreja-section-title h3 { color: #e5e7eb; }
+
+.igreja-section-title p {
+    margin: 0;
+    font-size: 0.825rem;
+    color: #6b7280;
+}
+
+.dark .igreja-section-title p { color: #9ca3af; }
+
+.igreja-toggle-icon {
+    color: #9ca3af;
+    transition: transform 0.3s;
+    font-size: 1rem;
+}
+
+.igreja-toggle-icon.active {
+    transform: rotate(180deg);
+}
+
+.igreja-section-content {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid #f3f4f6;
+    animation: igrejaSlideDown 0.3s ease;
+}
+
+.dark .igreja-section-content { border-top-color: oklch(27.8% .033 256.848); }
+
+.igreja-section-content.active {
+    display: block;
+}
+
+@keyframes igrejaSlideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.igreja-field-group {
+    margin-bottom: 1.25rem;
+}
+
+.igreja-field-group:last-child { margin-bottom: 0; }
+
+.igreja-field-group label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.dark .igreja-field-group label { color: #d1d5db; }
+
+.igreja-field-input,
+.igreja-field-textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-family: inherit;
+    background: #fff;
+    color: #1f2937;
+}
+
+.dark .igreja-field-input,
+.dark .igreja-field-textarea {
+    background: oklch(24% .028 261.692);
+    border-color: oklch(27.8% .033 256.848);
+    color: #e5e7eb;
+}
+
+.igreja-field-input:focus,
+.igreja-field-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.igreja-field-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.igreja-field-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.78rem;
+    color: #9ca3af;
+}
+
+.igreja-fields-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .igreja-fields-row { grid-template-columns: 1fr; }
+}
+
+.igreja-preview-box {
+    margin-top: 12px;
+    padding: 12px 15px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    border-left: 4px solid #22c55e;
+}
+
+.dark .igreja-preview-box {
+    background: rgba(22, 163, 106, 0.1);
+}
+
+.igreja-preview-box strong {
+    color: #166534;
+    font-size: 0.82rem;
+}
+
+.dark .igreja-preview-box strong { color: #86efac; }
+
+.igreja-preview-box p {
+    margin: 4px 0 0;
+    color: #166534;
+    font-size: 0.82rem;
+}
+
+.dark .igreja-preview-box p { color: #86efac; }
+
+.igreja-save-bar {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    padding: 16px 20px;
+    margin-top: 1.25rem;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 100;
+    border-radius: 0 0 12px 12px;
+}
+
+.dark .igreja-save-bar {
+    background: oklch(21% .034 264.665);
+    border-top-color: oklch(27.8% .033 256.848);
+}
+
+.igreja-save-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.igreja-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ---- Site Images ---- */
+.igreja-info-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 18px;
+    background: #eff6ff;
+    border-radius: 12px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 1.5rem;
+}
+
+.dark .igreja-info-card {
+    background: rgba(59, 130, 246, 0.1);
+    border-left-color: #60a5fa;
+}
+
+.igreja-info-card .info-icon {
+    color: #3b82f6;
+    font-size: 1.4rem;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.igreja-info-card strong {
+    display: block;
+    color: #1e40af;
+    margin-bottom: 4px;
+}
+
+.dark .igreja-info-card strong { color: #93c5fd; }
+
+.igreja-info-card p {
+    margin: 0;
+    color: #1e40af;
+    font-size: 0.88rem;
+}
+
+.dark .igreja-info-card p { color: #93c5fd; }
+
+.igreja-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.igreja-image-card {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark .igreja-image-card {
+    background: oklch(21% .034 264.665);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.igreja-image-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.dark .igreja-image-card-header { border-bottom-color: oklch(27.8% .033 256.848); }
+
+.igreja-image-card-header h3 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+}
+
+.dark .igreja-image-card-header h3 { color: #e5e7eb; }
+
+.igreja-image-card-header h3 .material-symbols-outlined {
+    color: #667eea;
+    font-size: 1.3rem;
+}
+
+.igreja-image-card-header .location {
+    font-size: 0.82rem;
+    color: #6b7280;
+}
+
+.dark .igreja-image-card-header .location { color: #9ca3af; }
+
+.igreja-image-preview {
+    background: #f3f4f6;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+}
+
+.dark .igreja-image-preview { background: oklch(17% .03 264); }
+
+.igreja-image-preview img {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.igreja-image-preview .no-image {
+    text-align: center;
+    color: #9ca3af;
+    padding: 20px;
+}
+
+.igreja-image-preview .no-image .material-symbols-outlined {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+.igreja-image-form {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.igreja-file-input {
+    padding: 10px;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.dark .igreja-file-input {
+    border-color: oklch(37.3% .034 259.733);
+    background: oklch(24% .028 261.692);
+    color: #d1d5db;
+}
+
+.igreja-file-input:hover {
+    border-color: #667eea;
+    background: #f8fafc;
+}
+
+.dark .igreja-file-input:hover {
+    background: oklch(27.8% .033 256.848);
+}
+
+.igreja-file-hint {
+    font-size: 0.78rem;
+    color: #6b7280;
+}
+
+.igreja-upload-preview {
+    max-width: 100%;
+    max-height: 120px;
+    border-radius: 8px;
+    margin-top: 4px;
+    display: none;
+}
+
+.igreja-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.igreja-upload-btn:hover {
+    background: #5a6fd6;
+}
+
+/* ---- Image Bank ---- */
+.igreja-bank-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+}
+
+.igreja-bank-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    transition: box-shadow 0.2s;
+}
+
+.dark .igreja-bank-card {
+    border-color: oklch(27.8% .033 256.848);
+    background: oklch(21% .034 264.665);
+}
+
+.igreja-bank-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.igreja-bank-thumb {
+    height: 140px;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.dark .igreja-bank-thumb { background: oklch(17% .03 264); }
+
+.igreja-bank-thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}
+
+.igreja-bank-info {
+    padding: 0.625rem;
+}
+
+.igreja-bank-name {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+.dark .igreja-bank-name { color: #e5e7eb; }
+
+.igreja-bank-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.igreja-bank-size {
+    font-size: 0.7rem;
+    color: #6b7280;
+}
+
+.igreja-bank-copy {
+    width: 100%;
+    margin-top: 6px;
+    padding: 5px;
+    font-size: 0.75rem;
+    background: #667eea;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.igreja-bank-copy:hover { background: #5a6fd6; }
+
+/* ---- Image Modal ---- */
+.igreja-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.igreja-modal img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* ---- Filter Select ---- */
+.igreja-filter-select {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.875rem;
+    background: #fff;
+    color: #374151;
+}
+
+.dark .igreja-filter-select {
+    background: oklch(24% .028 261.692);
+    border-color: oklch(37.3% .034 259.733);
+    color: #d1d5db;
+}
+
+/* ---- Two Column Layout ---- */
+.igreja-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .igreja-two-col { grid-template-columns: 1fr; }
+    .igreja-stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+    .igreja-images-grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Empty State ---- */
+.igreja-empty {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+}
+
+.igreja-empty .material-symbols-outlined {
+    font-size: 3rem;
+    opacity: 0.4;
+    display: block;
+    margin-bottom: 0.75rem;
+}
+
+.igreja-empty p {
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* ---- Page Header (for custom views) ---- */
+.igreja-page-header {
+    background: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+}
+
+.dark .igreja-page-header {
+    background: oklch(21% .034 264.665);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.igreja-page-header h1 {
+    font-size: 1.5rem;
+    color: #2d3748;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dark .igreja-page-header h1 { color: #e5e7eb; }
+
+.igreja-page-header .breadcrumb {
+    color: #718096;
+    font-size: 0.825rem;
+    margin: 0;
+}
+
+.dark .igreja-page-header .breadcrumb { color: #9ca3af; }
+
+/* ---- Edit button in table ---- */
+.igreja-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    background: #667eea;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: background 0.2s;
+}
+
+.igreja-edit-btn:hover { background: #5a6fd6; }

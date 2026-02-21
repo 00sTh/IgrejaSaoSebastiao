@@ -1,0 +1,121 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Conteúdo do Site{% endblock %}
+
+{% block content %}
+<div class="igreja-page-header">
+    <h1><span class="material-symbols-outlined">edit_note</span> Editar Conteúdo do Site</h1>
+    <p class="breadcrumb">Painel Administrativo / Conteúdo do Site</p>
+</div>
+
+<!-- Ajuda -->
+<div class="igreja-help-banner">
+    <span class="material-symbols-outlined help-icon">info</span>
+    <div>
+        <strong>Edite os textos que aparecem no site</strong>
+        <p>Cada seção abaixo corresponde a uma parte do site. Clique para expandir e editar os campos.</p>
+    </div>
+</div>
+
+<form method="POST" action="{% url 'admin:site-content-save' %}" id="formConteudo">
+    {% csrf_token %}
+
+    {% for group_name, sections in groups.items %}
+    <div class="igreja-section-card">
+        <div class="igreja-section-header" onclick="toggleSection('{{ forloop.counter }}')">
+            <div class="igreja-section-title">
+                <div class="igreja-section-icon" style="background:
+                    {% if 'Banner' in group_name %}#8b5cf6
+                    {% elif 'Sobre' in group_name %}#10b981
+                    {% elif 'Horário' in group_name %}#f59e0b
+                    {% elif 'Galeria' in group_name %}#ec4899
+                    {% elif 'História' in group_name %}#6366f1
+                    {% elif 'Localização' in group_name %}#ef4444
+                    {% elif 'Contato' in group_name %}#0ea5e9
+                    {% elif 'Rodapé' in group_name %}#64748b
+                    {% else %}#667eea
+                    {% endif %};">
+                    <span class="material-symbols-outlined">
+                        {% if 'Banner' in group_name %}image
+                        {% elif 'Sobre' in group_name %}church
+                        {% elif 'Horário' in group_name %}schedule
+                        {% elif 'Galeria' in group_name %}photo_library
+                        {% elif 'História' in group_name %}menu_book
+                        {% elif 'Localização' in group_name %}location_on
+                        {% elif 'Contato' in group_name %}mail
+                        {% elif 'Rodapé' in group_name %}share
+                        {% else %}article
+                        {% endif %}
+                    </span>
+                </div>
+                <div>
+                    <h3>{{ group_name }}</h3>
+                    <p>
+                        {% if 'Banner' in group_name %}Primeira coisa que as pessoas veem no site
+                        {% elif 'Sobre' in group_name %}Apresentação da igreja para os visitantes
+                        {% elif 'Horário' in group_name %}Títulos dos cards de horários e secretaria
+                        {% elif 'Galeria' in group_name %}Título da seção de fotos
+                        {% elif 'História' in group_name %}Conte a história e os marcos da paróquia
+                        {% elif 'Localização' in group_name %}Endereço e contatos da paróquia
+                        {% elif 'Contato' in group_name %}Títulos e textos da área de contato
+                        {% elif 'Rodapé' in group_name %}Links das redes e texto do rodapé
+                        {% else %}Conteúdo adicional
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <span class="material-symbols-outlined igreja-toggle-icon" id="icon-{{ forloop.counter }}">expand_more</span>
+        </div>
+        <div class="igreja-section-content" id="content-{{ forloop.counter }}">
+            {% for section in sections %}
+            <div class="igreja-field-group">
+                <label>{{ section.secao|title }} - Título</label>
+                <input type="text" name="titulo_{{ section.secao }}" value="{{ section.titulo }}" class="igreja-field-input">
+            </div>
+            <div class="igreja-field-group">
+                <label>{{ section.secao|title }} - Conteúdo</label>
+                {% if section.conteudo|length > 120 %}
+                <textarea name="conteudo_{{ section.secao }}" class="igreja-field-textarea" rows="4">{{ section.conteudo }}</textarea>
+                {% else %}
+                <input type="text" name="conteudo_{{ section.secao }}" value="{{ section.conteudo }}" class="igreja-field-input">
+                {% endif %}
+                {% if '|' in section.conteudo %}
+                <span class="igreja-field-help">Use | para separar linhas. Ex: Segunda: 14h|Terça: 15h</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if 'Banner' in group_name %}
+            <div class="igreja-preview-box">
+                <strong><span class="material-symbols-outlined" style="font-size:0.9rem;vertical-align:middle;">visibility</span> Onde aparece:</strong>
+                <p>Logo no início da página, com a foto grande de fundo</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- BOTÃO SALVAR FIXO -->
+    <div class="igreja-save-bar">
+        <button type="submit" class="igreja-save-btn">
+            <span class="material-symbols-outlined">save</span>
+            Salvar Todas as Alterações
+        </button>
+    </div>
+</form>
+
+<script>
+function toggleSection(sectionId) {
+    const content = document.getElementById('content-' + sectionId);
+    const icon = document.getElementById('icon-' + sectionId);
+    content.classList.toggle('active');
+    icon.classList.toggle('active');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Abrir primeira seção por padrão
+    toggleSection('1');
+});
+</script>
+{% endblock %}

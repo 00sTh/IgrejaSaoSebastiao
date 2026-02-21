@@ -1,0 +1,51 @@
+{% load parish_tags %}
+<!-- SCHEDULES SECTION -->
+<section id="missas-horarios" class="hours-section section-padding bg-light" aria-label="Horários de missas">
+    <div class="container">
+        <h2>{{ info_paroquia.horarios_titulo.titulo|default:"Horários Importantes" }}</h2>
+        <div class="hours-grid">
+            <!-- Missas Card -->
+            <div class="hour-card">
+                <i class="fas fa-church icon-lg" aria-hidden="true"></i>
+                <h3>{{ info_paroquia.missas_titulo.titulo|default:"Missas" }}</h3>
+                <ul>
+                    {% for horario in horarios %}
+                        {% if horario.tipo == "missa" or horario.tipo == "missa_solene" %}
+                        <li>
+                            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                            {{ horario.get_dia_semana_display }}: {{ horario.horario|time:"H:i" }}{% if horario.nome %} - {{ horario.nome }}{% endif %}
+                        </li>
+                        {% endif %}
+                    {% empty %}
+                        <li><i class="fas fa-info-circle" aria-hidden="true"></i> Horários em breve</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Confessions Card -->
+            <div class="hour-card">
+                <i class="fas fa-cross icon-lg" aria-hidden="true"></i>
+                <h3>{{ info_paroquia.confissoes_titulo.titulo|default:"Confissões" }}</h3>
+                <ul>
+                    {% with horarios_str=info_paroquia.confissoes_horarios.titulo|default:"Terça a Sexta: 14h às 17h|Sábado: 9h às 12h" %}
+                    {% for item in horarios_str|split:"|" %}
+                    <li><i class="fas fa-calendar-alt" aria-hidden="true"></i> {{ item }}</li>
+                    {% endfor %}
+                    {% endwith %}
+                    <li><i class="fas fa-info-circle" aria-hidden="true"></i> Procure a secretaria para mais informações</li>
+                </ul>
+            </div>
+
+            <!-- Secretariat Card -->
+            <div class="hour-card">
+                <i class="fas fa-users icon-lg" aria-hidden="true"></i>
+                <h3>{{ info_paroquia.secretaria_titulo.titulo|default:"Secretaria" }}</h3>
+                <ul>
+                    <li><i class="fas fa-calendar-alt" aria-hidden="true"></i> {{ info_paroquia.secretaria_horarios.titulo|default:"Segunda a Sexta: 13h às 18h" }}</li>
+                    <li><i class="fas fa-phone-alt" aria-hidden="true"></i> {{ info_paroquia.secretaria_telefone.titulo|default:"(31) 3295-1379" }}</li>
+                    <li><i class="fas fa-envelope" aria-hidden="true"></i> {{ info_paroquia.secretaria_email.titulo|default:"contato@igrejasst.org" }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

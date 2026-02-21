@@ -27,11 +27,11 @@
                     <li><a href="#galeria">Galeria</a></li>
                     <li><a href="#historia">História</a></li>
                     <li><a href="#localizacao">Localização</a></li>
-                    <li><a href="#agendamento-confissao">Confissão</a></li>
+                    <li><a href="https://arqmariana.com.br/" target="_blank">Arquidiocese</a></li>
                     <li><a href="#contato">Contato</a></li>
                 </ul>
             </nav>
-            <a href="#agendamento-confissao" class="btn btn-primary cta-header">Agendar Confissão</a>
+            <a href="https://arqmariana.com.br/" class="btn btn-primary cta-header" target="_blank">Arquidiocese de Mariana</a>
         </div>
     </header>
 
@@ -70,8 +70,8 @@
                     <h3>{{ info_paroquia.get('missas_titulo', {}).get('titulo', 'Missas') }}</h3>
                     <ul>
                         {% for horario in horarios %}
-                        {% if horario.tipo == 'Missa' or horario.tipo == 'Missa Solene' %}
-                        <li><i class="fas fa-calendar-alt"></i> {{ horario.dia_semana }}: {{ horario.horario }}</li>
+                        {% if horario.tipo == 'Missa' or horario.tipo == 'Missa Solene' or horario.tipo == 'Missa com Crianças' %}
+                        <li><i class="fas fa-calendar-alt"></i> {{ horario.dia_semana }}: {{ horario.horario }}{% if horario.nome %} - {{ horario.nome }}{% endif %}</li>
                         {% endif %}
                         {% endfor %}
                         {% if not horarios %}
@@ -89,7 +89,7 @@
                         {% for item in confissoes_horarios.split('|') %}
                         <li><i class="fas fa-calendar-alt"></i> {{ item }}</li>
                         {% endfor %}
-                        <li><i class="fas fa-info-circle"></i> Ou <a href="#agendamento-confissao">agende online</a></li>
+                        <li><i class="fas fa-info-circle"></i> Procure a secretaria para mais informações</li>
                     </ul>
                 </div>
 
@@ -175,12 +175,12 @@
         <div class="container">
             <h2>{{ info_paroquia.get('historia_titulo', {}).get('titulo', 'Nossa História e Legado') }}</h2>
             <div class="history-content">
-                {{ info_paroquia.get('historia_texto', {}).get('titulo', '<p>História da igreja em breve.</p>') | safe }}
+                {{ info_paroquia.get('historia_texto', {}).get('conteudo', '<p>História da igreja em breve.</p>') | safe }}
 
                 <div class="history-milestones">
                     <h3>{{ info_paroquia.get('historia_marcos_titulo', {}).get('titulo', 'Principais Marcos') }}</h3>
                     <ul>
-                        {% set marcos = info_paroquia.get('historia_marcos', {}).get('titulo', '[Ano]: Fundação|[Ano]: Construção|[Ano]: Inauguração') %}
+                        {% set marcos = info_paroquia.get('historia_marcos', {}).get('conteudo', '[Ano]: Fundação|[Ano]: Construção|[Ano]: Inauguração') %}
                         {% for marco in marcos.split('|') %}
                         <li><i class="fas fa-scroll"></i> {{ marco }}</li>
                         {% endfor %}
@@ -207,78 +207,6 @@
         </div>
     </section>
 
-    <!-- SEÇÃO AGENDAMENTO DE CONFISSÃO -->
-    <section id="agendamento-confissao" class="confession-section section-padding">
-        <div class="container">
-            <h2>{{ info_paroquia.get('confissao_titulo', {}).get('titulo', 'Agendamento de Confissão com o Padre') }}</h2>
-            <div class="confession-info">
-                {{ info_paroquia.get('confissao_texto', {}).get('titulo', '<p>O Sacramento da Confissão é um momento de graça e reconciliação.</p>') | safe }}
-            </div>
-            <form id="confessionForm" class="confession-form">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nome">Seu Nome Completo: *</label>
-                        <input type="text" id="nome" name="nome" placeholder="Ex: João da Silva" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Seu E-mail: *</label>
-                        <input type="email" id="email" name="email" placeholder="seu@email.com" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="telefone">Seu Telefone (com DDD): *</label>
-                    <input type="tel" id="telefone" name="telefone" placeholder="(31) 99999-9999" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="mes">Mês: *</label>
-                        <select id="mes" name="mes" required>
-                            <option value="">Selecione...</option>
-                            <option value="1">Janeiro</option>
-                            <option value="2">Fevereiro</option>
-                            <option value="3">Março</option>
-                            <option value="4">Abril</option>
-                            <option value="5">Maio</option>
-                            <option value="6">Junho</option>
-                            <option value="7">Julho</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Setembro</option>
-                            <option value="10">Outubro</option>
-                            <option value="11">Novembro</option>
-                            <option value="12">Dezembro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="dia">Dia: *</label>
-                        <select id="dia" name="dia" required>
-                            <option value="">Selecione...</option>
-                            {% for d in range(1, 32) %}
-                            <option value="{{ d }}">{{ d }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="horario">Horário Disponível: *</label>
-                    <select id="horario" name="horario" required disabled>
-                        <option value="">Primeiro selecione o mês e dia</option>
-                    </select>
-                    <small id="horarioInfo" class="form-help"></small>
-                </div>
-                <div class="form-group">
-                    <label for="observacoes">Observações (opcional):</label>
-                    <textarea id="observacoes" name="observacoes" rows="3" placeholder="Alguma observação importante?"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Confirmar Agendamento</button>
-                <div id="formMessage" class="form-message"></div>
-            </form>
-            <style>
-                .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-                .form-help { color: #666; font-size: 0.85rem; margin-top: 5px; display: block; }
-                @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
-            </style>
-        </div>
-    </section>
 
     <!-- SEÇÃO CONTATO -->
     <section id="contato" class="contact-section section-padding bg-dark">
@@ -295,9 +223,9 @@
                         <li><i class="fas fa-clock"></i> Secretaria: {{ info_paroquia.get('secretaria_horarios', {}).get('titulo', 'Segunda a Sexta, 13h às 18h') }}</li>
                     </ul>
                     <div class="social-icons">
-                        <a href="{{ info_paroquia.get('redes_facebook', {}).get('titulo', '#') }}" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="{{ info_paroquia.get('redes_instagram', {}).get('titulo', '#') }}" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="{{ info_paroquia.get('redes_whatsapp', {}).get('titulo', '#') }}" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                        <a href="{{ info_paroquia.get('redes_facebook', {}).get('titulo', '#') }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="{{ info_paroquia.get('redes_instagram', {}).get('titulo', '#') }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://arqmariana.com.br/" target="_blank" aria-label="Arquidiocese de Mariana"><i class="fas fa-church"></i></a>
                     </div>
                 </div>
                 <div class="contact-form-container">
@@ -331,6 +259,11 @@
                 <li><a href="#">Termos de Uso</a></li>
                 <li><a href="#">Mapa do Site</a></li>
             </ul>
+            <div style="margin-top: 12px;">
+                <a href="https://arqmariana.com.br/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; color: #fff; background: rgba(255,255,255,0.15); padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.95rem; transition: background 0.2s;">
+                    <i class="fas fa-church"></i> Arquidiocese de Mariana
+                </a>
+            </div>
         </div>
     </footer>
 

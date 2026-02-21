@@ -166,7 +166,7 @@ class AuthManager:
         """Configura autenticação na aplicação Flask"""
 
         # Configurações de sessão segura
-        app.config['SESSION_COOKIE_SECURE'] = not app.debug  # HTTPS em produção
+        app.config['SESSION_COOKIE_SECURE'] = False  # Usar True apenas com HTTPS
         app.config['SESSION_COOKIE_HTTPONLY'] = True
         app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
         app.config['PERMANENT_SESSION_LIFETIME'] = cls.SESSION_LIFETIME

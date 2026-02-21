@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ info_paroquia.hero_titulo.titulo|default:"Igreja São Sebastião" }}{% endblock %}
+
+{% block body %}
+    {% include "partials/_header.html" %}
+    <main id="main-content">
+        {% include "partials/_hero.html" %}
+        {% include "partials/_about.html" %}
+        {% include "partials/_schedules.html" %}
+        {% include "partials/_events.html" %}
+        {% include "partials/_gallery.html" %}
+        {% include "partials/_history.html" %}
+        {% include "partials/_location.html" %}
+        {% include "partials/_contact.html" %}
+    </main>
+    {% include "partials/_footer.html" %}
+{% endblock %}

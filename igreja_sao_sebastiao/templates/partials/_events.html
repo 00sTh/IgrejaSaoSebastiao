@@ -1,0 +1,32 @@
+<!-- EVENTS SECTION -->
+<section id="eventos-avisos" class="events-section section-padding" aria-label="Eventos e avisos">
+    <div class="container">
+        <h2>Próximos Eventos e Avisos</h2>
+        <div class="events-grid">
+            {% for noticia in noticias %}
+            <article class="event-card">
+                {% if noticia.imagem %}
+                <div class="card-image">
+                    <img src="{{ noticia.imagem.url }}" alt="{{ noticia.titulo }}" loading="lazy">
+                </div>
+                {% endif %}
+                <div class="card-content">
+                    <h3>{{ noticia.titulo }}</h3>
+                    {% if noticia.subtitulo %}
+                    <p class="event-subtitulo">{{ noticia.subtitulo }}</p>
+                    {% endif %}
+                    <div class="event-content-text">{{ noticia.conteudo|safe }}</div>
+                    <span class="event-date">Publicado em: {{ noticia.data_criacao|date:"d/m/Y" }}</span>
+                </div>
+            </article>
+            {% empty %}
+            <div class="event-card">
+                <div class="card-content">
+                    <h3>Nenhum evento no momento</h3>
+                    <p>Em breve teremos novidades. Fique atento!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

@@ -448,18 +448,14 @@
 
                 <div class="menu-divider"></div>
 
-                <span class="menu-category-title">Confissões</span>
-                <a href="{{ url_for('admin_horarios_confissao') }}" class="menu-item {% if 'horarios_confissao' in request.endpoint %}active{% endif %}">
-                    <i class="fas fa-clock"></i>
-                    <span>Horários Disponíveis</span>
-                </a>
-                <a href="{{ url_for('admin_agendamentos') }}" class="menu-item {% if 'agendamento' in request.endpoint and 'horarios' not in request.endpoint %}active{% endif %}">
-                    <i class="fas fa-calendar-check"></i>
-                    <span>Agendamentos</span>
-                </a>
+                <span class="menu-category-title">Comunicação</span>
                 <a href="{{ url_for('admin_mensagens') }}" class="menu-item {% if 'mensagen' in request.endpoint %}active{% endif %}">
                     <i class="fas fa-envelope"></i>
                     <span>Mensagens</span>
+                </a>
+                <a href="{{ url_for('admin_banco_imagens') }}" class="menu-item {% if 'banco_imagens' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-photo-video"></i>
+                    <span>Banco de Imagens</span>
                 </a>
 
                 <div class="menu-divider"></div>

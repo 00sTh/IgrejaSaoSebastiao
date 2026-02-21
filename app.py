@@ -101,6 +101,12 @@ def init_db():
     except:
         pass  # Coluna já existe
 
+    # Migração: adicionar coluna nome em horarios_missas
+    try:
+        conn.execute('ALTER TABLE horarios_missas ADD COLUMN nome TEXT')
+    except:
+        pass  # Coluna já existe
+
     # Tabela de contatos
     conn.execute('''
         CREATE TABLE IF NOT EXISTS contatos (
@@ -639,6 +645,7 @@ def admin_horario_edit(horario_id=None):
         dia_semana = request.form.get('dia_semana', '').strip()
         horario_time = request.form.get('horario', '').strip()
         tipo = request.form.get('tipo', 'Missa').strip()
+        nome = request.form.get('nome', '').strip()
         ativo = 1 if request.form.get('ativo') == 'on' else 0
 
         if not dia_semana or not horario_time:
@@ -648,14 +655,14 @@ def admin_horario_edit(horario_id=None):
 
         if horario_id:
             conn.execute(
-                'UPDATE horarios_missas SET dia_semana = ?, horario = ?, tipo = ?, ativo = ? WHERE id = ?',
-                (dia_semana, horario_time, tipo, ativo, horario_id)
+                'UPDATE horarios_missas SET dia_semana = ?, horario = ?, tipo = ?, nome = ?, ativo = ? WHERE id = ?',
+                (dia_semana, horario_time, tipo, nome, ativo, horario_id)
             )
             flash('Horário atualizado com sucesso!', 'success')
         else:
             conn.execute(
-                'INSERT INTO horarios_missas (dia_semana, horario, tipo, ativo) VALUES (?, ?, ?, ?)',
-                (dia_semana, horario_time, tipo, ativo)
+                'INSERT INTO horarios_missas (dia_semana, horario, tipo, nome, ativo) VALUES (?, ?, ?, ?, ?)',
+                (dia_semana, horario_time, tipo, nome, ativo)
             )
             flash('Horário criado com sucesso!', 'success')
 
@@ -989,6 +996,62 @@ def admin_contato_edit(contato_id):
 
     conn.close()
     return render_template('admin_contato_edit.html', contato=contato)
+
+# ==================== BANCO DE IMAGENS ====================
+
+@app.route('/admin/banco-imagens')
+@login_required
+def admin_banco_imagens():
+    """Banco de imagens - todas as imagens salvas no site"""
+    import glob as glob_module
+
+    imagens = []
+    upload_dir = os.path.join(app.root_path, 'static', 'uploads')
+
+    # Buscar imagens nas subpastas (medium, large, thumb, original) e raiz
+    for pasta in ['', 'medium', 'large', 'thumb', 'original']:
+        pasta_path = os.path.join(upload_dir, pasta) if pasta else upload_dir
+        if not os.path.exists(pasta_path):
+            continue
+        for ext in ['*.jpg', '*.jpeg', '*.png', '*.gif', '*.webp']:
+            for filepath in glob_module.glob(os.path.join(pasta_path, ext)):
+                filename = os.path.basename(filepath)
+                rel_path = os.path.relpath(filepath, os.path.join(app.root_path, 'static'))
+                tamanho = os.path.getsize(filepath)
+                modificado = datetime.fromtimestamp(os.path.getmtime(filepath))
+                imagens.append({
+                    'nome': filename,
+                    'pasta': pasta or 'raiz',
+                    'url': url_for('static', filename=rel_path),
+                    'tamanho': tamanho,
+                    'tamanho_fmt': f"{tamanho / 1024:.1f} KB" if tamanho < 1048576 else f"{tamanho / 1048576:.1f} MB",
+                    'data': modificado.strftime('%d/%m/%Y %H:%M'),
+                    'data_sort': modificado.isoformat()
+                })
+
+    # Também buscar imagens na pasta static/img
+    img_dir = os.path.join(app.root_path, 'static', 'img')
+    if os.path.exists(img_dir):
+        for ext in ['*.jpg', '*.jpeg', '*.png', '*.gif', '*.webp']:
+            for filepath in glob_module.glob(os.path.join(img_dir, ext)):
+                filename = os.path.basename(filepath)
+                rel_path = os.path.relpath(filepath, os.path.join(app.root_path, 'static'))
+                tamanho = os.path.getsize(filepath)
+                modificado = datetime.fromtimestamp(os.path.getmtime(filepath))
+                imagens.append({
+                    'nome': filename,
+                    'pasta': 'img',
+                    'url': url_for('static', filename=rel_path),
+                    'tamanho': tamanho,
+                    'tamanho_fmt': f"{tamanho / 1024:.1f} KB" if tamanho < 1048576 else f"{tamanho / 1048576:.1f} MB",
+                    'data': modificado.strftime('%d/%m/%Y %H:%M'),
+                    'data_sort': modificado.isoformat()
+                })
+
+    # Ordenar por data (mais recente primeiro)
+    imagens.sort(key=lambda x: x['data_sort'], reverse=True)
+
+    return render_template('admin_banco_imagens.html', imagens=imagens)
 
 # ==================== ROTAS DE BACKUP ====================
 

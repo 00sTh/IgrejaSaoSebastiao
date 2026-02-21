@@ -1,0 +1,21 @@
+{% load parish_tags %}
+<!-- HISTORY SECTION -->
+<section id="historia" class="history-section section-padding" aria-label="História da paróquia">
+    <div class="container">
+        <h2>{{ info_paroquia.historia_titulo.titulo|default:"Nossa História e Legado" }}</h2>
+        <div class="history-content">
+            {{ info_paroquia.historia_texto.conteudo|default:"<p>História da igreja em breve.</p>"|safe }}
+
+            <div class="history-milestones">
+                <h3>{{ info_paroquia.historia_marcos_titulo.titulo|default:"Principais Marcos" }}</h3>
+                <ul>
+                    {% with marcos=info_paroquia.historia_marcos.conteudo|default:"[Ano]: Fundação|[Ano]: Construção|[Ano]: Inauguração" %}
+                    {% for marco in marcos|split:"|" %}
+                    <li><i class="fas fa-scroll" aria-hidden="true"></i> {{ marco }}</li>
+                    {% endfor %}
+                    {% endwith %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

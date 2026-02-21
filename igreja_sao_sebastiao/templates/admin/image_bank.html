@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Banco de Imagens{% endblock %}
+
+{% block content %}
+<div class="igreja-page-header">
+    <h1><span class="material-symbols-outlined">collections</span> Banco de Imagens</h1>
+    <p class="breadcrumb">Painel Administrativo / Banco de Imagens</p>
+</div>
+
+<div class="igreja-card">
+    <div class="igreja-card-header">
+        <h2 class="igreja-card-title">
+            <span class="material-symbols-outlined">photo_library</span>
+            Todas as Imagens ({{ images|length }})
+        </h2>
+    </div>
+
+    {% if images %}
+    <div class="igreja-bank-grid">
+        {% for img in images %}
+        <div class="igreja-bank-card">
+            <div class="igreja-bank-thumb" onclick="openModal('{{ img.url }}')">
+                <img src="{{ img.url }}" alt="{{ img.name }}" loading="lazy">
+            </div>
+            <div class="igreja-bank-info">
+                <div class="igreja-bank-name">{{ img.name }}</div>
+                <div class="igreja-bank-meta">
+                    <span class="igreja-bank-size">{{ img.size|filesizeformat }}</span>
+                </div>
+                <button class="igreja-bank-copy" onclick="copyUrl('{{ img.url }}')">
+                    <span class="material-symbols-outlined" style="font-size:0.85rem;">content_copy</span>
+                    Copiar URL
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="igreja-empty">
+        <span class="material-symbols-outlined">photo_library</span>
+        <p>Nenhuma imagem encontrada.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal de imagem -->
+<div id="imageModal" class="igreja-modal" onclick="closeModal()">
+    <img id="modalImg" src="" alt="Preview">
+</div>
+
+<script>
+function copyUrl(url) {
+    const fullUrl = window.location.origin + url;
+    navigator.clipboard.writeText(fullUrl).then(function() {
+        // Feedback visual
+        event.target.closest('.igreja-bank-copy').innerHTML =
+            '<span class="material-symbols-outlined" style="font-size:0.85rem;">check</span> Copiado!';
+        setTimeout(function() {
+            event.target.closest('.igreja-bank-copy').innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:0.85rem;">content_copy</span> Copiar URL';
+        }, 2000);
+    });
+}
+
+function openModal(url) {
+    document.getElementById('modalImg').src = url;
+    document.getElementById('imageModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('imageModal').style.display = 'none';
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+</script>
+{% endblock %}

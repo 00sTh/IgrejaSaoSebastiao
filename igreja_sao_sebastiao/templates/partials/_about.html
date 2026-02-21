@@ -1,0 +1,14 @@
+{% load static %}
+<!-- ABOUT SECTION -->
+<section id="a-paroquia" class="about-section section-padding" aria-label="Sobre a paróquia">
+    <div class="container">
+        <div class="about-content">
+            <h2>{{ info_paroquia.sobre_titulo.titulo|default:"Seja Bem-Vindo à Nossa Comunidade!" }}</h2>
+            <p>{{ info_paroquia.sobre_texto.titulo|default:"A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade." }}</p>
+            <a href="#historia" class="btn btn-outline">Saiba Mais Sobre Nós</a>
+        </div>
+        <div class="about-image">
+            <img src="{% static 'img/Comunidade_acolhedora.jpg' %}" alt="Comunidade acolhedora da Igreja São Sebastião">
+        </div>
+    </div>
+</section>
