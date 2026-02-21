@@ -506,5 +506,30 @@
     </div>
 
     {% block extra_js %}{% endblock %}
+
+    <script>
+    // Injeta CSRF token automaticamente em todos os forms POST e previne double-submit
+    document.addEventListener('DOMContentLoaded', function() {
+        var csrfToken = '{{ csrf_token }}';
+
+        document.querySelectorAll('form[method="POST"], form[method="post"]').forEach(function(form) {
+            if (!form.querySelector('input[name="csrf_token"]')) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'csrf_token';
+                input.value = csrfToken;
+                form.appendChild(input);
+            }
+
+            form.addEventListener('submit', function() {
+                form.querySelectorAll('button[type="submit"]').forEach(function(btn) {
+                    btn.disabled = true;
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aguarde...';
+                });
+            });
+        });
+    });
+    </script>
 </body>
 </html>

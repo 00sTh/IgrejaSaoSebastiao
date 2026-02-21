@@ -61,3 +61,7 @@ Thumbs.db
 *.tmp
 temp/
 tmp/
+
+# Imagens WhatsApp e fotos avulsas na raiz
+WhatsApp Image*.jpeg
+WhatsApp Image*.jpg
