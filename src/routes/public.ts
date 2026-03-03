@@ -18,9 +18,19 @@ router.get('/', async (req, res) => {
     dbQuery<Configuracao>`SELECT * FROM configuracoes`,
   ])
 
-  const infoParoquia: Record<string, { titulo: string; conteudo: string }> = {}
+  // Build infoParoquia with .get() method to stay compatible with Jinja2-style templates in Nunjucks
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const infoParoquia: any = {}
   for (const info of infos) {
-    infoParoquia[info.secao] = { titulo: info.titulo, conteudo: info.conteudo }
+    const inner: any = { titulo: info.titulo, conteudo: info.conteudo }
+    inner.get = (key: string, fallback: unknown = '') => inner[key] ?? fallback
+    infoParoquia[info.secao] = inner
+  }
+  const emptyGetable: any = {}
+  emptyGetable.get = (_k: string, fb: unknown = '') => fb
+  infoParoquia.get = (key: string, fallback: unknown = emptyGetable) => {
+    const val = infoParoquia[key]
+    return val !== undefined ? val : fallback
   }
 
   const configDict: Record<string, string> = {}

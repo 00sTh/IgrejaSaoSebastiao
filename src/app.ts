@@ -92,6 +92,11 @@ env.addFilter('pipe_split', (str: string) => {
   return str.split('|').map((s: string) => s.trim()).filter(Boolean)
 })
 
+env.addFilter('date_short', (val: unknown) => {
+  if (!val) return ''
+  return String(val).slice(0, 10)
+})
+
 // ==================== MIDDLEWARE ====================
 app.use(express.urlencoded({ limit: '1mb', extended: true }))
 app.use(express.json({ limit: '1mb' }))
@@ -122,6 +127,15 @@ app.use(flash())
 app.use(requestLogger)
 app.use(checkSession)  // populates res.locals.currentUser, csrfToken, messages
 app.use(csrfProtect)   // validates CSRF on POST/PUT/DELETE
+
+// Expose request.args (query params) to all templates — Jinja2 compat
+app.use((req, res, next) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const args: any = { ...req.query }
+  args.get = (key: string, fallback: unknown = '') => args[key] ?? fallback
+  res.locals.request = { args }
+  next()
+})
 
 // ==================== ROUTES ====================
 app.use('/', publicRoutes)

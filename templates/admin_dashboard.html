@@ -131,7 +131,7 @@
                         {{ 'Notícia' if noticia.tipo == 'noticia' else 'Evento' }}
                     </span>
                 </td>
-                <td>{{ noticia.data_criacao[:10] if noticia.data_criacao else 'N/A' }}</td>
+                <td>{{ noticia.data_criacao | date_short or 'N/A' }}</td>
                 <td>
                     <a href="/admin/noticias/editar/{{ noticia.id }}" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                         <i class="fas fa-edit"></i>

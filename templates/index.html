@@ -126,7 +126,7 @@
                         <p class="event-subtitulo">{{ noticia.subtitulo }}</p>
                         {% endif %}
                         <div class="event-content-text">{{ noticia.conteudo | safe }}</div>
-                        <span class="event-date">Publicado em: {{ noticia.data_criacao[:10] if noticia.data_criacao else '' }}</span>
+                        <span class="event-date">Publicado em: {{ noticia.data_criacao | date_short }}</span>
 
                         {% if is_admin %}
                         <a href="/admin/noticias/editar/{{ noticia.id }}" class="btn btn-admin-edit">
