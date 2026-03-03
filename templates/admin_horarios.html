@@ -11,7 +11,7 @@
 <div class="card">
     <div class="card-header">
         <h2 class="card-title">Gerenciar Horários</h2>
-        <a href="{{ url_for('admin_horario_edit') }}" class="btn btn-success">
+        <a href="/admin/horarios/editar/novo" class="btn btn-success">
             <i class="fas fa-plus"></i>
             Adicionar Horário
         </a>
@@ -60,12 +60,12 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 0.5rem;">
-                            <a href="{{ url_for('admin_horario_edit', horario_id=horario.id) }}"
+                            <a href="/admin/horarios/editar/{{ horario.id }}"
                                class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                                 <i class="fas fa-edit"></i>
                                 Editar
                             </a>
-                            <form method="POST" action="{{ url_for('admin_horario_delete', horario_id=horario.id) }}"
+                            <form method="POST" action="/admin/horarios/deletar/{{ horario.id }}"
                                   style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este horário?');">
                                 <button type="submit" class="btn btn-danger" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                                     <i class="fas fa-trash"></i>
@@ -105,7 +105,7 @@
     <div style="text-align: center; padding: 3rem;">
         <i class="fas fa-clock" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
         <p style="color: #6b7280; font-size: 1.125rem;">Nenhum horário cadastrado.</p>
-        <a href="{{ url_for('admin_horario_edit') }}" class="btn btn-success" style="margin-top: 1rem;">
+        <a href="/admin/horarios/editar/novo" class="btn btn-success" style="margin-top: 1rem;">
             <i class="fas fa-plus"></i>
             Adicionar primeiro horário
         </a>

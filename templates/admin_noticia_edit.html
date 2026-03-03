@@ -14,13 +14,13 @@
             <i class="fas fa-{% if noticia %}edit{% else %}plus{% endif %}"></i>
             {{ 'Editar' if noticia else 'Criar Nova' }} Notícia/Evento
         </h2>
-        <a href="{{ url_for('admin_noticias') }}" class="btn btn-secondary">
+        <a href="/admin/noticias" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
             Voltar
         </a>
     </div>
 
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin_noticia_edit', noticia_id=noticia.id if noticia else None) }}">
+    <form method="POST" enctype="multipart/form-data" action="{% if noticia %}/admin/noticias/editar/{{ noticia.id }}{% else %}/admin/noticias/nova{% endif %}">
         <div class="form-group">
             <label class="form-label" for="titulo">
                 Título <span style="color: #ef4444;">*</span>
@@ -119,7 +119,7 @@
                 <i class="fas fa-save"></i>
                 {{ 'Atualizar' if noticia else 'Criar' }} Notícia
             </button>
-            <a href="{{ url_for('admin_noticias') }}" class="btn btn-secondary">
+            <a href="/admin/noticias" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
                 Cancelar
             </a>
@@ -128,7 +128,7 @@
                     onclick="if(confirm('Tem certeza que deseja excluir esta notícia? Esta ação não pode ser desfeita.')) {
                         var form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ url_for('admin_noticia_delete', post_id=noticia.id) }}';
+                        form.action = '/admin/noticias/deletar/{{ noticia.id }}';
                         document.body.appendChild(form);
                         form.submit();
                     }">

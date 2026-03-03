@@ -33,7 +33,7 @@
                 {{ msg.mensagem }}
             </div>
             <div class="message-actions">
-                <a href="{{ url_for('admin_mensagem_responder', mensagem_id=msg.id) }}" class="btn btn-primary btn-sm">
+                <a href="/admin/mensagens/{{ msg.id }}/responder" class="btn btn-primary btn-sm">
                     <i class="fas fa-reply"></i> Responder
                 </a>
                 {% if msg.resposta %}
@@ -42,13 +42,13 @@
                 </span>
                 {% endif %}
                 {% if not msg.lida %}
-                <form action="{{ url_for('admin_mensagem_lida', mensagem_id=msg.id) }}" method="POST" style="display: inline;">
+                <form action="/admin/mensagens/{{ msg.id }}/lida" method="POST" style="display: inline;">
                     <button type="submit" class="btn btn-secondary btn-sm">
                         <i class="fas fa-check"></i> Marcar como lida
                     </button>
                 </form>
                 {% endif %}
-                <form action="{{ url_for('admin_mensagem_delete', mensagem_id=msg.id) }}" method="POST"
+                <form action="/admin/mensagens/{{ msg.id }}/deletar" method="POST"
                       onsubmit="return confirm('Deletar esta mensagem?');" style="display: inline;">
                     <button type="submit" class="btn btn-danger btn-sm">
                         <i class="fas fa-trash"></i>

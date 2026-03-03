@@ -14,13 +14,13 @@
             <i class="fas fa-{% if foto %}edit{% else %}plus{% endif %}"></i>
             {{ 'Editar' if foto else 'Adicionar Nova' }} Foto
         </h2>
-        <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+        <a href="/admin/galeria" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
             Voltar
         </a>
     </div>
 
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('admin_galeria_edit', foto_id=foto.id if foto else None) }}">
+    <form method="POST" enctype="multipart/form-data" action="{% if foto %}/admin/galeria/editar/{{ foto.id }}{% else %}/admin/galeria/editar{% endif %}">
         <div class="form-group">
             <label class="form-label" for="titulo">
                 Título <span style="color: #ef4444;">*</span>
@@ -118,7 +118,7 @@
                 <i class="fas fa-save"></i>
                 {{ 'Atualizar' if foto else 'Adicionar' }} Foto
             </button>
-            <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+            <a href="/admin/galeria" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
                 Cancelar
             </a>
@@ -127,7 +127,7 @@
                     onclick="if(confirm('Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.')) {
                         var form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ url_for('admin_galeria_delete', foto_id=foto.id) }}';
+                        form.action = '/admin/galeria/deletar/{{ foto.id }}';
                         document.body.appendChild(form);
                         form.submit();
                     }">

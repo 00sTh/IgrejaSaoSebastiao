@@ -14,13 +14,13 @@
             <i class="fas fa-{% if horario %}edit{% else %}plus{% endif %}"></i>
             {{ 'Editar' if horario else 'Adicionar' }} Horário
         </h2>
-        <a href="{{ url_for('admin_horarios') }}" class="btn btn-secondary">
+        <a href="/admin/horarios" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
             Voltar
         </a>
     </div>
 
-    <form method="POST" action="{{ url_for('admin_horario_edit', horario_id=horario.id if horario else None) }}">
+    <form method="POST" action="{% if horario %}/admin/horarios/editar/{{ horario.id }}{% else %}/admin/horarios/novo{% endif %}">
         <div class="form-group">
             <label class="form-label" for="dia_semana">
                 Dia da Semana <span style="color: #ef4444;">*</span>
@@ -121,7 +121,7 @@
                 <i class="fas fa-save"></i>
                 {{ 'Atualizar' if horario else 'Adicionar' }} Horário
             </button>
-            <a href="{{ url_for('admin_horarios') }}" class="btn btn-secondary">
+            <a href="/admin/horarios" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
                 Cancelar
             </a>
@@ -130,7 +130,7 @@
                     onclick="if(confirm('Tem certeza que deseja excluir este horário?')) {
                         var form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ url_for('admin_horario_delete', horario_id=horario.id) }}';
+                        form.action = '/admin/horarios/deletar/{{ horario.id }}';
                         document.body.appendChild(form);
                         form.submit();
                     }">

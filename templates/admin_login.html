@@ -125,13 +125,11 @@
             </div>
         {% endif %}
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        {% if messages %}
+            {% for msg in messages %}
+                <div class="alert alert-{{ msg.category }}">{{ msg.text }}</div>
+            {% endfor %}
+        {% endif %}
 
         <form method="POST" autocomplete="off">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -157,7 +155,7 @@
             {% endif %}
         </form>
 
-        <a href="{{ url_for('index') }}" class="back-link">Voltar ao site</a>
+        <a href="/" class="back-link">Voltar ao site</a>
     </div>
 </body>
 </html>

@@ -77,27 +77,27 @@
         <h2 class="card-title">Ações Rápidas</h2>
     </div>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-        <a href="{{ url_for('admin_noticia_edit') }}" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
+        <a href="/admin/noticias/editar/novo" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
             <i class="fas fa-plus"></i>
             Nova Notícia
         </a>
-        <a href="{{ url_for('admin_horario_edit') }}" class="btn btn-success" style="justify-content: center; padding: 1rem;">
+        <a href="/admin/horarios/editar/novo" class="btn btn-success" style="justify-content: center; padding: 1rem;">
             <i class="fas fa-clock"></i>
             Novo Horário Missa
         </a>
-        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
+        <a href="/admin/galeria/editar/novo" class="btn btn-primary" style="justify-content: center; padding: 1rem;">
             <i class="fas fa-image"></i>
             Adicionar Foto
         </a>
-        <a href="{{ url_for('admin_agendamentos') }}" class="btn" style="justify-content: center; padding: 1rem; background: #fef3c7; color: #92400e;">
+        <a href="/admin/agendamentos" class="btn" style="justify-content: center; padding: 1rem; background: #fef3c7; color: #92400e;">
             <i class="fas fa-calendar-check"></i>
             Ver Agendamentos
         </a>
-        <a href="{{ url_for('admin_horarios_confissao') }}" class="btn" style="justify-content: center; padding: 1rem; background: #dbeafe; color: #1e40af;">
+        <a href="/admin/horarios-confissao" class="btn" style="justify-content: center; padding: 1rem; background: #dbeafe; color: #1e40af;">
             <i class="fas fa-pray"></i>
             Horários Confissão
         </a>
-        <a href="{{ url_for('admin_imagens_site') }}" class="btn" style="justify-content: center; padding: 1rem; background: #f3e8ff; color: #7c3aed;">
+        <a href="/admin/imagens-site" class="btn" style="justify-content: center; padding: 1rem; background: #f3e8ff; color: #7c3aed;">
             <i class="fas fa-images"></i>
             Imagens do Site
         </a>
@@ -108,7 +108,7 @@
 <div class="card">
     <div class="card-header">
         <h2 class="card-title">Notícias Recentes</h2>
-        <a href="{{ url_for('admin_noticias') }}" class="btn btn-primary btn-sm">Ver Todas</a>
+        <a href="/admin/noticias" class="btn btn-primary btn-sm">Ver Todas</a>
     </div>
     {% if noticias_recentes %}
     <table class="table">
@@ -133,7 +133,7 @@
                 </td>
                 <td>{{ noticia.data_criacao[:10] if noticia.data_criacao else 'N/A' }}</td>
                 <td>
-                    <a href="{{ url_for('admin_noticia_edit', post_id=noticia.id) }}" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+                    <a href="/admin/noticias/editar/{{ noticia.id }}" class="btn btn-primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;">
                         <i class="fas fa-edit"></i>
                     </a>
                 </td>
