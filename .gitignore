@@ -48,6 +48,8 @@ logs/
 *.cache
 
 # Dependências e Build
+node_modules/
+package-lock.json
 dist/
 build/
 *.egg-info/

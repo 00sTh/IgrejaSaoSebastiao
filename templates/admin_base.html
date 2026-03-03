@@ -398,7 +398,7 @@
             </div>
 
             <nav class="sidebar-menu">
-                <a href="{{ url_for('admin_dashboard') }}" class="menu-item {% if request.endpoint == 'admin_dashboard' %}active{% endif %}">
+                <a href="/admin/dashboard" class="menu-item">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
@@ -410,7 +410,7 @@
                         <span class="menu-category-title">{{ category.category }}</span>
                         {% for item in category['items'] %}
                             {% if item.has_access %}
-                            <a href="{{ item.url }}" class="menu-item {% if request.path.startswith(item.url) %}active{% endif %}">
+                            <a href="{{ item.url }}" class="menu-item">
                                 <i class="{{ item.icon }}"></i>
                                 <span>{{ item.display_name }}</span>
                             </a>
@@ -420,27 +420,27 @@
                     {% endfor %}
                 {% else %}
                 <!-- Fallback para menu antigo -->
-                <a href="{{ url_for('admin_noticias') }}" class="menu-item {% if 'noticia' in request.endpoint %}active{% endif %}">
+                <a href="/admin/noticias" class="menu-item">
                     <i class="fas fa-newspaper"></i>
                     <span>Noticias e Eventos</span>
                 </a>
-                <a href="{{ url_for('admin_horarios') }}" class="menu-item {% if 'horario' in request.endpoint %}active{% endif %}">
+                <a href="/admin/horarios" class="menu-item">
                     <i class="fas fa-clock"></i>
                     <span>Horarios de Missas</span>
                 </a>
-                <a href="{{ url_for('admin_conteudo_site') }}" class="menu-item {% if 'conteudo_site' in request.endpoint %}active{% endif %}">
+                <a href="/admin/conteudo-site" class="menu-item">
                     <i class="fas fa-edit"></i>
                     <span>Conteudo do Site</span>
                 </a>
-                <a href="{{ url_for('admin_galeria') }}" class="menu-item {% if 'galeria' in request.endpoint %}active{% endif %}">
+                <a href="/admin/galeria" class="menu-item">
                     <i class="fas fa-images"></i>
                     <span>Galeria de Fotos</span>
                 </a>
-                <a href="{{ url_for('admin_imagens_site') }}" class="menu-item {% if 'imagens_site' in request.endpoint %}active{% endif %}">
+                <a href="/admin/imagens-site" class="menu-item">
                     <i class="fas fa-image"></i>
                     <span>Imagens do Site</span>
                 </a>
-                <a href="{{ url_for('admin_configuracoes') }}" class="menu-item {% if 'configuracoes' in request.endpoint or 'contato' in request.endpoint %}active{% endif %}">
+                <a href="/admin/configuracoes" class="menu-item">
                     <i class="fas fa-cog"></i>
                     <span>Configuracoes</span>
                 </a>
@@ -449,18 +449,18 @@
                 <div class="menu-divider"></div>
 
                 <span class="menu-category-title">Comunicação</span>
-                <a href="{{ url_for('admin_mensagens') }}" class="menu-item {% if 'mensagen' in request.endpoint %}active{% endif %}">
+                <a href="/admin/mensagens" class="menu-item">
                     <i class="fas fa-envelope"></i>
                     <span>Mensagens</span>
                 </a>
-                <a href="{{ url_for('admin_banco_imagens') }}" class="menu-item {% if 'banco_imagens' in request.endpoint %}active{% endif %}">
+                <a href="/admin/banco-imagens" class="menu-item">
                     <i class="fas fa-photo-video"></i>
                     <span>Banco de Imagens</span>
                 </a>
 
                 <div class="menu-divider"></div>
 
-                <a href="{{ url_for('index') }}" class="menu-item" target="_blank">
+                <a href="/" class="menu-item" target="_blank">
                     <i class="fas fa-external-link-alt"></i>
                     <span>Ver Site</span>
                 </a>
@@ -473,12 +473,12 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="user-details">
-                        <div class="user-name">{{ current_user.username }}</div>
+                        <div class="user-name">{{ currentUser.username }}</div>
                         <div class="user-role">{{ current_user.role | replace('_', ' ') | title }}</div>
                     </div>
                 </div>
                 {% endif %}
-                <form action="{{ url_for('logout') }}" method="get">
+                <form action="/logout" method="get">
                     <button type="submit" class="logout-btn">
                         <i class="fas fa-sign-out-alt"></i> Sair
                     </button>
@@ -488,18 +488,16 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    <div class="flash-messages">
-                        {% for category, message in messages %}
-                            <div class="flash {{ category }}">
-                                <i class="fas fa-{% if category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-                                <span>{{ message }}</span>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            {% endwith %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for msg in messages %}
+                        <div class="flash {{ msg.category }}">
+                            <i class="fas fa-{% if msg.category == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                            <span>{{ msg.text }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             {% block content %}{% endblock %}
         </main>

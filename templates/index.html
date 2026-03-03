@@ -6,7 +6,7 @@
     <title>{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }} - Onde a Fé Encontra a Comunidade</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     <input type="hidden" id="isAdmin" value="{{ 'true' if is_admin else 'false' }}">
@@ -15,7 +15,7 @@
     <header class="main-header" id="mainHeader">
         <div class="container">
             <div class="logo">
-                <a href="#"><img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Igreja São Sebastião"></a>
+                <a href="#"><img src="/img/logo.png" alt="Logo Igreja São Sebastião"></a>
             </div>
             <nav class="main-nav">
                 <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
@@ -54,7 +54,7 @@
                 <a href="#historia" class="btn btn-outline">Saiba Mais Sobre Nós</a>
             </div>
             <div class="about-image">
-              <a href="#"><img src="{{ url_for('static', filename='img/Comunidade_acolhedora.jpg') }}" alt="Comunidade_acolhedora"></a>
+              <a href="#"><img src="/img/Comunidade_acolhedora.jpg" alt="Comunidade_acolhedora"></a>
             </div>
         </div>
     </section>
@@ -86,7 +86,7 @@
                     <h3>{{ info_paroquia.get('confissoes_titulo', {}).get('titulo', 'Confissões') }}</h3>
                     <ul>
                         {% set confissoes_horarios = info_paroquia.get('confissoes_horarios', {}).get('titulo', 'Terça a Sexta: 14h às 17h|Sábado: 9h às 12h') %}
-                        {% for item in confissoes_horarios.split('|') %}
+                        {% for item in confissoes_horarios | pipe_split %}
                         <li><i class="fas fa-calendar-alt"></i> {{ item }}</li>
                         {% endfor %}
                         <li><i class="fas fa-info-circle"></i> Procure a secretaria para mais informações</li>
@@ -129,7 +129,7 @@
                         <span class="event-date">Publicado em: {{ noticia.data_criacao[:10] if noticia.data_criacao else '' }}</span>
 
                         {% if is_admin %}
-                        <a href="{{ url_for('admin_noticia_edit', post_id=noticia['id']) }}" class="btn btn-admin-edit">
+                        <a href="/admin/noticias/editar/{{ noticia.id }}" class="btn btn-admin-edit">
                             <i class="fas fa-edit"></i> Editar no Painel
                         </a>
                         {% endif %}
@@ -162,7 +162,7 @@
                 <p style="text-align: center; grid-column: 1/-1; color: #666;">
                     Nenhuma imagem na galeria ainda.
                     {% if is_admin %}
-                    <a href="{{ url_for('crud.crud_list', entity_name='galeria') }}">Adicionar fotos</a>
+                    <a href="/admin/galeria">Adicionar fotos</a>
                     {% endif %}
                 </p>
                 {% endif %}
@@ -181,7 +181,7 @@
                     <h3>{{ info_paroquia.get('historia_marcos_titulo', {}).get('titulo', 'Principais Marcos') }}</h3>
                     <ul>
                         {% set marcos = info_paroquia.get('historia_marcos', {}).get('conteudo', '[Ano]: Fundação|[Ano]: Construção|[Ano]: Inauguração') %}
-                        {% for marco in marcos.split('|') %}
+                        {% for marco in marcos | pipe_split %}
                         <li><i class="fas fa-scroll"></i> {{ marco }}</li>
                         {% endfor %}
                     </ul>
@@ -269,7 +269,7 @@
 
     <!-- Link para Admin -->
     {% if is_admin %}
-    <a href="{{ url_for('admin_dashboard') }}" class="admin-float-btn" title="Painel Admin">
+    <a href="/admin/dashboard" class="admin-float-btn" title="Painel Admin">
         <i class="fas fa-cog"></i>
     </a>
     <style>
@@ -310,7 +310,7 @@
     </style>
     {% endif %}
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="/script.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>

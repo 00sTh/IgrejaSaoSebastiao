@@ -16,7 +16,7 @@
         </h2>
     </div>
 
-    <form method="POST" action="{{ url_for('admin_configuracoes_save') }}" enctype="multipart/form-data">
+    <form method="POST" action="/admin/configuracoes" enctype="multipart/form-data">
         <div class="form-group">
             <label class="form-label" for="nome_paroquia">
                 Nome da Paróquia <span style="color: #ef4444;">*</span>
@@ -106,7 +106,7 @@
         <h2 class="card-title">
             <i class="fas fa-address-book"></i> Informações de Contato
         </h2>
-        <a href="{{ url_for('admin_contato_edit') }}" class="btn btn-primary">
+        <a href="/admin/configuracoes/contatos/editar" class="btn btn-primary">
             <i class="fas fa-edit"></i>
             Editar Contato
         </a>
@@ -153,7 +153,7 @@
         </h2>
     </div>
 
-    <form method="POST" action="{{ url_for('admin_social_save') }}">
+    <form method="POST" action="/admin/configuracoes">
         <div class="form-group">
             <label class="form-label" for="facebook">
                 <i class="fab fa-facebook" style="color: #1877f2;"></i> Facebook
@@ -221,7 +221,7 @@
                         Faça backup regularmente dos dados da paróquia
                     </p>
                 </div>
-                <a href="{{ url_for('admin_backup') }}" class="btn btn-primary">
+                <a href="/admin/backup" class="btn btn-primary">
                     <i class="fas fa-download"></i>
                     Fazer Backup
                 </a>
@@ -238,7 +238,7 @@
                         Mantenha sua senha segura e atualizada
                     </p>
                 </div>
-                <a href="{{ url_for('admin_change_password') }}" class="btn btn-primary">
+                <a href="/admin/configuracoes/alterar-senha" class="btn btn-primary">
                     <i class="fas fa-lock"></i>
                     Alterar Senha
                 </a>
@@ -255,7 +255,7 @@
                         Limpe o cache do sistema se estiver com problemas de visualização
                     </p>
                 </div>
-                <button onclick="if(confirm('Tem certeza que deseja limpar o cache?')) { window.location.href='{{ url_for('admin_clear_cache') }}'; }"
+                <button onclick="if(confirm('Tem certeza que deseja limpar o cache?')) { window.location.href='/admin/configuracoes/limpar-cache'; }"
                         class="btn btn-danger">
                     <i class="fas fa-broom"></i>
                     Limpar Cache

@@ -45,7 +45,7 @@
                         </div>
                     </td>
                     <td>
-                        <form action="{{ url_for('admin_agendamento_status', agendamento_id=ag.id) }}" method="POST" style="display: inline;">
+                        <form action="/admin/agendamentos/{{ ag.id }}/status" method="POST" style="display: inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <select name="status" onchange="this.form.submit()" class="status-select status-{{ ag.status }}">
                                 <option value="pendente" {% if ag.status == 'pendente' %}selected{% endif %}>Pendente</option>
@@ -59,7 +59,7 @@
                         <button type="button" class="btn btn-edit btn-sm" onclick="abrirModalEdicao({{ ag.id }}, '{{ ag.nome }}', '{{ ag.email }}', '{{ ag.telefone }}', {{ ag.mes }}, {{ ag.dia }}, '{{ ag.horario }}', '{{ ag.observacoes|default("", true)|replace("'", "\\'") }}')" title="Editar">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <form action="{{ url_for('admin_agendamento_delete', agendamento_id=ag.id) }}" method="POST"
+                        <form action="/admin/agendamentos/{{ ag.id }}/deletar" method="POST"
                               onsubmit="return confirm('Deletar este agendamento?');" style="display: inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                             <button type="submit" class="btn btn-danger btn-sm" title="Deletar">

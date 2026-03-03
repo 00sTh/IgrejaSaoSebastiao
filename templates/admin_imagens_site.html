@@ -24,9 +24,9 @@
             <span class="image-location">Aparece no cabeçalho do site</span>
         </div>
         <div class="image-preview">
-            <img src="{{ url_for('static', filename='img/logo.png') }}?v={{ cache_bust }}" alt="Logo">
+            <img src="/img/logo.png?v={{ cache_bust }}" alt="Logo">
         </div>
-        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+        <form action="/admin/imagens-site/upload" method="POST" enctype="multipart/form-data" class="image-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="imagem_tipo" value="logo">
             <input type="hidden" name="imagem_nome" value="logo.png">
@@ -48,9 +48,9 @@
             <span class="image-location">Imagem de fundo da página inicial</span>
         </div>
         <div class="image-preview large">
-            <img src="{{ url_for('static', filename='img/hero-background.jpg') }}?v={{ cache_bust }}" alt="Hero Background">
+            <img src="/img/hero-background.jpg?v={{ cache_bust }}" alt="Hero Background">
         </div>
-        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+        <form action="/admin/imagens-site/upload" method="POST" enctype="multipart/form-data" class="image-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="imagem_tipo" value="hero">
             <input type="hidden" name="imagem_nome" value="hero-background.jpg">
@@ -72,9 +72,9 @@
             <span class="image-location">Imagem na seção sobre a igreja</span>
         </div>
         <div class="image-preview large">
-            <img src="{{ url_for('static', filename='img/Comunidade_acolhedora.jpg') }}?v={{ cache_bust }}" alt="Comunidade">
+            <img src="/img/Comunidade_acolhedora.jpg?v={{ cache_bust }}" alt="Comunidade">
         </div>
-        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+        <form action="/admin/imagens-site/upload" method="POST" enctype="multipart/form-data" class="image-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="imagem_tipo" value="about">
             <input type="hidden" name="imagem_nome" value="Comunidade_acolhedora.jpg">
@@ -97,7 +97,7 @@
         </div>
         <div class="image-preview large">
             {% if confession_bg_exists %}
-            <img src="{{ url_for('static', filename='img/confession-background.jpg') }}?v={{ cache_bust }}" alt="Confissão">
+            <img src="/img/confession-background.jpg?v={{ cache_bust }}" alt="Confissão">
             {% else %}
             <div class="no-image">
                 <i class="fas fa-image"></i>
@@ -106,7 +106,7 @@
             </div>
             {% endif %}
         </div>
-        <form action="{{ url_for('admin_imagem_upload') }}" method="POST" enctype="multipart/form-data" class="image-form">
+        <form action="/admin/imagens-site/upload" method="POST" enctype="multipart/form-data" class="image-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="imagem_tipo" value="confession">
             <input type="hidden" name="imagem_nome" value="confession-background.jpg">

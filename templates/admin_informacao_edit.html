@@ -14,13 +14,13 @@
             <i class="fas fa-{% if informacao %}edit{% else %}plus{% endif %}"></i>
             {{ 'Editar' if informacao else 'Criar Nova' }} Informação
         </h2>
-        <a href="{{ url_for('admin_informacoes') }}" class="btn btn-secondary">
+        <a href="/admin/informacoes" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
             Voltar
         </a>
     </div>
 
-    <form method="POST" action="{{ url_for('admin_informacao_edit', informacao_id=informacao.id if informacao else None) }}">
+    <form method="POST" action="{% if informacao %}/admin/informacoes/editar/{{ informacao.id }}{% else %}/admin/informacoes/editar/novo{% endif %}">
         <div class="form-group">
             <label class="form-label" for="titulo">
                 Título <span style="color: #ef4444;">*</span>
@@ -129,7 +129,7 @@
                 <i class="fas fa-save"></i>
                 {{ 'Atualizar' if informacao else 'Criar' }} Informação
             </button>
-            <a href="{{ url_for('admin_informacoes') }}" class="btn btn-secondary">
+            <a href="/admin/informacoes" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
                 Cancelar
             </a>
@@ -138,7 +138,7 @@
                     onclick="if(confirm('Tem certeza que deseja excluir esta informação?')) {
                         var form = document.createElement('form');
                         form.method = 'POST';
-                        form.action = '{{ url_for('admin_informacao_delete', informacao_id=informacao.id) }}';
+                        form.action = '/admin/informacoes/deletar/{{ informacao.id }}';
                         document.body.appendChild(form);
                         form.submit();
                     }">

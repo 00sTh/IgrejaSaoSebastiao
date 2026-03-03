@@ -21,7 +21,7 @@
 <body>
     <div class="admin-header">
         <h1>Painel de Administração</h1>
-        <a href="{{ url_for('admin_dashboard') }}">Voltar ao Dashboard</a>
+        <a href="/admin/dashboard">Voltar ao Dashboard</a>
     </div>
     <div class="container">
         <h2>{% if noticia %}Editar Notícia #{{ noticia['id'] }}{% else %}Criar Nova Notícia{% endif %}</h2>
@@ -68,7 +68,7 @@
             </div>
 
             <button type="submit" class="btn-submit">Salvar Notícia</button>
-            <a href="{{ url_for('admin_dashboard') }}" class="btn-cancel">Cancelar</a>
+            <a href="/admin/dashboard" class="btn-cancel">Cancelar</a>
         </form>
 Se o seu `<textarea id="conteudo" name="conteudo" ...>` estiver correto, mas aparecer **DEPOIS** da tag `</form>`, ele será ignorado.
 

@@ -11,7 +11,7 @@
 <div class="card">
     <div class="card-header">
         <h2 class="card-title">Gerenciar Fotos</h2>
-        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary">
+        <a href="/admin/galeria/editar/novo" class="btn btn-primary">
             <i class="fas fa-plus"></i>
             Adicionar Foto
         </a>
@@ -29,7 +29,7 @@
                 <i class="fas fa-search"></i>
                 Buscar
             </button>
-            <a href="{{ url_for('admin_galeria') }}" class="btn btn-secondary">
+            <a href="/admin/galeria" class="btn btn-secondary">
                 <i class="fas fa-redo"></i>
                 Limpar
             </a>
@@ -69,12 +69,12 @@
 
                 <!-- Ações -->
                 <div style="display: flex; gap: 0.5rem;">
-                    <a href="{{ url_for('admin_galeria_edit', foto_id=foto.id) }}"
+                    <a href="/admin/galeria/editar/{{ foto.id }}"
                        class="btn btn-primary" style="flex: 1; padding: 0.5rem; font-size: 0.875rem; justify-content: center;">
                         <i class="fas fa-edit"></i>
                         Editar
                     </a>
-                    <form method="POST" action="{{ url_for('admin_galeria_delete', foto_id=foto.id) }}"
+                    <form method="POST" action="/admin/galeria/deletar/{{ foto.id }}"
                           style="flex: 1;" onsubmit="return confirm('Tem certeza que deseja excluir esta foto? Esta ação não pode ser desfeita.');">
                         <button type="submit" class="btn btn-danger" style="width: 100%; padding: 0.5rem; font-size: 0.875rem;">
                             <i class="fas fa-trash"></i>
@@ -126,7 +126,7 @@
     <div style="text-align: center; padding: 3rem;">
         <i class="fas fa-images" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
         <p style="color: #6b7280; font-size: 1.125rem;">Nenhuma foto na galeria.</p>
-        <a href="{{ url_for('admin_galeria_edit') }}" class="btn btn-primary" style="margin-top: 1rem;">
+        <a href="/admin/galeria/editar/novo" class="btn btn-primary" style="margin-top: 1rem;">
             <i class="fas fa-plus"></i>
             Adicionar primeira foto
         </a>

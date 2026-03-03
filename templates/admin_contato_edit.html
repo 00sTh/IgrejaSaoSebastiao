@@ -13,13 +13,13 @@
         <h2 class="card-title">
             <i class="fas fa-address-book"></i> Informações de Contato da Paróquia
         </h2>
-        <a href="{{ url_for('admin_configuracoes') }}" class="btn btn-secondary">
+        <a href="/admin/configuracoes" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i>
             Voltar
         </a>
     </div>
 
-    <form method="POST" action="{{ url_for('admin_contato_save') }}">
+    <form method="POST" action="/admin/configuracoes/contatos/editar/{{ contato.id }}">
         <div class="form-group">
             <label class="form-label" for="telefone">
                 <i class="fas fa-phone"></i> Telefone Principal <span style="color: #ef4444;">*</span>
@@ -174,7 +174,7 @@
                 <i class="fas fa-save"></i>
                 Salvar Informações
             </button>
-            <a href="{{ url_for('admin_configuracoes') }}" class="btn btn-secondary">
+            <a href="/admin/configuracoes" class="btn btn-secondary">
                 <i class="fas fa-times"></i>
                 Cancelar
             </a>

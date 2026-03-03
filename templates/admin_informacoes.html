@@ -27,7 +27,7 @@
 
 <!-- Botão de Adicionar -->
 <div class="action-bar">
-    <a href="{{ url_for('admin_informacao_edit') }}" class="btn btn-primary btn-lg">
+    <a href="/admin/informacoes/editar/novo" class="btn btn-primary btn-lg">
         <i class="fas fa-plus"></i>
         Adicionar Nova Informação
     </a>
@@ -52,11 +52,11 @@
             <p class="info-preview">{{ info.conteudo[:150] }}{% if info.conteudo|length > 150 %}...{% endif %}</p>
         </div>
         <div class="info-actions">
-            <a href="{{ url_for('admin_informacao_edit', informacao_id=info.id) }}" class="btn btn-edit" title="Editar">
+            <a href="/admin/informacoes/editar/{{ info.id }}" class="btn btn-edit" title="Editar">
                 <i class="fas fa-edit"></i>
                 <span>Editar</span>
             </a>
-            <form method="POST" action="{{ url_for('admin_informacao_delete', informacao_id=info.id) }}"
+            <form method="POST" action="/admin/informacoes/deletar/{{ info.id }}"
                   onsubmit="return confirm('Tem certeza que deseja excluir esta informação?');" style="display: inline;">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button type="submit" class="btn btn-delete" title="Excluir">
@@ -80,7 +80,7 @@
     </div>
     <h3>Nenhuma informação cadastrada</h3>
     <p>Comece adicionando informações sobre a paróquia para que apareçam no site.</p>
-    <a href="{{ url_for('admin_informacao_edit') }}" class="btn btn-primary btn-lg">
+    <a href="/admin/informacoes/editar/novo" class="btn btn-primary btn-lg">
         <i class="fas fa-plus"></i>
         Criar Primeira Informação
     </a>
@@ -102,7 +102,7 @@
         ] %}
 
         {% for sug in sugestoes %}
-        <a href="{{ url_for('admin_informacao_edit') }}?titulo={{ sug.titulo|urlencode }}&icone={{ sug.icone }}" class="suggestion-card">
+        <a href="/admin/informacoes/editar/novo?titulo={{ sug.titulo|urlencode }}&icone={{ sug.icone }}" class="suggestion-card">
             <div class="suggestion-icon">
                 <i class="fas fa-{{ sug.icone }}"></i>
             </div>
