@@ -1,0 +1,287 @@
+{% extends "admin_base.html" %}
+
+{% block title %}{{ 'Editar' if comunidade else 'Nova' }} Comunidade{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>{{ 'Editar' if comunidade else 'Nova' }} Comunidade</h1>
+    <p class="breadcrumb">Painel Administrativo / <a href="/admin/comunidades">Comunidades</a> / {{ 'Editar' if comunidade else 'Nova' }}</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; align-items: start;">
+
+    <!-- Formulário principal -->
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">
+                <i class="fas fa-{% if comunidade %}edit{% else %}plus{% endif %}"></i>
+                {{ 'Editar' if comunidade else 'Adicionar Nova' }} Comunidade
+            </h2>
+            <a href="/admin/comunidades" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Voltar
+            </a>
+        </div>
+
+        <form id="formComunidade" method="POST" enctype="multipart/form-data"
+              action="{% if comunidade %}/admin/comunidades/editar/{{ comunidade.id }}{% else %}/admin/comunidades/nova{% endif %}">
+
+            <div class="form-group">
+                <label class="form-label" for="nome">
+                    Nome da Comunidade <span style="color: #ef4444;">*</span>
+                </label>
+                <input type="text" id="nome" name="nome" class="form-control"
+                       value="{{ comunidade.nome if comunidade else '' }}"
+                       required maxlength="150"
+                       placeholder="Ex: Comunidade Santo Antônio">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="bairro">
+                    Bairro / Localidade <span style="color: #ef4444;">*</span>
+                </label>
+                <input type="text" id="bairro" name="bairro" class="form-control"
+                       value="{{ comunidade.bairro if comunidade else '' }}"
+                       required maxlength="150"
+                       placeholder="Ex: Centro, Rosário do Pontal, Zona Rural">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <label class="form-label" for="ordem">
+                        Ordem de exibição
+                    </label>
+                    <input type="number" id="ordem" name="ordem" class="form-control"
+                           value="{{ comunidade.ordem if comunidade else 0 }}"
+                           min="0" max="999">
+                    <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                        Menor número aparece primeiro.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; padding: 0.7rem 1rem; border: 2px solid #e5e7eb; border-radius: 8px; transition: border-color 0.2s;"
+                           id="ativoLabel">
+                        <input type="checkbox" name="ativo" id="ativoCheck" value="on"
+                               {% if not comunidade or comunidade.ativo %}checked{% endif %}
+                               style="width: 18px; height: 18px; cursor: pointer; accent-color: #16a34a;">
+                        <span style="font-size: 0.9rem; color: #374151; font-weight: 500;" id="ativoText">
+                            {% if not comunidade or comunidade.ativo %}Ativa (visível no site){% else %}Inativa (oculta){% endif %}
+                        </span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="imagem">
+                    Foto da comunidade
+                    {% if not comunidade %}<span style="color: #6b7280; font-weight: 400;">(opcional)</span>{% endif %}
+                </label>
+
+                <!-- Preview da imagem atual -->
+                {% if comunidade and comunidade.imagem_url %}
+                <div id="currentImageBox" style="margin-bottom: 1rem; padding: 1rem; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb; text-align: center;">
+                    <p style="font-size: 0.8rem; color: #6b7280; margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Imagem atual</p>
+                    <img src="{{ comunidade.imagem_url }}" alt="{{ comunidade.nome }}"
+                         id="currentImage"
+                         style="max-width: 100%; max-height: 220px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                         onerror="document.getElementById('currentImageBox').innerHTML='<p style=\'color:#9ca3af;font-size:0.85rem;\'>Imagem não disponível</p>'">
+                </div>
+                {% endif %}
+
+                <!-- Input de arquivo -->
+                <div style="position: relative;">
+                    <input type="file" id="imagem" name="imagem" class="form-control"
+                           accept="image/jpeg,image/png,image/jpg,image/webp"
+                           style="padding: 0.6rem;">
+                </div>
+                <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.4rem; display: block;">
+                    JPG, PNG ou WEBP — máx. 10 MB.
+                    {% if comunidade and comunidade.imagem_url %}Deixe em branco para manter a atual.{% endif %}
+                </small>
+
+                <!-- Preview da nova imagem -->
+                <div id="previewContainer" style="display: none; margin-top: 1rem; padding: 1rem; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; text-align: center;">
+                    <p style="font-size: 0.8rem; color: #166534; margin-bottom: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Nova imagem selecionada</p>
+                    <img id="previewImage" src="" alt="Prévia"
+                         style="max-width: 100%; max-height: 220px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb; flex-wrap: wrap;">
+                <button type="submit" class="btn btn-success" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <i class="fas fa-save"></i>
+                    {{ 'Atualizar' if comunidade else 'Adicionar' }} Comunidade
+                </button>
+                <a href="/admin/comunidades" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </a>
+                {% if comunidade %}
+                <button type="button" class="btn btn-danger" id="btnDelete"
+                        style="margin-left: auto; display: inline-flex; align-items: center; gap: 0.4rem;">
+                    <i class="fas fa-trash"></i>
+                    Excluir
+                </button>
+                {% endif %}
+            </div>
+        </form>
+
+        {% if comunidade %}
+        <!-- Form de deletar separado -->
+        <form id="formDeletar" method="POST" action="/admin/comunidades/deletar/{{ comunidade.id }}" style="display: none;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        </form>
+        {% endif %}
+    </div>
+
+    <!-- Painel lateral de dicas -->
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+
+        <!-- Preview ao vivo -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #3B5F6C, #2d4a55); padding: 1rem 1.25rem;">
+                <h4 style="color: white; font-size: 0.9rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-eye"></i> Preview do Card
+                </h4>
+            </div>
+            <div style="padding: 1.25rem;">
+                <div id="cardPreview" style="border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 240px; margin: 0 auto;">
+                    <div style="position: relative; padding-top: 65%; overflow: hidden; background: #e5e7eb;" id="previewFotoBox">
+                        <div id="previewFotoPlaceholder" style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #c8d6db, #a8bec6); gap: 0.4rem;">
+                            <i class="fas fa-church" style="font-size: 2rem; color: #3B5F6C; opacity: 0.6;"></i>
+                        </div>
+                        {% if comunidade and comunidade.imagem_url %}
+                        <img id="previewFotoImg" src="{{ comunidade.imagem_url }}" alt="Preview"
+                             style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.style.display='none'">
+                        {% else %}
+                        <img id="previewFotoImg" src="" alt="Preview"
+                             style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none;">
+                        {% endif %}
+                    </div>
+                    <div style="padding: 0.8rem 1rem;">
+                        <p id="previewNome" style="font-family: 'Playfair Display', serif; font-size: 0.95rem; font-weight: 700; color: #1f2937; margin-bottom: 0.25rem;">
+                            {{ comunidade.nome if comunidade else 'Nome da comunidade' }}
+                        </p>
+                        <p id="previewBairro" style="font-size: 0.8rem; color: #6b7280; display: flex; align-items: center; gap: 0.35rem; margin: 0;">
+                            <i class="fas fa-map-marker-alt" style="color: #3B5F6C; font-size: 0.75rem;"></i>
+                            {{ comunidade.bairro if comunidade else 'Bairro' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dicas -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; color: white;">
+                <i class="fas fa-lightbulb"></i> Dicas
+            </h4>
+            <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                    <i class="fas fa-check" style="margin-top: 0.1rem; flex-shrink: 0;"></i>
+                    <span>Use fotos da fachada da capela para melhor identificação</span>
+                </li>
+                <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                    <i class="fas fa-check" style="margin-top: 0.1rem; flex-shrink: 0;"></i>
+                    <span>Formato horizontal funciona melhor nos cards</span>
+                </li>
+                <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                    <i class="fas fa-check" style="margin-top: 0.1rem; flex-shrink: 0;"></i>
+                    <span>Use o campo <strong>Ordem</strong> para controlar a sequência de exibição</span>
+                </li>
+                <li style="display: flex; gap: 0.5rem; align-items: flex-start;">
+                    <i class="fas fa-check" style="margin-top: 0.1rem; flex-shrink: 0;"></i>
+                    <span>Comunidades <strong>Inativas</strong> não aparecem no site público</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media (max-width: 900px) {
+        .content-header + div {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Preview de imagem ao selecionar arquivo
+    document.getElementById('imagem').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size / 1024 / 1024 > 10) {
+            alert('Arquivo muito grande. Máximo: 10 MB.');
+            this.value = '';
+            return;
+        }
+        const valid = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!valid.includes(file.type)) {
+            alert('Formato não suportado. Use JPG, PNG ou WEBP.');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const src = e.target.result;
+            // Preview principal
+            document.getElementById('previewImage').src = src;
+            document.getElementById('previewContainer').style.display = 'block';
+            // Preview lateral
+            const img = document.getElementById('previewFotoImg');
+            img.src = src;
+            img.style.display = 'block';
+            document.getElementById('previewFotoPlaceholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Preview ao vivo dos campos nome e bairro
+    document.getElementById('nome').addEventListener('input', function() {
+        document.getElementById('previewNome').textContent = this.value || 'Nome da comunidade';
+    });
+    document.getElementById('bairro').addEventListener('input', function() {
+        const el = document.getElementById('previewBairro');
+        el.innerHTML = '<i class="fas fa-map-marker-alt" style="color:#3B5F6C;font-size:0.75rem;"></i> ' + (this.value || 'Bairro');
+    });
+
+    // Toggle do checkbox ativo
+    const ativoCheck = document.getElementById('ativoCheck');
+    const ativoText = document.getElementById('ativoText');
+    const ativoLabel = document.getElementById('ativoLabel');
+    if (ativoCheck) {
+        function updateAtivo() {
+            if (ativoCheck.checked) {
+                ativoText.textContent = 'Ativa (visível no site)';
+                ativoLabel.style.borderColor = '#86efac';
+                ativoLabel.style.background = '#f0fdf4';
+            } else {
+                ativoText.textContent = 'Inativa (oculta no site)';
+                ativoLabel.style.borderColor = '#fca5a5';
+                ativoLabel.style.background = '#fef2f2';
+            }
+        }
+        updateAtivo();
+        ativoCheck.addEventListener('change', updateAtivo);
+    }
+
+    // Botão excluir com confirmação
+    const btnDelete = document.getElementById('btnDelete');
+    if (btnDelete) {
+        btnDelete.addEventListener('click', function() {
+            const nome = document.getElementById('nome').value || 'esta comunidade';
+            if (confirm('Tem certeza que deseja excluir "' + nome + '"? Esta ação não pode ser desfeita.')) {
+                document.getElementById('formDeletar').submit();
+            }
+        });
+    }
+</script>
+{% endblock %}

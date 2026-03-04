@@ -80,6 +80,16 @@ export interface HorarioConfissao {
   ativo: boolean
 }
 
+export interface Comunidade {
+  id: number
+  nome: string
+  bairro: string
+  imagem_url: string | null
+  ativo: boolean
+  ordem: number
+  data_criacao: string
+}
+
 export interface User {
   id: number
   username: string

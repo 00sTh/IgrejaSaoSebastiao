@@ -152,9 +152,23 @@ export async function initDb(): Promise<void> {
     CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")
   `
 
+  // Tabela de comunidades
+  await sql`
+    CREATE TABLE IF NOT EXISTS comunidades (
+      id SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL,
+      bairro TEXT NOT NULL,
+      imagem_url TEXT,
+      ativo BOOLEAN DEFAULT TRUE,
+      ordem INTEGER DEFAULT 0,
+      data_criacao TIMESTAMPTZ DEFAULT NOW()
+    )
+  `
+
   // Performance indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_noticias_created ON noticias(data_criacao)`
   await sql`CREATE INDEX IF NOT EXISTS idx_mensagens_lida ON mensagens_contato(lida)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_comunidades_ordem ON comunidades(ordem, nome)`
 
   await insertInitialData()
   console.log('✅ Banco de dados inicializado com sucesso!')

@@ -25,6 +25,7 @@ import adminConfiguracoes from './routes/admin/configuracoes'
 import adminMensagens from './routes/admin/mensagens'
 import adminConteudo from './routes/admin/conteudo'
 import adminImagens from './routes/admin/imagens'
+import adminComunidades from './routes/admin/comunidades'
 
 const rootDir = path.resolve(__dirname, '..')
 
@@ -149,6 +150,7 @@ app.use('/admin/configuracoes', loginRequired, adminConfiguracoes)
 app.use('/admin/mensagens', loginRequired, adminMensagens)
 app.use('/admin/conteudo-site', loginRequired, adminConteudo)
 app.use('/admin', loginRequired, adminImagens)
+app.use('/admin/comunidades', loginRequired, adminComunidades)
 
 // ==================== ERROR HANDLER ====================
 app.use((_req, res) => {

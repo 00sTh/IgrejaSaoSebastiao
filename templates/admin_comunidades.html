@@ -1,0 +1,154 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Comunidades{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Comunidades</h1>
+    <p class="breadcrumb">Painel Administrativo / Comunidades</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Gerenciar Comunidades</h2>
+        <a href="/admin/comunidades/nova" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Nova Comunidade
+        </a>
+    </div>
+
+    {% if comunidades %}
+
+    <!-- Resumo rápido -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <div style="background: #eff6ff; border-radius: 8px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fas fa-users" style="color: #2563eb;"></i>
+            <span style="font-size: 0.9rem; color: #1e40af; font-weight: 600;">{{ comunidades | length }} comunidades</span>
+        </div>
+        <div style="background: #f0fdf4; border-radius: 8px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fas fa-check-circle" style="color: #16a34a;"></i>
+            <span style="font-size: 0.9rem; color: #166534; font-weight: 600;">
+                {% set ativas = comunidades | selectattr('ativo') | list %}
+                {{ ativas | length }} ativas
+            </span>
+        </div>
+        <div style="background: #fef2f2; border-radius: 8px; padding: 0.75rem 1.25rem; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fas fa-image-slash" style="color: #dc2626;"></i>
+            <span style="font-size: 0.9rem; color: #991b1b; font-weight: 600;">
+                {% set sem_foto = comunidades | rejectattr('imagem_url') | list %}
+                {{ sem_foto | length }} sem foto
+            </span>
+        </div>
+    </div>
+
+    <!-- Tabela responsiva -->
+    <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table style="width: 100%; border-collapse: collapse; min-width: 600px;">
+            <thead>
+                <tr style="background: #f9fafb; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Foto</th>
+                    <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Nome</th>
+                    <th style="padding: 0.75rem 1rem; text-align: left; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Bairro</th>
+                    <th style="padding: 0.75rem 1rem; text-align: center; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Ordem</th>
+                    <th style="padding: 0.75rem 1rem; text-align: center; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Status</th>
+                    <th style="padding: 0.75rem 1rem; text-align: right; font-size: 0.8rem; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in comunidades %}
+                <tr style="border-bottom: 1px solid #f3f4f6; transition: background 0.15s;"
+                    onmouseover="this.style.background='#f9fafb'"
+                    onmouseout="this.style.background=''">
+
+                    <td style="padding: 0.75rem 1rem;">
+                        {% if c.imagem_url %}
+                        <img src="{{ c.imagem_url }}" alt="{{ c.nome }}"
+                             style="width: 52px; height: 52px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb; display: block;"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div style="display:none; width: 52px; height: 52px; background: #f3f4f6; border-radius: 8px; align-items: center; justify-content: center; border: 2px dashed #d1d5db;">
+                            <i class="fas fa-church" style="color: #9ca3af; font-size: 1.2rem;"></i>
+                        </div>
+                        {% else %}
+                        <div style="width: 52px; height: 52px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; border: 2px dashed #d1d5db;">
+                            <i class="fas fa-church" style="color: #9ca3af; font-size: 1.2rem;"></i>
+                        </div>
+                        {% endif %}
+                    </td>
+
+                    <td style="padding: 0.75rem 1rem;">
+                        <span style="font-weight: 600; color: #1f2937; font-size: 0.95rem;">{{ c.nome }}</span>
+                    </td>
+
+                    <td style="padding: 0.75rem 1rem; color: #6b7280; font-size: 0.9rem;">
+                        <i class="fas fa-map-marker-alt" style="color: #9ca3af; margin-right: 0.3rem;"></i>
+                        {{ c.bairro }}
+                    </td>
+
+                    <td style="padding: 0.75rem 1rem; text-align: center;">
+                        <span style="background: #f3f4f6; color: #6b7280; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">
+                            {{ c.ordem }}
+                        </span>
+                    </td>
+
+                    <td style="padding: 0.75rem 1rem; text-align: center;">
+                        {% if c.ativo %}
+                        <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+                            <i class="fas fa-check"></i> Ativa
+                        </span>
+                        {% else %}
+                        <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">
+                            <i class="fas fa-times"></i> Inativa
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    <td style="padding: 0.75rem 1rem; text-align: right;">
+                        <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+                            <a href="/admin/comunidades/editar/{{ c.id }}" class="btn btn-primary"
+                               style="padding: 0.4rem 0.8rem; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-edit"></i>
+                                <span class="btn-label">Editar</span>
+                            </a>
+                            <form method="POST" action="/admin/comunidades/deletar/{{ c.id }}"
+                                  onsubmit="return confirm('Excluir {{ c.nome }}? Esta ação não pode ser desfeita.')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <button type="submit" class="btn btn-danger"
+                                        style="padding: 0.4rem 0.65rem; font-size: 0.8rem;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+        <span style="font-size: 0.875rem; color: #6b7280;">
+            {{ comunidades | length }} comunidade(s) cadastrada(s)
+        </span>
+        <a href="/comunidades" target="_blank" style="font-size: 0.875rem; color: #2563eb; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <i class="fas fa-external-link-alt"></i> Ver página pública
+        </a>
+    </div>
+
+    {% else %}
+    <div style="text-align: center; padding: 3.5rem 1rem;">
+        <i class="fas fa-users" style="font-size: 3.5rem; color: #d1d5db; margin-bottom: 1rem; display: block;"></i>
+        <p style="color: #6b7280; font-size: 1.1rem; margin-bottom: 1.5rem;">Nenhuma comunidade cadastrada.</p>
+        <a href="/admin/comunidades/nova" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Adicionar primeira comunidade
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    @media (max-width: 640px) {
+        .btn-label { display: none; }
+    }
+</style>
+{% endblock %}

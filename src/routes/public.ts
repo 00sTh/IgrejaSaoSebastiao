@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { sql, dbQuery } from '../db'
 import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
-import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao } from '../types/index'
+import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade } from '../types/index'
 
 const router = Router()
 
@@ -47,6 +47,15 @@ router.get('/', async (req, res) => {
     configs: configDict,
     is_admin: req.session.logged_in ?? false,
   })
+})
+
+// ==================== COMUNIDADES ====================
+
+router.get('/comunidades', async (_req, res) => {
+  const comunidades = await dbQuery<Comunidade>`
+    SELECT * FROM comunidades WHERE ativo = TRUE ORDER BY ordem ASC, nome ASC
+  `
+  res.render('comunidades.html', { comunidades })
 })
 
 // ==================== PUBLIC APIs ====================
