@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }} - Onde a Fé Encontra a Comunidade</title>
+    <meta name="description" content="{{ info_paroquia.get('sobre_texto', {}).get('titulo', 'A Igreja São Sebastião tem sido um farol de fé e esperança para a comunidade de Ponte Nova, MG.') }}">
+    <meta property="og:title" content="{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }} - Ponte Nova, MG">
+    <meta property="og:description" content="{{ info_paroquia.get('sobre_texto', {}).get('titulo', 'Paróquia São Sebastião de Ponte Nova. Missas, eventos, comunidades e mais.') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="pt_BR">
+    <link rel="canonical" href="/">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
@@ -24,6 +30,7 @@
                     <li><a href="#a-paroquia">A Paróquia</a></li>
                     <li><a href="#missas-horarios">Missas e Horários</a></li>
                     <li><a href="#eventos-avisos">Eventos e Avisos</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
                     <li><a href="#galeria">Galeria</a></li>
                     <li><a href="#historia">História</a></li>
                     <li><a href="#localizacao">Localização</a></li>
@@ -147,6 +154,13 @@
                 </div>
                 {% endif %}
             </div>
+            {% if noticias %}
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="/noticias" class="btn btn-outline">
+                    <i class="fas fa-newspaper"></i> Ver todas as notícias
+                </a>
+            </div>
+            {% endif %}
         </div>
     </section>
 

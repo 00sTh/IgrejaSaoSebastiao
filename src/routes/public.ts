@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import { z } from 'zod'
-import { sql, dbQuery } from '../db'
+import { sql, dbQuery, queryOne } from '../db'
 import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
+import { sendNewMessageNotification } from '../lib/mailer'
 import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade } from '../types/index'
 
 const router = Router()
@@ -49,6 +50,32 @@ router.get('/', async (req, res) => {
   })
 })
 
+// ==================== NOTÍCIAS ====================
+
+router.get('/noticias', async (_req, res) => {
+  const noticias = await dbQuery<Noticia>`SELECT * FROM noticias ORDER BY data_criacao DESC`
+  res.render('noticias.html', { noticias })
+})
+
+router.get('/noticias/:id', async (req, res) => {
+  const id = parseInt(req.params.id, 10)
+  if (isNaN(id)) {
+    res.status(404).render('error.html', { error: 'Notícia não encontrada', code: 404 })
+    return
+  }
+
+  const noticia = await queryOne<Noticia>`SELECT * FROM noticias WHERE id = ${id}`
+  if (!noticia) {
+    res.status(404).render('error.html', { error: 'Notícia não encontrada', code: 404 })
+    return
+  }
+
+  const recentes = await dbQuery<Noticia>`
+    SELECT id, titulo, data_criacao FROM noticias WHERE id != ${id} ORDER BY data_criacao DESC LIMIT 5
+  `
+  res.render('noticia.html', { noticia, recentes })
+})
+
 // ==================== COMUNIDADES ====================
 
 router.get('/comunidades', async (_req, res) => {
@@ -88,6 +115,9 @@ router.post('/api/enviar-mensagem', mensagemRateLimitMiddleware, async (req, res
 
     const { nome, email, mensagem } = result.data
     await sql`INSERT INTO mensagens_contato (nome, email, mensagem) VALUES (${nome}, ${email}, ${mensagem})`
+
+    // Notifica o admin por email (silencioso se SMTP não configurado)
+    sendNewMessageNotification(nome, email, mensagem).catch(() => {})
 
     res.json({ status: 'success', message: 'Mensagem enviada com sucesso! Responderemos em breve.' })
   } catch (err) {

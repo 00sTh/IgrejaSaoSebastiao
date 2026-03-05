@@ -1,64 +1,123 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Site e painel administrativo da Igreja São Sebastião (Ponte Nova/MG). Portuguese (pt-BR) codebase.
 
-## Project Overview
+> **Atenção:** o projeto foi migrado de Flask/Python para **Express.js + TypeScript**. Os arquivos `app.py`, `config.py`, `core/`, `middleware/` (Python) e `venv/` são legados e **não são usados**. Todo o código ativo está em `src/`.
 
-Site e painel administrativo da Igreja Sao Sebastiao (Ponte Nova/MG). Flask + SQLite + Jinja2, single-page public site with full admin panel. Portuguese (pt-BR) codebase.
+## Stack
 
-## Commands
+- **Runtime:** Node.js (via nvm)
+- **Framework:** Express.js + TypeScript
+- **Templates:** Nunjucks (`templates/`)
+- **Banco:** Neon PostgreSQL (`@neondatabase/serverless`)
+- **Auth:** express-session + connect-pg-simple (sessões no Postgres)
+- **Upload:** Cloudinary (`src/lib/media.ts`)
+- **Email:** Nodemailer (`src/lib/mailer.ts`)
+- **Segurança:** helmet.js, CSRF próprio, rate-limit, sanitize-html, Zod
+
+## Comandos
 
 ```bash
-# Activate venv (required - system python does not have flask)
-source venv/bin/activate
+# Instalar dependências
+source /home/sth/.nvm/nvm.sh
+pnpm install
 
-# Run server (listens on 0.0.0.0:5000)
-python app.py
+# Dev (com hot reload)
+pnpm dev
 
-# Or without activating venv:
-./venv/bin/python app.py
+# Produção
+pnpm start
 
-# Run tests
-pytest tests/
+# Verificar TypeScript
+npx tsc --noEmit
 
-# Access
-# Site: http://localhost:5000
+# Acesso
+# Site:  http://localhost:5000
 # Admin: http://localhost:5000/admin
 ```
 
-## Architecture
+## Estrutura principal (`src/`)
 
-### Data Flow
-`app.py` is the monolithic Flask application. It reads all data from `database.db` (SQLite) and passes it to `templates/index.html` as template variables. The admin panel has ~20 routes for CRUD operations on each entity.
-
-### Key Pattern: `paroquia_info` table
-Most site content is stored in the `paroquia_info` table with columns `secao` (section key), `titulo`, and `conteudo`. The `index()` route loads all rows into a dict keyed by `secao`:
-```python
-info_paroquia[info['secao']] = {'titulo': info['titulo'], 'conteudo': info['conteudo']}
 ```
-In templates, content is accessed via `info_paroquia.get('section_key', {}).get('titulo')` for short values or `.get('conteudo')` for long-form text (like `historia_texto`, `historia_marcos`). **Be careful**: the admin "Conteudo do Site" editor (`admin_conteudo_site_save`) only saves to the `titulo` column, while the "Informacoes" editor saves both `titulo` and `conteudo`. Know which column your template reads from.
+src/
+  app.ts                  # Entry point + helmet CSP + session + rotas
+  config.ts               # Zod env validation (SECRET_KEY obrigatória, min 32 chars)
+  db.ts                   # initDb(), dbQuery<T>, queryOne<T>, sql tagged template
+  lib/
+    auth.ts               # authenticate(), auditLog(), loginRequired middleware
+    mailer.ts             # sendReplyEmail(), sendNewMessageNotification()
+    media.ts              # uploadImage() via Cloudinary
+    cache.ts              # cache simples em memória
+    csrf.ts               # geração de token CSRF
+  middleware/
+    session.ts            # checkSession — popula res.locals.currentUser, csrfToken, messages
+    csrf.ts               # csrfProtect — valida CSRF em POST/PUT/DELETE
+    rate-limit.ts         # loginLimiter (5/5min), mensagemRateLimitMiddleware (5/15min)
+    logger.ts             # requestLogger estruturado
+  routes/
+    public.ts             # GET /, /noticias, /noticias/:id, /comunidades, POST /api/enviar-mensagem
+    auth.ts               # GET/POST /login, POST /logout
+    admin/
+      index.ts            # /admin/dashboard
+      noticias.ts         # CRUD /admin/noticias
+      horarios.ts         # CRUD /admin/horarios
+      galeria.ts          # CRUD /admin/galeria
+      informacoes.ts      # CRUD /admin/informacoes
+      configuracoes.ts    # /admin/configuracoes
+      mensagens.ts        # /admin/mensagens (lista + resposta por email)
+      conteudo.ts         # /admin/conteudo-site
+      imagens.ts          # /admin/banco-imagens
+      comunidades.ts      # CRUD /admin/comunidades
+  types/index.ts          # Interfaces TypeScript + augmentations express-session/Express.Locals
+```
 
-### Database Migrations
-Done inline in `init_db()` via try/except `ALTER TABLE` blocks. There is no migration framework. When adding a column, add both the `ALTER TABLE` migration in `init_db()` and include the column in the `CREATE TABLE IF NOT EXISTS` statement for fresh installs.
+## Padrão DB (Neon)
 
-### Module Structure
-- **`app.py`** - All routes (public + admin), DB init, file upload, email, form validation
-- **`config.py`** - Config from `.env` (via python-dotenv): SECRET_KEY, DATABASE_PATH, ADMIN credentials
-- **`middleware/auth.py`** - AuthManager (sessions, CSRF, RBAC), RateLimiter, login_required/role_required/permission_required decorators. Users table with roles: super_admin, admin, editor, viewer
-- **`middleware/logger.py`** - JSON structured logging to `logs/app.log` with request tracking
-- **`core/`** - CRUD engine (schema-driven), media pipeline (Pillow resize/webp), cache. Routes registered via `init_crud_routes(app)`
-- **`templates/index.html`** - Single-page public site (all sections: hero, about, hours, events, gallery, history, location, contact, footer)
-- **`templates/admin_*.html`** - Admin panel templates, extend `admin_base.html`
+- `dbQuery<T>` — tagged template literal, retorna `Promise<T[]>`
+- `queryOne<T>` — retorna `T | null`
+- PostgreSQL: SERIAL PRIMARY KEY, BOOLEAN DEFAULT TRUE/FALSE, TIMESTAMPTZ DEFAULT NOW()
+- Schema criado em `initDb()` com `CREATE TABLE IF NOT EXISTS`
 
-### Authentication
-Session-based with CSRF protection. All admin routes use `@login_required`. CSRF token is auto-injected into templates and validated on POST/PUT/DELETE. Public API routes (`/api/agendar-confissao`, `/api/enviar-mensagem`) are exempt from CSRF.
+## Env vars obrigatórias
 
-### File Uploads
-Saved to `static/uploads/`. Uses `core/media.py` pipeline (resize to medium/large/thumb, convert to webp) with fallback to direct save. Max 5MB, allowed: png/jpg/jpeg/gif/webp.
+| Var | Uso |
+|---|---|
+| `DATABASE_URL` | Neon PostgreSQL connection string |
+| `SECRET_KEY` | Segredo de sessão (mín. 32 chars) |
 
-## Important Gotchas
+## Env vars opcionais (mas recomendadas em prod)
 
-- **venv required**: Flask is only installed in `venv/`, not system-wide. Always use `./venv/bin/python` or activate the venv first.
-- **Pipe-separated values**: Some `paroquia_info` fields use `|` as delimiter (e.g., `confissoes_horarios`, `historia_marcos`). Templates split on `|` to render lists.
-- **`database.db` is tracked in git** but contains runtime data. Be careful with commits.
-- **No test database**: Tests use the same SQLite file unless configured otherwise.
+| Var | Uso |
+|---|---|
+| `ADMIN_USERNAME` | Usuário admin inicial (padrão: `admin`) |
+| `ADMIN_PASSWORD` | Senha admin inicial |
+| `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | Upload de imagens |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` / `SMTP_FROM` | Emails (reply + notificação) |
+| `SITE_URL` | URL pública (usado no link do email de notificação) |
+| `PORT` | Porta (padrão: 5000) |
+
+## Templates Nunjucks
+
+- Filtros customizados: `nl2br`, `pipe_split` (split por `|`), `date_short`
+- Flash messages via `res.locals.messages = [{category, text}]`
+- `info_paroquia.get('chave', {}).get('titulo')` — conteúdo curto
+- `info_paroquia.get('chave', {}).get('conteudo')` — conteúdo longo (HTML)
+- Campos separados por `|` usam filtro `pipe_split` (ex: `confissoes_horarios`, `historia_marcos`)
+
+## Deploy (Vercel)
+
+`vercel.json` já configurado. Env vars a configurar:
+1. `DATABASE_URL` — Neon connection string (pooled)
+2. `SECRET_KEY` — string aleatória ≥ 32 chars
+3. `ADMIN_USERNAME` / `ADMIN_PASSWORD` — credenciais admin
+4. `CLOUDINARY_*` — para upload de imagens funcionar
+5. `SMTP_*` + `SITE_URL` — para emails funcionarem
+
+> **Atenção:** arquivos em `static/uploads/` NÃO persistem no Vercel (serverless). Todas as imagens devem estar no Cloudinary.
+
+## Gotchas
+
+- `paroquia_info.secao` é UNIQUE — use `ON CONFLICT (secao) DO NOTHING` em inserts
+- CSRF: rotas `/api/*` são isentas; todas as outras POST/PUT/DELETE precisam do token
+- Sessões ficam na tabela `session` do Postgres (criada pelo `initDb()`)
+- `database.db` na raiz é legado do Flask — ignorar
