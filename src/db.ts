@@ -200,6 +200,7 @@ async function insertInitialData(): Promise<void> {
   if (existing && parseInt(existing.count) > 0) {
     await insertSantosIfEmpty()
     await insertComunidadesIfEmpty()
+    await fixComunidadesData()
     await updateHistoryData()
     await updateSantosImages()
     return
@@ -278,6 +279,7 @@ async function insertInitialData(): Promise<void> {
 
   await insertSantosIfEmpty()
   await insertComunidadesIfEmpty()
+  await fixComunidadesData()
   await updateHistoryData()
   await updateSantosImages()
 }
@@ -336,6 +338,36 @@ async function insertComunidadesIfEmpty(): Promise<void> {
       await sql`INSERT INTO comunidades (nome, bairro, descricao, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${ordem})`
     }
   }
+}
+
+async function fixComunidadesData(): Promise<void> {
+  // Corrige o seed antigo que colocou Bom Pastor no bairro Copacabana (errado)
+  await sql`
+    UPDATE comunidades
+    SET bairro = 'Dioguinho',
+        descricao = 'Padroeiro: Bom Pastor — celebração em 8 de dezembro'
+    WHERE nome = 'Comunidade Bom Pastor' AND bairro = 'Copacabana'
+  `
+  // Adiciona descricao nas comunidades antigas que ficaram sem
+  await sql`
+    UPDATE comunidades SET descricao = 'Padroeiro: São Sebastião — Eucaristia: 2ª quarta-feira, 19h30'
+    WHERE nome = 'Comunidade São Geraldo' AND (descricao IS NULL OR descricao = '')
+  `
+  await sql`
+    UPDATE comunidades SET descricao = 'Padroeira: Nossa Senhora de Fátima — Eucaristia: 1ª quarta-feira, 19h30'
+    WHERE nome = 'Comunidade Vila Alvarenga' AND (descricao IS NULL OR descricao = '')
+  `
+  // Adiciona foto da Comunidade Bom Fim (única disponível online)
+  await sql`
+    UPDATE comunidades SET imagem_url = 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi3p54V4kE25DCLXmZk-FV6NPm7OdhSIr2s1fTva2JMI51v5E3-5CqIoWGNPVgeF7uRXM_XqKZLP0z_L3j4vbyua5MkdgNpHGXFVGGcCNo15_sqiDHtejH49dv8gBozVfJuz1NSVq1HIlYX/s1600/BOM+FIM.jpg'
+    WHERE nome = 'Comunidade Bom Fim' AND imagem_url IS NULL
+  `
+  // Remove duplicatas exatas por nome (mantém o de menor id)
+  await sql`
+    DELETE FROM comunidades c1
+    USING comunidades c2
+    WHERE c1.nome = c2.nome AND c1.id > c2.id
+  `
 }
 
 async function updateSantosImages(): Promise<void> {
