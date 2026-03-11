@@ -181,7 +181,13 @@ export async function initDb(): Promise<void> {
 
   // Adicionar coluna descricao em comunidades (seguro se já existir)
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
-  await sql`ALTER TABLE comunidades ADD CONSTRAINT IF NOT EXISTS comunidades_nome_unique UNIQUE (nome)`
+  await sql`
+    DO $$ BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'comunidades_nome_unique') THEN
+        ALTER TABLE comunidades ADD CONSTRAINT comunidades_nome_unique UNIQUE (nome);
+      END IF;
+    END $$
+  `
 
   // Performance indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_noticias_created ON noticias(data_criacao)`
