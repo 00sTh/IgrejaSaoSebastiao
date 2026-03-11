@@ -2,10 +2,10 @@ import 'dotenv/config'
 import express from 'express'
 import helmet from 'helmet'
 import session from 'express-session'
-import connectPgSimple from 'connect-pg-simple'
 import flash from 'connect-flash'
 import nunjucks from 'nunjucks'
 import path from 'path'
+import { clerkMiddleware } from '@clerk/express'
 import { config } from './config'
 import { initDb } from './db'
 import { checkSession } from './middleware/session'
@@ -26,6 +26,7 @@ import adminMensagens from './routes/admin/mensagens'
 import adminConteudo from './routes/admin/conteudo'
 import adminImagens from './routes/admin/imagens'
 import adminComunidades from './routes/admin/comunidades'
+import adminSantos from './routes/admin/santos'
 
 const rootDir = path.resolve(__dirname, '..')
 
@@ -42,6 +43,7 @@ app.use(
           "'unsafe-inline'", // Required for inline scripts in templates
           'https://cdnjs.cloudflare.com',
           'https://cdn.jsdelivr.net',
+          'https://*.clerk.accounts.dev',
         ],
         styleSrc: [
           "'self'",
@@ -62,10 +64,14 @@ app.use(
           'https://res.cloudinary.com',
           'https:',
         ],
-        connectSrc: ["'self'"],
+        connectSrc: [
+          "'self'",
+          'https://*.clerk.accounts.dev',
+        ],
         frameSrc: [
           "'self'",
           'https://www.google.com',
+          'https://*.clerk.accounts.dev',
         ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
@@ -103,15 +109,14 @@ app.use(express.urlencoded({ limit: '1mb', extended: true }))
 app.use(express.json({ limit: '1mb' }))
 app.use(express.static(path.join(rootDir, 'static')))
 
-// Session store
-const PgSession = connectPgSimple(session)
+// Clerk middleware (only if keys are configured)
+if (config.clerkPublishableKey && config.clerkSecretKey) {
+  app.use(clerkMiddleware())
+}
+
+// Session (MemoryStore — only used for flash messages + CSRF, NOT for auth)
 app.use(
   session({
-    store: new PgSession({
-      conString: config.databaseUrl,
-      tableName: 'session',
-      createTableIfMissing: false,
-    }),
     secret: config.secretKey,
     resave: false,
     saveUninitialized: false,
@@ -151,6 +156,7 @@ app.use('/admin/mensagens', loginRequired, adminMensagens)
 app.use('/admin/conteudo-site', loginRequired, adminConteudo)
 app.use('/admin', loginRequired, adminImagens)
 app.use('/admin/comunidades', loginRequired, adminComunidades)
+app.use('/admin/santos', loginRequired, adminSantos)
 
 // ==================== ERROR HANDLER ====================
 app.use((_req, res) => {

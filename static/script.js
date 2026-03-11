@@ -26,26 +26,40 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Funcionalidade do Menu Mobile (Toggle)
     const navToggle = document.querySelector('.nav-toggle');
     const navList = document.querySelector('.main-nav .nav-list');
-    const navLinks = document.querySelectorAll('.main-nav .nav-list a');
+    const navLinks = document.querySelectorAll('.main-nav .nav-list > li > a:not(.has-dropdown a)');
 
     if (navToggle && navList) {
         navToggle.addEventListener('click', () => {
             navList.classList.toggle('active');
-            navToggle.querySelector('i').classList.toggle('fa-bars');
-            navToggle.querySelector('i').classList.toggle('fa-times'); // Muda o ícone para 'X'
+            const icon = navToggle.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-times');
         });
 
-        // Fechar o menu ao clicar em um link (útil para navegação de uma página só)
         navLinks.forEach(link => {
             link.addEventListener('click', () => {
                 if (navList.classList.contains('active')) {
                     navList.classList.remove('active');
-                    navToggle.querySelector('i').classList.remove('fa-times');
-                    navToggle.querySelector('i').classList.add('fa-bars');
+                    const icon = navToggle.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
                 }
             });
         });
     }
+
+    // Dropdown mobile toggle
+    document.querySelectorAll('.has-dropdown > a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992) {
+                e.preventDefault();
+                const parent = link.parentElement;
+                const wasOpen = parent.classList.contains('open');
+                document.querySelectorAll('.has-dropdown.open').forEach(d => d.classList.remove('open'));
+                if (!wasOpen) parent.classList.add('open');
+            }
+        });
+    });
 
     // 3. Atualizar ano no rodapé
     const currentYearSpan = document.getElementById('currentYear');

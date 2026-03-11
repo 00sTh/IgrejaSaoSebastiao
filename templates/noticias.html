@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <style>
         .main-header {
             background-color: var(--color-background-dark) !important;
@@ -169,24 +170,27 @@
     <header class="main-header" id="mainHeader">
         <div class="container">
             <div class="logo">
-                <a href="/"><img src="/img/logo.png" alt="Logo Igreja São Sebastião"></a>
+                <a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a>
             </div>
             <nav class="main-nav">
                 <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
                 <ul class="nav-list" id="navList">
                     <li><a href="/#hero">Início</a></li>
-                    <li><a href="/#a-paroquia">A Paróquia</a></li>
-                    <li><a href="/#missas-horarios">Missas e Horários</a></li>
+                    <li class="has-dropdown">
+                        <a href="/#a-paroquia">A Paróquia <i class="fas fa-chevron-down nav-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#historia">História</a></li>
+                            <li><a href="/#galeria">Galeria</a></li>
+                            <li><a href="/#localizacao">Localização</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/#missas-horarios">Missas</a></li>
                     <li><a href="/noticias" class="active">Notícias</a></li>
-                    <li><a href="/#galeria">Galeria</a></li>
-                    <li><a href="/#historia">História</a></li>
-                    <li><a href="/#localizacao">Localização</a></li>
-                    <li><a href="https://arqmariana.com.br/" target="_blank">Arquidiocese</a></li>
                     <li><a href="/comunidades">Comunidades</a></li>
+                    <li><a href="/santos">Santos</a></li>
                     <li><a href="/#contato">Contato</a></li>
                 </ul>
             </nav>
-            <a href="https://arqmariana.com.br/" class="btn btn-primary cta-header" target="_blank">Arquidiocese de Mariana</a>
         </div>
     </header>
 

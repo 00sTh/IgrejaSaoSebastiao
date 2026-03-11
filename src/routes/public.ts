@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { sql, dbQuery, queryOne } from '../db'
 import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
 import { sendNewMessageNotification } from '../lib/mailer'
-import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade } from '../types/index'
+import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, Santo } from '../types/index'
 
 const router = Router()
 
@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
     galeria,
     contatos,
     configs: configDict,
-    is_admin: req.session.logged_in ?? false,
+    is_admin: res.locals.currentUser?.role === 'admin',
   })
 })
 
@@ -83,6 +83,16 @@ router.get('/comunidades', async (_req, res) => {
     SELECT * FROM comunidades WHERE ativo = TRUE ORDER BY ordem ASC, nome ASC
   `
   res.render('comunidades.html', { comunidades })
+})
+
+// ==================== SANTOS ====================
+
+router.get('/santos', async (_req, res) => {
+  const santos = await dbQuery<Santo>`SELECT * FROM santos WHERE ativo = TRUE ORDER BY ordem ASC, nome ASC`
+  const jovens = santos.filter(s => s.categoria === 'jovem')
+  const padroeiros = santos.filter(s => s.categoria === 'padroeiro')
+  const outros = santos.filter(s => s.categoria === 'outros')
+  res.render('santos.html', { santos, jovens, padroeiros, outros })
 })
 
 // ==================== PUBLIC APIs ====================

@@ -1,31 +1,21 @@
 import type { Request, Response, NextFunction } from 'express'
-import { SESSION_LIFETIME_MS } from '../lib/auth'
+import { getAuth } from '@clerk/express'
 import { generateCsrfToken } from '../lib/csrf'
-import { queryOne } from '../db'
-import type { User } from '../types/index'
 
 export async function checkSession(req: Request, res: Response, next: NextFunction): Promise<void> {
-  // Check session expiry
-  if (req.session.logged_in) {
-    const lastActivity = req.session.last_activity
-    if (lastActivity) {
-      const elapsed = Date.now() - new Date(lastActivity).getTime()
-      if (elapsed > SESSION_LIFETIME_MS) {
-        req.session.destroy(() => {})
-        req.flash('warning', 'Sua sessão expirou. Faça login novamente.')
-        res.redirect('/admin')
-        return
+  // Load current user from Clerk (only if keys configured)
+  if (process.env.CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY) {
+    const { userId, sessionClaims } = getAuth(req)
+    if (userId) {
+      const metadata = sessionClaims?.metadata as { role?: string } | undefined
+      res.locals.currentUser = {
+        id: 0,
+        username: (sessionClaims?.email as string) ?? userId,
+        role: metadata?.role ?? 'viewer',
       }
+    } else {
+      res.locals.currentUser = null
     }
-    req.session.last_activity = new Date().toISOString()
-  }
-
-  // Load current user
-  if (req.session.user_id) {
-    const user = await queryOne<User>`SELECT * FROM users WHERE id = ${req.session.user_id}`
-    res.locals.currentUser = user
-      ? { id: user.id, username: user.username, role: user.role }
-      : null
   } else {
     res.locals.currentUser = null
   }

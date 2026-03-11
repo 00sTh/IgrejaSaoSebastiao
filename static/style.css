@@ -186,75 +186,141 @@ ul {
 /* CABEÇALHO */
 /* ==================== */
 .main-header {
-	background-color: transparent; /* AGORA É TRANSPARENTE! */
-	padding: var(--spacing-sm) 0;
+	background: rgba(30,45,61,0.88);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	padding: 0.75rem 0;
 	position: fixed;
 	width: 100%;
 	z-index: 1000;
-	box-shadow: var(--box-shadow); /* Considere se ainda quer sombra em transparente */
-	transition: background-color var(--transition-speed);
+	transition: background var(--transition-speed), padding var(--transition-speed), box-shadow var(--transition-speed);
+	border-bottom: 1px solid rgba(255,255,255,0.06);
 }
-	.main-header.sticky {
-		padding: var(--spacing-xs) 0;
-		background-color: transparent; /* MUDANÇA AQUI: transparente mesmo quando fixo */
-		/* Importante: Se o fundo é transparente, garanta que o texto do menu ainda seja visível.
-       Podemos precisar ajustar a cor dos links se o fundo abaixo for muito claro ou muito escuro. */
-		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Mantenho uma sombra para dar uma "borda" */
-	}
 
-	.main-header .container {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		flex-wrap: wrap; /* Para responsividade */
-	}
+.main-header.sticky {
+	background: rgba(30,45,61,0.97);
+	padding: 0.5rem 0;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.35);
+}
 
-	.main-header .logo img {
-		height: 50px; /* Ajuste conforme o tamanho do seu logo */
-		max-height: 50px;
-		width: auto;
-	}
+.main-header .container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
 
+.main-header .logo img {
+	height: 48px;
+	max-height: 48px;
+	width: auto;
+}
+
+/* Nav list */
 .main-nav .nav-list {
 	display: flex;
-	gap: var(--spacing-md);
+	align-items: center;
+	gap: 0.15rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
-	.main-nav .nav-list a {
-		color: var(--color-gray-medium);
-		font-weight: 600;
-		padding: 5px 0;
-		position: relative;
-	}
+.main-nav .nav-list > li > a {
+	color: rgba(255,255,255,0.85);
+	font-weight: 600;
+	font-size: 0.875rem;
+	padding: 0.45rem 0.7rem;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+	transition: color var(--transition-speed), background var(--transition-speed);
+	white-space: nowrap;
+}
 
-		.main-nav .nav-list a::after {
-			content: '';
-			position: absolute;
-			bottom: -3px;
-			left: 0;
-			width: 0;
-			height: 2px;
-			background-color: var(--color-secondary);
-			transition: width var(--transition-speed);
-		}
+.main-nav .nav-list > li > a:hover,
+.main-nav .nav-list > li > a.active {
+	color: var(--color-secondary);
+	background: rgba(255,255,255,0.07);
+}
 
-		.main-nav .nav-list a:hover::after,
-		.main-nav .nav-list a.active::after {
-			width: 100%;
-		}
+.main-nav .nav-list > li > a::after {
+	display: none;
+}
+
+/* Dropdown */
+.has-dropdown {
+	position: relative;
+}
+
+.nav-arrow {
+	font-size: 0.65rem;
+	transition: transform 0.2s ease;
+}
+
+.has-dropdown:hover .nav-arrow,
+.has-dropdown.open .nav-arrow {
+	transform: rotate(180deg);
+}
+
+.dropdown-menu {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	background: #1a2b3c;
+	min-width: 172px;
+	border-radius: 8px;
+	padding: 0.4rem 0;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-6px);
+	transition: all 0.2s ease;
+	box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+	border: 1px solid rgba(255,255,255,0.08);
+	z-index: 100;
+	list-style: none;
+}
+
+.has-dropdown:hover .dropdown-menu,
+.has-dropdown.open .dropdown-menu {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.dropdown-menu li a {
+	display: block;
+	padding: 0.55rem 1.1rem;
+	color: rgba(255,255,255,0.75);
+	font-size: 0.855rem;
+	font-weight: 500;
+	transition: color 0.15s, background 0.15s;
+	white-space: nowrap;
+}
+
+.dropdown-menu li a:hover {
+	color: var(--color-secondary);
+	background: rgba(255,255,255,0.06);
+}
 
 .main-header .cta-header {
-	margin-left: var(--spacing-md);
-	display: none; /* Esconder por padrão em mobile */
+	display: none;
 }
 
 .nav-toggle {
-	display: none; /* Esconder por padrão em desktop */
+	display: none;
 	background: none;
 	border: none;
-	color: var(--color-text-light);
-	font-size: 1.8rem;
+	color: rgba(255,255,255,0.9);
+	font-size: 1.4rem;
 	cursor: pointer;
+	padding: 0.3rem 0.5rem;
+	border-radius: 6px;
+	transition: background 0.2s;
+}
+
+.nav-toggle:hover {
+	background: rgba(255,255,255,0.1);
 }
 
 /* ==================== */
@@ -846,49 +912,76 @@ ul {
 	}
 
 	.main-header .cta-header {
-		display: none; /* Esconde CTA no cabeçalho em telas menores */
+		display: none;
 	}
-
-	.main-nav .nav-list {
-		flex-direction: column;
-		width: 100%;
-		background-color: var(--color-background-dark);
-		position: absolute;
-		top: 100%; /* Abaixo do cabeçalho */
-		left: 0;
-		padding: var(--spacing-md) 0;
-		border-top: 1px solid rgba(255, 255, 255, 0.1);
-		display: none; /* Escondido por padrão */
-		animation: slideDown 0.3s ease-out;
-	}
-
-		.main-nav .nav-list.active {
-			display: flex; /* Mostra o menu quando ativo */
-		}
-
-		.main-nav .nav-list li {
-			text-align: center;
-			margin: var(--spacing-xs) 0;
-		}
-
-		.main-nav .nav-list a {
-			display: block;
-			padding: var(--spacing-sm);
-			border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-		}
 
 	.nav-toggle {
-		display: block; /* Mostra o botão de toggle */
-		order: 2; /* Para que fique à direita do logo */
+		display: block;
+		order: 2;
 	}
 
 	.main-header .container {
-		flex-wrap: nowrap; /* Impede que o logo e toggle quebrem linha */
+		flex-wrap: nowrap;
 		justify-content: space-between;
 	}
 
 	.main-header .logo {
-		flex-grow: 1; /* Permite que o logo ocupe espaço */
+		flex-grow: 1;
+	}
+
+	.main-nav .nav-list {
+		display: none;
+		flex-direction: column;
+		width: 100%;
+		background: #1a2b3c;
+		position: absolute;
+		top: 100%;
+		left: 0;
+		padding: 0.5rem 0;
+		border-top: 1px solid rgba(255,255,255,0.1);
+		gap: 0;
+		box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+	}
+
+	.main-nav .nav-list.active {
+		display: flex;
+	}
+
+	.main-nav .nav-list > li > a {
+		padding: 0.75rem 1.5rem;
+		border-radius: 0;
+		font-size: 0.95rem;
+		border-bottom: 1px solid rgba(255,255,255,0.05);
+	}
+
+	.main-nav .nav-list > li:last-child > a {
+		border-bottom: none;
+	}
+
+	/* Mobile dropdown */
+	.has-dropdown .dropdown-menu {
+		position: static;
+		opacity: 1;
+		visibility: hidden;
+		display: none;
+		transform: none;
+		box-shadow: none;
+		border: none;
+		background: rgba(0,0,0,0.2);
+		border-radius: 0;
+		padding: 0;
+		min-width: unset;
+	}
+
+	.has-dropdown.open .dropdown-menu {
+		display: block;
+		visibility: visible;
+	}
+
+	.dropdown-menu li a {
+		padding: 0.6rem 2.75rem;
+		border-bottom: 1px solid rgba(255,255,255,0.03);
+		font-size: 0.875rem;
 	}
 
 	.about-section .container,

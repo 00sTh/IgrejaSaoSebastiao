@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossos Santos — Igreja São Sebastião</title>
+    <meta name="description" content="Conheça os santos padroeiros e santos jovens venerados na Paróquia São Sebastião de Ponte Nova, MG.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+        .main-header {
+            background-color: var(--color-background-dark) !important;
+        }
+        .main-header.sticky {
+            background-color: var(--color-background-dark) !important;
+        }
+
+        /* Hero */
+        .santos-hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-background-dark) 100%);
+            color: var(--color-text-light);
+            padding: 6rem 0 3.5rem;
+            text-align: center;
+        }
+        .santos-hero .hero-icon {
+            font-size: 3.5rem;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .santos-hero h1 {
+            color: var(--color-text-light);
+            font-size: 2.8rem;
+            margin-bottom: 0.75rem;
+        }
+        .santos-hero p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .santos-hero .hero-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: var(--color-text-light);
+            padding: 0.4rem 1.2rem;
+            border-radius: 9999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Sections */
+        .santos-section {
+            padding: 4rem 0;
+        }
+        .santos-section:nth-child(odd) {
+            background: var(--color-gray-light);
+        }
+        .santos-section:nth-child(even) {
+            background: #fff;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .section-title h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+        }
+        .section-title p {
+            color: #6b7280;
+            font-size: 1rem;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .section-title .section-icon {
+            font-size: 2rem;
+            color: var(--color-secondary);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        /* Grid de cards */
+        .santos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.75rem;
+        }
+        .santos-grid.padroeiros {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+
+        /* Card */
+        .santo-card {
+            background: #fff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .santo-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        }
+
+        /* Foto do card */
+        .santo-foto {
+            position: relative;
+            width: 100%;
+            padding-top: 133%; /* 3:4 portrait ratio */
+            overflow: hidden;
+            background: var(--color-gray-light);
+        }
+        .santo-foto img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .santo-card:hover .santo-foto img {
+            transform: scale(1.05);
+        }
+        .santo-foto-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #d4c5a9 0%, #c8b896 100%);
+            gap: 0.5rem;
+        }
+        .santo-foto-placeholder i {
+            font-size: 3.5rem;
+            color: var(--color-primary);
+            opacity: 0.5;
+        }
+        .santo-foto-placeholder span {
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            opacity: 0.6;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Info do card */
+        .santo-info {
+            padding: 1.25rem 1.35rem 1.5rem;
+        }
+        .santo-info h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.15rem;
+            color: var(--color-text-dark);
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .santo-descricao {
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 0.75rem;
+        }
+        .santo-festa {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: linear-gradient(135deg, #f5e6c8, #eedcb3);
+            color: #92640d;
+            padding: 0.3rem 0.9rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .santo-festa i {
+            font-size: 0.75rem;
+        }
+
+        /* Estado vazio */
+        .santos-empty {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: #6b7280;
+        }
+        .santos-empty i {
+            font-size: 4rem;
+            color: var(--color-gray-medium);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* Footer CTA */
+        .santos-footer-cta {
+            text-align: center;
+            margin-top: 3rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .santos-hero h1 { font-size: 2rem; }
+            .santos-hero { padding: 5rem 0 2.5rem; }
+            .santos-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 1rem;
+            }
+            .santo-foto { padding-top: 120%; }
+            .section-title h2 { font-size: 1.5rem; }
+        }
+        @media (max-width: 480px) {
+            .santos-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+            }
+            .santo-info { padding: 0.85rem 0.9rem 1rem; }
+            .santo-info h3 { font-size: 1rem; }
+            .santo-descricao { -webkit-line-clamp: 3; font-size: 0.85rem; }
+        }
+        @media (max-width: 360px) {
+            .santos-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABECALHO -->
+    <header class="main-header" id="mainHeader">
+        <div class="container">
+            <div class="logo">
+                <a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                <ul class="nav-list" id="navList">
+                    <li><a href="/#hero">Início</a></li>
+                    <li class="has-dropdown">
+                        <a href="/#a-paroquia">A Paróquia <i class="fas fa-chevron-down nav-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#historia">História</a></li>
+                            <li><a href="/#galeria">Galeria</a></li>
+                            <li><a href="/#localizacao">Localização</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/#missas-horarios">Missas</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/comunidades">Comunidades</a></li>
+                    <li><a href="/santos" class="active">Santos</a></li>
+                    <li><a href="/#contato">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="santos-hero">
+        <div class="container">
+            <i class="fas fa-cross hero-icon"></i>
+            <h1>Nossos Santos</h1>
+            <p>Conheça os santos padroeiros da paróquia e os jovens santos que são exemplo de fé e santidade para todos nós.</p>
+            <span class="hero-badge">
+                <i class="fas fa-cross"></i>&nbsp; {{ santos | length }} santos
+            </span>
+        </div>
+    </section>
+
+    <!-- SANTOS PADROEIROS -->
+    {% if padroeiros | length > 0 %}
+    <section class="santos-section">
+        <div class="container">
+            <div class="section-title">
+                <i class="fas fa-church section-icon"></i>
+                <h2>Santos Padroeiros</h2>
+                <p>Os santos padroeiros que protegem e guiam nossa paróquia e suas comunidades.</p>
+            </div>
+
+            <div class="santos-grid padroeiros">
+                {% for s in padroeiros %}
+                <article class="santo-card">
+                    <div class="santo-foto">
+                        {% if s.imagem_url %}
+                        <img src="{{ s.imagem_url }}"
+                             alt="{{ s.nome }}"
+                             loading="lazy"
+                             onerror="this.parentElement.innerHTML='<div class=\'santo-foto-placeholder\'><i class=\'fas fa-cross\'></i><span>Sem foto</span></div>'">
+                        {% else %}
+                        <div class="santo-foto-placeholder">
+                            <i class="fas fa-cross"></i>
+                            <span>Sem foto</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="santo-info">
+                        <h3>{{ s.nome }}</h3>
+                        {% if s.descricao %}
+                        <p class="santo-descricao">{{ s.descricao }}</p>
+                        {% endif %}
+                        {% if s.dia_festa %}
+                        <span class="santo-festa">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ s.dia_festa }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- SANTOS JOVENS -->
+    {% if jovens | length > 0 %}
+    <section class="santos-section">
+        <div class="container">
+            <div class="section-title">
+                <i class="fas fa-star section-icon"></i>
+                <h2>Santos Jovens</h2>
+                <p>Jovens que viveram a santidade de forma heroica e são exemplo para as novas gerações.</p>
+            </div>
+
+            <div class="santos-grid">
+                {% for s in jovens %}
+                <article class="santo-card">
+                    <div class="santo-foto">
+                        {% if s.imagem_url %}
+                        <img src="{{ s.imagem_url }}"
+                             alt="{{ s.nome }}"
+                             loading="lazy"
+                             onerror="this.parentElement.innerHTML='<div class=\'santo-foto-placeholder\'><i class=\'fas fa-cross\'></i><span>Sem foto</span></div>'">
+                        {% else %}
+                        <div class="santo-foto-placeholder">
+                            <i class="fas fa-cross"></i>
+                            <span>Sem foto</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="santo-info">
+                        <h3>{{ s.nome }}</h3>
+                        {% if s.descricao %}
+                        <p class="santo-descricao">{{ s.descricao }}</p>
+                        {% endif %}
+                        {% if s.dia_festa %}
+                        <span class="santo-festa">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ s.dia_festa }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- OUTROS SANTOS -->
+    {% if outros | length > 0 %}
+    <section class="santos-section">
+        <div class="container">
+            <div class="section-title">
+                <i class="fas fa-pray section-icon"></i>
+                <h2>Outros Santos</h2>
+                <p>Santos venerados pela nossa comunidade.</p>
+            </div>
+
+            <div class="santos-grid">
+                {% for s in outros %}
+                <article class="santo-card">
+                    <div class="santo-foto">
+                        {% if s.imagem_url %}
+                        <img src="{{ s.imagem_url }}"
+                             alt="{{ s.nome }}"
+                             loading="lazy"
+                             onerror="this.parentElement.innerHTML='<div class=\'santo-foto-placeholder\'><i class=\'fas fa-cross\'></i><span>Sem foto</span></div>'">
+                        {% else %}
+                        <div class="santo-foto-placeholder">
+                            <i class="fas fa-cross"></i>
+                            <span>Sem foto</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="santo-info">
+                        <h3>{{ s.nome }}</h3>
+                        {% if s.descricao %}
+                        <p class="santo-descricao">{{ s.descricao }}</p>
+                        {% endif %}
+                        {% if s.dia_festa %}
+                        <span class="santo-festa">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ s.dia_festa }}
+                        </span>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Estado vazio -->
+    {% if santos | length == 0 %}
+    <section class="santos-section">
+        <div class="container">
+            <div class="santos-empty">
+                <i class="fas fa-cross"></i>
+                <p>Nenhum santo cadastrado ainda.</p>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Footer CTA -->
+    <section style="padding: 2rem 0; background: var(--color-gray-light);">
+        <div class="container">
+            <div class="santos-footer-cta">
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar para o início
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- RODAPE -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> Igreja São Sebastião. Todos os direitos reservados.</p>
+            <ul class="footer-links">
+                <li><a href="#">Política de Privacidade</a></li>
+                <li><a href="#">Termos de Uso</a></li>
+                <li><a href="/#contato">Contato</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const navToggle = document.querySelector('.nav-toggle');
+        const navList = document.getElementById('navList');
+        if (navToggle && navList) {
+            navToggle.addEventListener('click', () => {
+                navList.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+</html>

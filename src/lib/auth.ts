@@ -1,46 +1,29 @@
-import bcrypt from 'bcryptjs'
-import { sql, queryOne } from '../db'
-import { rateLimiter } from '../middleware/rate-limit'
+import { getAuth } from '@clerk/express'
+import { sql } from '../db'
 import type { Request, Response, NextFunction } from 'express'
-import type { User, SessionUser } from '../types/index'
 
-export const SESSION_LIFETIME_MS = 8 * 60 * 60 * 1000 // 8 hours
-
-export async function authenticate(
-  username: string,
-  password: string,
-  ipAddress?: string
-): Promise<{ success: boolean; user: SessionUser | null; error: string | null }> {
-  // Rate limit check
-  if (ipAddress && rateLimiter.isBlocked(ipAddress)) {
-    return { success: false, user: null, error: 'Muitas tentativas. Aguarde 15 minutos.' }
+/** Express middleware — requires Clerk-authenticated session with admin role */
+export function loginRequired(req: Request, res: Response, next: NextFunction): void {
+  // If Clerk keys not configured, block admin access
+  if (!process.env.CLERK_PUBLISHABLE_KEY || !process.env.CLERK_SECRET_KEY) {
+    res.status(503).render('error.html', { error: 'Admin desabilitado — configure CLERK_PUBLISHABLE_KEY e CLERK_SECRET_KEY no .env', code: 503 })
+    return
   }
 
-  const user = await queryOne<User>`
-    SELECT * FROM users WHERE username = ${username} AND is_active = TRUE
-  `
+  const { userId, sessionClaims } = getAuth(req)
 
-  if (!user) {
-    if (ipAddress) rateLimiter.recordAttempt(ipAddress, false)
-    return { success: false, user: null, error: 'Usuário ou senha incorretos.' }
+  if (!userId) {
+    res.redirect('/sign-in')
+    return
   }
 
-  const valid = bcrypt.compareSync(password, user.password_hash)
-  if (!valid) {
-    if (ipAddress) rateLimiter.recordAttempt(ipAddress, false)
-    await sql`UPDATE users SET failed_attempts = failed_attempts + 1 WHERE id = ${user.id}`
-    return { success: false, user: null, error: 'Usuário ou senha incorretos.' }
+  const metadata = sessionClaims?.metadata as { role?: string } | undefined
+  if (metadata?.role !== 'admin') {
+    res.status(403).render('error.html', { error: 'Acesso negado. Você não tem permissão de administrador.', code: 403 })
+    return
   }
 
-  // Success
-  if (ipAddress) rateLimiter.recordAttempt(ipAddress, true)
-  await sql`UPDATE users SET last_login = NOW(), failed_attempts = 0 WHERE id = ${user.id}`
-
-  return {
-    success: true,
-    user: { id: user.id, username: user.username, role: user.role },
-    error: null,
-  }
+  next()
 }
 
 export async function auditLog(
@@ -68,14 +51,4 @@ export async function auditLog(
   } catch {
     // Never let audit log failures break main operations
   }
-}
-
-/** Express middleware — requires authenticated session */
-export function loginRequired(req: Request, res: Response, next: NextFunction): void {
-  if (!req.session.logged_in) {
-    req.flash('error', 'Você precisa estar logado para acessar esta página.')
-    res.redirect('/admin')
-    return
-  }
-  next()
 }

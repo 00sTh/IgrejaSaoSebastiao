@@ -1,6 +1,5 @@
 import { neon } from '@neondatabase/serverless'
 import { config } from './config'
-import bcrypt from 'bcryptjs'
 
 const sql = neon(config.databaseUrl)
 
@@ -107,7 +106,7 @@ export async function initDb(): Promise<void> {
     )
   `
 
-  // Tabela de usuários
+  // Tabela de usuários (mantida para audit_log FK, mas auth é via Clerk)
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -138,7 +137,7 @@ export async function initDb(): Promise<void> {
     )
   `
 
-  // Session store table (connect-pg-simple)
+  // Session store table (for flash messages/CSRF)
   await sql`
     CREATE TABLE IF NOT EXISTS "session" (
       "sid" varchar NOT NULL COLLATE "default",
@@ -165,10 +164,29 @@ export async function initDb(): Promise<void> {
     )
   `
 
+  // Tabela de santos
+  await sql`
+    CREATE TABLE IF NOT EXISTS santos (
+      id SERIAL PRIMARY KEY,
+      nome TEXT NOT NULL,
+      descricao TEXT,
+      imagem_url TEXT,
+      categoria TEXT NOT NULL DEFAULT 'outros',
+      dia_festa TEXT,
+      ativo BOOLEAN DEFAULT TRUE,
+      ordem INTEGER DEFAULT 0,
+      data_criacao TIMESTAMPTZ DEFAULT NOW()
+    )
+  `
+
+  // Adicionar coluna descricao em comunidades (seguro se já existir)
+  await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
+
   // Performance indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_noticias_created ON noticias(data_criacao)`
   await sql`CREATE INDEX IF NOT EXISTS idx_mensagens_lida ON mensagens_contato(lida)`
   await sql`CREATE INDEX IF NOT EXISTS idx_comunidades_ordem ON comunidades(ordem, nome)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_santos_categoria_ordem ON santos(categoria, ordem, nome)`
 
   await insertInitialData()
   console.log('✅ Banco de dados inicializado com sucesso!')
@@ -179,7 +197,12 @@ async function insertInitialData(): Promise<void> {
   const existing = await queryOne<{ count: string }>`
     SELECT COUNT(*) as count FROM configuracoes
   `
-  if (existing && parseInt(existing.count) > 0) return
+  if (existing && parseInt(existing.count) > 0) {
+    await insertSantosIfEmpty()
+    await insertComunidadesIfEmpty()
+    await updateHistoryData()
+    return
+  }
 
   // Horários de missas padrão
   const missas = [
@@ -252,14 +275,79 @@ async function insertInitialData(): Promise<void> {
   await sql`INSERT INTO configuracoes (chave, valor, descricao) VALUES ('mapa_latitude', '-20.4169', 'Latitude para o mapa')`
   await sql`INSERT INTO configuracoes (chave, valor, descricao) VALUES ('mapa_longitude', '-42.9089', 'Longitude para o mapa')`
 
-  // Criar admin padrão
-  const adminCount = await queryOne<{ count: string }>`SELECT COUNT(*) as count FROM users`
-  if (!adminCount || parseInt(adminCount.count) === 0) {
-    const hash = bcrypt.hashSync(config.adminPassword, 12)
-    await sql`
-      INSERT INTO users (username, password_hash, email, role)
-      VALUES (${config.adminUsername}, ${hash}, 'admin@igreja.local', 'super_admin')
-    `
-    console.log('! Usuário admin padrão criado. ALTERE A SENHA!')
+  await insertSantosIfEmpty()
+  await insertComunidadesIfEmpty()
+  await updateHistoryData()
+}
+
+async function insertSantosIfEmpty(): Promise<void> {
+  const count = await queryOne<{ count: string }>`SELECT COUNT(*) as count FROM santos`
+  if (count && parseInt(count.count) > 0) return
+
+  // Santos Padroeiros
+  const padroeiros: [string, string, string, number][] = [
+    ['São Sebastião', 'Padroeiro da Paróquia e da cidade de Ponte Nova. Soldado romano que se converteu ao cristianismo e foi martirizado no século III por defender a fé cristã. É invocado contra pestes e epidemias.', '20 de janeiro', 1],
+    ['Bom Pastor', 'Padroeiro da Comunidade no bairro Copacabana. Jesus Cristo é o Bom Pastor que conhece suas ovelhas e dá a vida por elas, símbolo do amor e cuidado divino pela comunidade.', '4º Domingo da Páscoa', 2],
+    ['Nossa Senhora', 'Mãe de Jesus Cristo, venerada em toda a paróquia sob diversos títulos. Intercessora dos fiéis e modelo de fé, obediência e amor a Deus.', '15 de agosto', 3],
+    ['São Judas Tadeu', 'Um dos doze Apóstolos de Jesus, primo do Senhor. É o padroeiro das causas impossíveis e situações desesperadoras, muito venerado no Brasil.', '28 de outubro', 4],
+  ]
+  for (const [nome, descricao, dia, ordem] of padroeiros) {
+    await sql`INSERT INTO santos (nome, descricao, categoria, dia_festa, ordem) VALUES (${nome}, ${descricao}, 'padroeiro', ${dia}, ${ordem})`
+  }
+
+  // Santos Jovens
+  const jovens: [string, string, string, number][] = [
+    ['Beato Carlo Acutis', 'Jovem italiano beatificado em 2020, conhecido como o "padroeiro da internet". Documentou milagres eucarísticos pelo mundo em um site. Faleceu aos 15 anos de leucemia, oferecendo seu sofrimento pela Igreja.', '12 de outubro', 1],
+    ['Santa Teresinha do Menino Jesus', 'Carmelita francesa e Doutora da Igreja, conhecida pela "pequena via" — fazer as coisas simples do dia a dia com grande amor. Entrou no Carmelo aos 15 anos e faleceu aos 24.', '1 de outubro', 2],
+    ['São Domingos Sávio', 'Aluno de São João Bosco, viveu uma vida de santidade extraordinária desde a infância. Faleceu aos 14 anos. Seu lema era "Antes morrer do que pecar".', '6 de maio', 3],
+    ['Santa Maria Goretti', 'Mártir da pureza, assassinada aos 11 anos ao resistir a uma tentativa de violência. Antes de morrer, perdoou seu agressor, que posteriormente se converteu.', '6 de julho', 4],
+    ['São Tarcísio', 'Jovem mártir dos primeiros séculos do cristianismo, morto ao proteger a Eucaristia de profanação. É o padroeiro dos coroinhas e da primeira comunhão.', '15 de agosto', 5],
+  ]
+  for (const [nome, descricao, dia, ordem] of jovens) {
+    await sql`INSERT INTO santos (nome, descricao, categoria, dia_festa, ordem) VALUES (${nome}, ${descricao}, 'jovem', ${dia}, ${ordem})`
+  }
+}
+
+async function insertComunidadesIfEmpty(): Promise<void> {
+  const existing = await dbQuery<{ nome: string }>`SELECT nome FROM comunidades`
+  const existingNames = new Set(existing.map(c => c.nome))
+
+  const comunidades: [string, string, string, number][] = [
+    ['Comunidade Bom Pastor', 'Dioguinho', 'Padroeiro: Bom Pastor — celebração em 8 de dezembro', 1],
+    ['Comunidade São Geraldo', 'São Geraldo', 'Padroeiro: São Sebastião — Eucaristia: 2ª quarta-feira, 19h30', 2],
+    ['Comunidade Vila Alvarenga', 'Vila Alvarenga', 'Padroeira: Nossa Senhora de Fátima — Eucaristia: 1ª quarta-feira, 19h30', 3],
+    ['Comunidade Bom Fim', 'Bom Fim', 'Padroeiro: São José — inaugurada em 2005', 4],
+    ['Comunidade Central', 'Centro', 'Padroeiro: Santo Expedito — Eucaristia: 19 de abril', 5],
+    ['Comunidade Copacabana', 'Copacabana', 'Padroeira: Nossa Senhora Aparecida — Eucaristia: 1ª terça-feira, 19h30', 6],
+    ['Comunidade Esplanada', 'Esplanada', 'Padroeiro: Santo Cristóvão — Eucaristia: 3º domingo, 9h', 7],
+    ['Comunidade Fazenda da Serra', 'Fazenda da Serra', 'Padroeiro: São Judas Tadeu — Eucaristia: 2ª quinta-feira, 19h30', 8],
+    ['Comunidade Massangano', 'Massangano', 'Padroeiro: São José — Eucaristia: 3ª terça-feira, 19h30', 9],
+    ['Comunidade Morro Grande', 'Morro Grande', 'Padroeira: Nossa Senhora Aparecida — Eucaristia: 3ª terça-feira, 18h', 10],
+    ['Comunidade Rosário', 'Rosário', 'Padroeira: Nossa Senhora do Rosário — festa em 7 de outubro', 11],
+    ['Comunidade Santa Helena', 'Santa Helena', 'Padroeira: Santa Helena — Eucaristia: 3ª quinta-feira de cada mês', 12],
+    ['Comunidade Santa Tereza', 'Santa Tereza', 'Padroeira: Santa Luzia — Eucaristia: 1ª terça-feira do mês', 13],
+    ['Comunidade Vau Açu', 'Vau Açu', 'Padroeiro: São Sebastião — Eucaristia: 1º domingo do mês', 14],
+  ]
+
+  for (const [nome, bairro, descricao, ordem] of comunidades) {
+    if (!existingNames.has(nome)) {
+      await sql`INSERT INTO comunidades (nome, bairro, descricao, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${ordem})`
+    }
+  }
+}
+
+async function updateHistoryData(): Promise<void> {
+  // Corrige historia_texto: conteudo deve ter o HTML, titulo deve ser o rótulo
+  const hist = await queryOne<{ conteudo: string }>`SELECT conteudo FROM paroquia_info WHERE secao = 'historia_texto'`
+  if (hist && (hist.conteudo === 'Texto da história' || hist.conteudo.includes('[Ano]'))) {
+    const historiaHtml = `<p>A Paróquia de São Sebastião de Ponte Nova, MG, tem suas raízes no século XVIII. Em <strong>1770</strong>, o fundador do arraial, Padre João do Monte de Medeiros, recebeu autorização do Bispado de Mariana e ergueu a primeira capelinha às margens do Rio Piranga.</p><p>Com o crescimento da população, Ponte Nova desmembrou-se da Freguesia de Furquim e foi elevada à condição de <strong>Paróquia pelo decreto da Regência em 14 de julho de 1832</strong>. Em <strong>1860</strong>, o Padre José Miguel Martins Chaves construiu um novo templo de estilo colonial, com torres de 12 metros e arquitetura regional mineira.</p><p>No dia <strong>23 de outubro de 1915</strong>, um grande incêndio destruiu a Igreja por completo. O projeto de reconstrução foi encomendado ao padre-arquiteto Frederico Vienkein. A nova Matriz, em estilo <strong>neogótico</strong> com estrutura de concreto armado, planta cruciforme e belos vitrais, foi consagrada em <strong>26 de abril de 1926</strong> pelo bispo D. Helvécio Gomes de Oliveira.</p><p>Em reconhecimento ao seu valor histórico, artístico e cultural, a Igreja foi <strong>tombada como patrimônio histórico municipal pelo Decreto nº 11.219/2019</strong>.</p>`
+    await sql`UPDATE paroquia_info SET titulo = 'Nossa História', conteudo = ${historiaHtml} WHERE secao = 'historia_texto'`
+  }
+
+  // Corrige historia_marcos
+  const marcos = await queryOne<{ conteudo: string }>`SELECT conteudo FROM paroquia_info WHERE secao = 'historia_marcos'`
+  if (marcos && (marcos.conteudo === 'Marcos históricos' || marcos.conteudo.includes('[Ano]'))) {
+    const marcosTexto = '1770: Fundação da primeira capelinha pelo Pe. João do Monte de Medeiros|1832: Elevação à Paróquia pelo decreto da Regência Imperial (14 de julho)|1860: Construção de novo templo colonial pelo Pe. José Miguel Martins Chaves|1915: Grande incêndio destrói a Igreja em 23 de outubro|1926: Consagração da atual Matriz neogótica (26 de abril), pelo bispo D. Helvécio|2019: Tombamento como patrimônio histórico municipal — Decreto nº 11.219'
+    await sql`UPDATE paroquia_info SET titulo = 'Principais Marcos', conteudo = ${marcosTexto} WHERE secao = 'historia_marcos'`
   }
 }

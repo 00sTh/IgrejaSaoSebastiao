@@ -15,8 +15,8 @@ export function csrfProtect(req: Request, res: Response, next: NextFunction): vo
     return
   }
 
-  // Only enforce CSRF for logged-in sessions
-  if (!req.session.logged_in) {
+  // Only enforce CSRF for authenticated admin sessions
+  if (!res.locals.currentUser) {
     next()
     return
   }

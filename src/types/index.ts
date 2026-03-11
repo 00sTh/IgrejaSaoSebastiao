@@ -90,6 +90,18 @@ export interface Comunidade {
   data_criacao: string
 }
 
+export interface Santo {
+  id: number
+  nome: string
+  descricao: string | null
+  imagem_url: string | null
+  categoria: string       // 'jovem' | 'padroeiro' | 'outros'
+  dia_festa: string | null
+  ativo: boolean
+  ordem: number
+  data_criacao: string
+}
+
 export interface User {
   id: number
   username: string
@@ -108,14 +120,9 @@ export interface SessionUser {
   role: string
 }
 
-// Express session augmentation
+// Express session augmentation (only flash + CSRF now, auth is via Clerk)
 declare module 'express-session' {
   interface SessionData {
-    logged_in?: boolean
-    user_id?: number
-    username?: string
-    role?: string
-    last_activity?: string
     csrf_token?: string
   }
 }

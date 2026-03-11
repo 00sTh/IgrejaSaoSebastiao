@@ -20,11 +20,11 @@
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
             margin: 20px;
+            text-align: center;
         }
         .logo {
-            text-align: center;
             margin-bottom: 30px;
         }
         .logo h1 {
@@ -36,29 +36,23 @@
             color: #666;
             font-size: 0.9rem;
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
+        .logo i {
+            font-size: 3rem;
+            color: #3B5F6C;
+            margin-bottom: 15px;
             display: block;
-            color: #333;
-            font-weight: 500;
-            margin-bottom: 8px;
         }
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+        .info-text {
+            color: #555;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
         }
-        .form-group input:focus {
-            outline: none;
-            border-color: #3B5F6C;
-            box-shadow: 0 0 0 3px rgba(59, 95, 108, 0.1);
-        }
-        .btn-login {
+        .btn-clerk {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #3B5F6C 0%, #2a454f 100%);
@@ -68,36 +62,27 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
+            text-decoration: none;
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-login:hover {
+        .btn-clerk:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(59, 95, 108, 0.4);
+            color: white;
         }
-        .btn-login:active {
+        .btn-clerk:active {
             transform: translateY(0);
         }
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
+        .divider {
+            margin: 25px 0;
+            border: none;
+            border-top: 1px solid #e0e0e0;
         }
-        .alert-error {
-            background: #fee2e2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-        .alert-warning {
-            background: #fef3c7;
-            color: #d97706;
-            border: 1px solid #fde68a;
-        }
-        .attempts-warning {
-            text-align: center;
-            color: #d97706;
-            font-size: 0.85rem;
+        .help-text {
+            color: #999;
+            font-size: 0.8rem;
             margin-top: 15px;
+            line-height: 1.5;
         }
         .back-link {
             display: block;
@@ -110,20 +95,41 @@
         .back-link:hover {
             color: #3B5F6C;
         }
+
+        {% if messages %}
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        .alert-warning {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        {% endif %}
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
     <div class="login-container">
         <div class="logo">
-            <h1>Igreja Sao Sebastiao</h1>
+            <i class="fas fa-church"></i>
+            <h1>Igreja São Sebastião</h1>
             <p>Painel Administrativo</p>
         </div>
-
-        {% if error %}
-            <div class="alert alert-error">
-                {{ error }}
-            </div>
-        {% endif %}
 
         {% if messages %}
             {% for msg in messages %}
@@ -131,31 +137,23 @@
             {% endfor %}
         {% endif %}
 
-        <form method="POST" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <p class="info-text">
+            O acesso ao painel administrativo é feito através da sua conta Clerk.
+        </p>
 
-            <div class="form-group">
-                <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" required
-                       autocomplete="username" maxlength="50">
-            </div>
+        <a href="https://accounts.clerk.dev/sign-in" class="btn-clerk" id="clerkSignIn">
+            <i class="fas fa-sign-in-alt"></i>
+            Entrar com Clerk
+        </a>
 
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" name="password" required
-                       autocomplete="current-password" maxlength="100">
-            </div>
+        <p class="help-text">
+            Apenas administradores autorizados podem acessar o painel.
+            <br>Entre em contato com o responsável caso precise de acesso.
+        </p>
 
-            <button type="submit" class="btn-login">Entrar</button>
-
-            {% if remaining_attempts is not none and remaining_attempts < 5 %}
-                <p class="attempts-warning">
-                    Tentativas restantes: {{ remaining_attempts }}
-                </p>
-            {% endif %}
-        </form>
-
-        <a href="/" class="back-link">Voltar ao site</a>
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i> Voltar ao site
+        </a>
     </div>
 </body>
 </html>
