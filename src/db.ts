@@ -181,6 +181,7 @@ export async function initDb(): Promise<void> {
 
   // Adicionar coluna descricao em comunidades (seguro se já existir)
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
+  await sql`ALTER TABLE comunidades ADD CONSTRAINT IF NOT EXISTS comunidades_nome_unique UNIQUE (nome)`
 
   // Performance indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_noticias_created ON noticias(data_criacao)`
@@ -334,9 +335,7 @@ async function insertComunidadesIfEmpty(): Promise<void> {
   ]
 
   for (const [nome, bairro, descricao, ordem] of comunidades) {
-    if (!existingNames.has(nome)) {
-      await sql`INSERT INTO comunidades (nome, bairro, descricao, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${ordem})`
-    }
+    await sql`INSERT INTO comunidades (nome, bairro, descricao, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${ordem}) ON CONFLICT (nome) DO NOTHING`
   }
 }
 
@@ -364,9 +363,9 @@ async function fixComunidadesData(): Promise<void> {
   `
   // Remove duplicatas exatas por nome (mantém o de menor id)
   await sql`
-    DELETE FROM comunidades c1
-    USING comunidades c2
-    WHERE c1.nome = c2.nome AND c1.id > c2.id
+    DELETE FROM comunidades WHERE id NOT IN (
+      SELECT MIN(id) FROM comunidades GROUP BY nome
+    )
   `
 }
 
