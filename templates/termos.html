@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos de Uso — Igreja São Sebastião</title>
+    <meta name="description" content="Termos de Uso do site da Paróquia São Sebastião de Ponte Nova, MG.">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+        /* Cabeçalho com fundo sólido (não há hero-image nesta página) */
+        .main-header {
+            background-color: var(--color-background-dark) !important;
+        }
+        .main-header.sticky {
+            background-color: var(--color-background-dark) !important;
+        }
+
+        /* Hero simples */
+        .page-hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-background-dark) 100%);
+            color: var(--color-text-light);
+            padding: 6rem 0 3.5rem;
+            text-align: center;
+        }
+        .page-hero .hero-icon {
+            font-size: 3.5rem;
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+            display: block;
+        }
+        .page-hero h1 {
+            color: var(--color-text-light);
+            font-size: 2.8rem;
+            margin-bottom: 0.75rem;
+        }
+        .page-hero p {
+            font-size: 1.1rem;
+            opacity: 0.85;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* Seção de conteúdo */
+        .legal-section {
+            background: var(--color-gray-light);
+            padding: var(--spacing-xl) 0;
+        }
+
+        .legal-content {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem 3rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .legal-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            color: var(--color-primary);
+            margin-top: 2rem;
+            margin-bottom: 0.6rem;
+            padding-bottom: 0.4rem;
+            border-bottom: 2px solid var(--color-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .legal-content h2:first-child {
+            margin-top: 0;
+        }
+        .legal-content h2 i {
+            font-size: 1rem;
+            color: var(--color-secondary);
+        }
+
+        .legal-content p {
+            color: var(--color-text-dark);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-size: 0.975rem;
+        }
+
+        .legal-content ul {
+            margin: 0.5rem 0 1rem 1.5rem;
+            color: var(--color-text-dark);
+            line-height: 1.8;
+            font-size: 0.975rem;
+        }
+        .legal-content ul li {
+            margin-bottom: 0.3rem;
+        }
+
+        .legal-meta {
+            margin-top: 2.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .legal-footer-cta {
+            text-align: center;
+            margin-top: var(--spacing-xl);
+        }
+
+        @media (max-width: 768px) {
+            .page-hero h1 { font-size: 2rem; }
+            .page-hero { padding: 5rem 0 2.5rem; }
+            .legal-content { padding: 1.5rem 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- CABEÇALHO -->
+    <header class="main-header" id="mainHeader">
+        <div class="container">
+            <div class="logo">
+                <a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a>
+            </div>
+            <nav class="main-nav">
+                <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                <ul class="nav-list" id="navList">
+                    <li><a href="/#hero">Início</a></li>
+                    <li class="has-dropdown">
+                        <a href="/#a-paroquia">A Paróquia <i class="fas fa-chevron-down nav-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#historia">História</a></li>
+                            <li><a href="/#galeria">Galeria</a></li>
+                            <li><a href="/#localizacao">Localização</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/#missas-horarios">Missas</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/comunidades">Comunidades</a></li>
+                    <li><a href="/santos">Santos</a></li>
+                    <li><a href="/#contato">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="page-hero">
+        <div class="container">
+            <i class="fas fa-file-contract hero-icon"></i>
+            <h1>Termos de Uso</h1>
+            <p>Condições que regem o uso do site da Paróquia São Sebastião de Ponte Nova, MG.</p>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO -->
+    <section class="legal-section">
+        <div class="container">
+            <div class="legal-content">
+
+                <h2><i class="fas fa-info-circle"></i> 1. Sobre Este Site</h2>
+                <p>
+                    Este site é mantido pela <strong>Paróquia São Sebastião de Ponte Nova</strong>, entidade religiosa
+                    sem fins lucrativos vinculada à Arquidiocese de Mariana, com sede na
+                    Praça Getúlio Vargas, 92 — Centro, Ponte Nova/MG.
+                </p>
+                <p>
+                    O objetivo deste site é exclusivamente informativo e pastoral: divulgar missas, eventos, notícias
+                    paroquiais, comunidades e conteúdo de edificação espiritual. Não há comercialização de produtos ou
+                    serviços por meio deste endereço eletrônico.
+                </p>
+
+                <h2><i class="fas fa-check-circle"></i> 2. Uso Permitido</h2>
+                <p>
+                    Ao acessar este site, o usuário concorda em utilizá-lo apenas para fins lícitos e compatíveis com
+                    sua finalidade informativa e religiosa. São usos permitidos:
+                </p>
+                <ul>
+                    <li>Consultar horários de missas e sacramentos;</li>
+                    <li>Acompanhar notícias e avisos paroquiais;</li>
+                    <li>Conhecer as comunidades vinculadas à paróquia;</li>
+                    <li>Entrar em contato com a secretaria paroquial;</li>
+                    <li>Acessar conteúdo de formação espiritual disponibilizado.</li>
+                </ul>
+                <p>
+                    É vedado usar este site para disseminar desinformação, conteúdo ofensivo, spam ou qualquer
+                    atividade que contrarie a finalidade pastoral da paróquia ou a legislação brasileira vigente.
+                </p>
+
+                <h2><i class="fas fa-copyright"></i> 3. Propriedade Intelectual</h2>
+                <p>
+                    Todo o conteúdo disponibilizado neste site — incluindo textos, fotografias, logotipo, layout e
+                    demais elementos visuais — é de propriedade da Paróquia São Sebastião ou foi usado com as devidas
+                    autorizações.
+                </p>
+                <p>
+                    A reprodução parcial ou total do conteúdo para fins não comerciais é permitida desde que a fonte
+                    seja devidamente citada (<em>Paróquia São Sebastião — igrejasaosebastiao.com.br</em>). Qualquer uso
+                    comercial requer autorização prévia e expressa da paróquia.
+                </p>
+                <p>
+                    Imagens de santos, obras de arte sacra e ícones religiosos podem estar sujeitos a direitos
+                    autorais de terceiros; o uso neste site é feito para fins exclusivamente pastorais e educativos.
+                </p>
+
+                <h2><i class="fas fa-external-link-alt"></i> 4. Links para Sites Externos</h2>
+                <p>
+                    Este site pode conter links para páginas externas, como o portal da
+                    <a href="https://arquidiocesedemariana.org.br" target="_blank" rel="noopener noreferrer">Arquidiocese de Mariana</a>,
+                    o site da <a href="https://cnbb.org.br" target="_blank" rel="noopener noreferrer">CNBB</a> e outras
+                    instituições católicas. Esses links são fornecidos por conveniência e não implicam endosso ou
+                    responsabilidade da paróquia pelo conteúdo de sites de terceiros.
+                </p>
+                <p>
+                    Recomendamos que o usuário leia os termos e políticas de privacidade de cada site externo que
+                    acessar.
+                </p>
+
+                <h2><i class="fas fa-shield-alt"></i> 5. Limitação de Responsabilidade</h2>
+                <p>
+                    A Paróquia São Sebastião envidará seus melhores esforços para manter as informações deste site
+                    atualizadas e corretas. Porém, não nos responsabilizamos por:
+                </p>
+                <ul>
+                    <li>Eventuais imprecisões ou desatualizações temporárias das informações;</li>
+                    <li>Indisponibilidade do site decorrente de manutenção ou problemas técnicos;</li>
+                    <li>Conteúdo de sites de terceiros acessados por meio de links externos;</li>
+                    <li>Quaisquer danos resultantes do uso ou impossibilidade de uso do site.</li>
+                </ul>
+                <p>
+                    Para informações urgentes (horários, sacramentos, emergências pastorais), recomendamos contato
+                    direto com a secretaria paroquial.
+                </p>
+
+                <h2><i class="fas fa-edit"></i> 6. Alterações Nestes Termos</h2>
+                <p>
+                    Estes Termos de Uso podem ser atualizados a qualquer momento pela paróquia, sem aviso prévio.
+                    A versão vigente estará sempre disponível nesta página. O uso continuado do site após alterações
+                    implica aceitação dos novos termos.
+                </p>
+
+                <h2><i class="fas fa-balance-scale"></i> 7. Legislação Aplicável</h2>
+                <p>
+                    Estes Termos de Uso são regidos pela legislação brasileira. Eventuais litígios serão submetidos
+                    ao foro da Comarca de Ponte Nova, Estado de Minas Gerais, com renúncia a qualquer outro, por mais
+                    privilegiado que seja.
+                </p>
+
+                <h2><i class="fas fa-envelope"></i> 8. Contato</h2>
+                <p>
+                    Dúvidas, sugestões ou solicitações relacionadas a estes Termos de Uso podem ser enviadas para:
+                </p>
+                <ul>
+                    <li><strong>E-mail:</strong> <a href="mailto:contato@igrejasaosebastiao.com.br">contato@igrejasaosebastiao.com.br</a></li>
+                    <li><strong>Telefone:</strong> (31) 3881-1401</li>
+                    <li><strong>Endereço:</strong> Praça Getúlio Vargas, 92 — Centro, Ponte Nova/MG</li>
+                </ul>
+
+                <div class="legal-meta">
+                    <p>
+                        <strong>Identificação:</strong> Paróquia São Sebastião de Ponte Nova —
+                        CNPJ: [CNPJ A INFORMAR]<br>
+                        <strong>Última atualização:</strong> 2025
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="legal-footer-cta">
+                <a href="/politica-de-privacidade" class="btn btn-outline" style="margin-right: 0.75rem;">
+                    <i class="fas fa-shield-alt"></i>
+                    Política de Privacidade
+                </a>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i>
+                    Voltar para o início
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- RODAPÉ -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> Igreja São Sebastião. Todos os direitos reservados.</p>
+            <ul class="footer-links">
+                <li><a href="/politica-de-privacidade">Política de Privacidade</a></li>
+                <li><a href="/termos-de-uso">Termos de Uso</a></li>
+                <li><a href="/#contato">Contato</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const navToggle = document.querySelector('.nav-toggle');
+        const navList = document.getElementById('navList');
+        if (navToggle && navList) {
+            navToggle.addEventListener('click', () => {
+                navList.classList.toggle('active');
+            });
+        }
+    </script>
+</body>
+</html>

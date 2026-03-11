@@ -95,6 +95,16 @@ router.get('/santos', async (_req, res) => {
   res.render('santos.html', { santos, jovens, padroeiros, outros })
 })
 
+// ==================== PÁGINAS LEGAIS ====================
+
+router.get('/termos-de-uso', (_req, res) => {
+  res.render('termos.html')
+})
+
+router.get('/politica-de-privacidade', (_req, res) => {
+  res.render('privacidade.html')
+})
+
 // ==================== PUBLIC APIs ====================
 
 const MensagemSchema = z.object({

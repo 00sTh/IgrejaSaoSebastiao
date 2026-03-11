@@ -201,6 +201,7 @@ async function insertInitialData(): Promise<void> {
     await insertSantosIfEmpty()
     await insertComunidadesIfEmpty()
     await updateHistoryData()
+    await updateSantosImages()
     return
   }
 
@@ -278,6 +279,7 @@ async function insertInitialData(): Promise<void> {
   await insertSantosIfEmpty()
   await insertComunidadesIfEmpty()
   await updateHistoryData()
+  await updateSantosImages()
 }
 
 async function insertSantosIfEmpty(): Promise<void> {
@@ -333,6 +335,23 @@ async function insertComunidadesIfEmpty(): Promise<void> {
     if (!existingNames.has(nome)) {
       await sql`INSERT INTO comunidades (nome, bairro, descricao, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${ordem})`
     }
+  }
+}
+
+async function updateSantosImages(): Promise<void> {
+  const images: [string, string][] = [
+    ['São Sebastião',                'https://upload.wikimedia.org/wikipedia/commons/e/e0/Guido_Reni_-_Saint_Sebastian_-_Google_Art_Project_%2827740148%29.jpg'],
+    ['Bom Pastor',                   'https://upload.wikimedia.org/wikipedia/commons/a/a7/Bernhard_Plockhorst_-_Good_Shephard.jpg'],
+    ['Nossa Senhora',                'https://upload.wikimedia.org/wikipedia/commons/1/13/Bartolom%C3%A9_Esteban_Perez_Murillo_-_Immaculate_Conception_-_WGA16380.jpg'],
+    ['São Judas Tadeu',              'https://upload.wikimedia.org/wikipedia/commons/0/02/El_Greco_-_Apostle_St_Thaddeus_%28Jude%29_-_WGA10601.jpg'],
+    ['Beato Carlo Acutis',           'https://upload.wikimedia.org/wikipedia/pt/7/78/Carlo_Acutis.jpg'],
+    ['Santa Teresinha do Menino Jesus', 'https://upload.wikimedia.org/wikipedia/commons/3/3f/Therese_Lisieux.JPG'],
+    ['São Domingos Sávio',           'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Life_of_Dominic_Savio_%28page_6_crop%29.jpg/500px-Life_of_Dominic_Savio_%28page_6_crop%29.jpg'],
+    ['Santa Maria Goretti',          'https://upload.wikimedia.org/wikipedia/commons/5/5f/Photograph_of_Saint_Maria_Goretti%2C_1902.jpg'],
+    ['São Tarcísio',                 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Saint_Tarcisius_MET_DP167090.jpg'],
+  ]
+  for (const [nome, url] of images) {
+    await sql`UPDATE santos SET imagem_url = ${url} WHERE nome = ${nome} AND imagem_url IS NULL`
   }
 }
 
