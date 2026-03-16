@@ -1,3 +1,14 @@
+# Legado Flask/Python (não usar)
+app.py
+config.py
+requirements.txt
+core/
+middleware/__init__.py
+middleware/auth.py
+middleware/logger.py
+tests/
+igreja_sao_sebastiao/
+
 # Ambiente Virtual Python
 venv/
 env/
