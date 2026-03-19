@@ -1,7 +1,13 @@
 {
   "version": 2,
   "builds": [
-    { "src": "src/app.ts", "use": "@vercel/node" }
+    {
+      "src": "src/app.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["templates/**", "static/**"]
+      }
+    }
   ],
   "routes": [
     { "src": "/static/(.*)", "dest": "/static/$1" },

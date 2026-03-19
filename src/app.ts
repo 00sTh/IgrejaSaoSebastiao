@@ -29,7 +29,10 @@ import adminComunidades from './routes/admin/comunidades'
 import adminSantos from './routes/admin/santos'
 import adminUsuarios from './routes/admin/usuarios'
 
-const rootDir = path.resolve(__dirname, '..')
+// No Vercel (serverless), __dirname aponta para dentro do bundle — usar process.cwd() como fallback
+const rootDir = process.env.VERCEL
+  ? process.cwd()
+  : path.resolve(__dirname, '..')
 
 const app = express()
 
