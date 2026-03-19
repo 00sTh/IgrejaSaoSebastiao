@@ -1,6 +1,15 @@
 import nodemailer from 'nodemailer'
 import { config } from '../config'
 
+function escHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 function createTransport() {
   if (!config.smtp.host || !config.smtp.user || !config.smtp.pass) return null
 
@@ -21,6 +30,7 @@ export async function sendNewMessageNotification(
   if (!transporter) return false
 
   const adminEmail = config.smtp.from
+  const siteUrl = config.siteUrl || 'http://localhost:5000'
 
   const html = `
 <html>
@@ -29,11 +39,11 @@ export async function sendNewMessageNotification(
     <h2 style="color: #3B5F6C;">Nova mensagem recebida</h2>
     <p>Uma nova mensagem foi enviada pelo formulário do site.</p>
     <table style="width:100%; border-collapse: collapse; margin: 16px 0;">
-      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600; width:120px;">Nome</td><td style="padding: 8px;">${nome}</td></tr>
-      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600;">E-mail</td><td style="padding: 8px;"><a href="mailto:${email}">${email}</a></td></tr>
-      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600; vertical-align:top;">Mensagem</td><td style="padding: 8px;">${mensagem}</td></tr>
+      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600; width:120px;">Nome</td><td style="padding: 8px;">${escHtml(nome)}</td></tr>
+      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600;">E-mail</td><td style="padding: 8px;"><a href="mailto:${escHtml(email)}">${escHtml(email)}</a></td></tr>
+      <tr><td style="padding: 8px; background:#f5f5f5; font-weight:600; vertical-align:top;">Mensagem</td><td style="padding: 8px;">${escHtml(mensagem)}</td></tr>
     </table>
-    <a href="${process.env.SITE_URL ?? 'http://localhost:5000'}/admin/mensagens" style="display:inline-block; background:#3B5F6C; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:600;">Ver no painel admin</a>
+    <a href="${escHtml(siteUrl)}/admin/mensagens" style="display:inline-block; background:#3B5F6C; color:#fff; padding:10px 20px; border-radius:6px; text-decoration:none; font-weight:600;">Ver no painel admin</a>
   </div>
 </body>
 </html>`
@@ -65,15 +75,15 @@ export async function sendReplyEmail(
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <h2 style="color: #3B5F6C;">Igreja São Sebastião</h2>
-    <p>Olá <strong>${nome}</strong>,</p>
+    <p>Olá <strong>${escHtml(nome)}</strong>,</p>
     <p>Obrigado por entrar em contato conosco.</p>
     <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
       <p style="color: #666; margin: 0 0 10px 0;"><strong>Sua mensagem:</strong></p>
-      <p style="margin: 0; font-style: italic;">"${mensagemOriginal}"</p>
+      <p style="margin: 0; font-style: italic;">"${escHtml(mensagemOriginal)}"</p>
     </div>
     <div style="background: #e8f4f8; padding: 15px; border-radius: 8px; border-left: 4px solid #3B5F6C;">
       <p style="color: #3B5F6C; margin: 0 0 10px 0;"><strong>Nossa resposta:</strong></p>
-      <p style="margin: 0;">${resposta}</p>
+      <p style="margin: 0;">${escHtml(resposta)}</p>
     </div>
     <p style="margin-top: 30px;">Atenciosamente,<br><strong>Igreja São Sebastião</strong></p>
   </div>

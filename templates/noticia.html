@@ -203,7 +203,7 @@
                 <!-- Artigo principal -->
                 <article class="noticia-content-box">
                     {% if noticia.imagem_url %}
-                    <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="noticia-capa">
+                    <img src="{{ noticia.imagem_url }}" alt="{{ noticia.titulo }}" class="noticia-capa" loading="lazy" onerror="this.onerror=null;this.style.display='none';">
                     {% endif %}
 
                     <div class="noticia-texto">

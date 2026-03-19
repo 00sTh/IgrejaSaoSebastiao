@@ -7,7 +7,8 @@ import { uploadImage, MediaValidationError } from '../../lib/media'
 import type { Comunidade } from '../../types/index'
 
 const router = Router()
-const upload = multer({ storage: multer.memoryStorage() })
+import { config as appConfig } from '../../config'
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: appConfig.maxFileSize } })
 
 function sanitize(text: string): string {
   return sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} })

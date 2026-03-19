@@ -5,7 +5,8 @@ import fs from 'fs'
 import { uploadImage, MediaValidationError } from '../../lib/media'
 
 const router = Router()
-const upload = multer({ storage: multer.memoryStorage() })
+import { config as appConfig } from '../../config'
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: appConfig.maxFileSize } })
 
 router.get('/imagens-site', (_req, res) => {
   const confessionBgExists = fs.existsSync(

@@ -1,0 +1,91 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Gerenciar Usuários Admin{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1><i class="fas fa-user-shield"></i> Gerenciar Admins</h1>
+    <p class="breadcrumb">Painel / Usuários Administradores</p>
+</div>
+
+{% if error %}
+<div class="flash error"><i class="fas fa-exclamation-circle"></i> <span>{{ error }}</span></div>
+{% endif %}
+{% if success %}
+<div class="flash success"><i class="fas fa-check-circle"></i> <span>{{ success }}</span></div>
+{% endif %}
+
+<!-- Adicionar / Remover Admin -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fas fa-user-plus"></i> Definir permissão de admin</span>
+    </div>
+    <form method="POST" action="/admin/usuarios/definir-admin">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:flex-end;">
+            <div class="form-group" style="flex:1; min-width:240px; margin-bottom:0;">
+                <label class="form-label" for="email">Email do usuário (Clerk)</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="usuario@exemplo.com" required>
+            </div>
+            <div class="form-group" style="min-width:160px; margin-bottom:0;">
+                <label class="form-label" for="acao">Ação</label>
+                <select id="acao" name="acao" class="form-control">
+                    <option value="adicionar">Adicionar admin</option>
+                    <option value="remover">Remover admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary" style="margin-bottom:0;">
+                <i class="fas fa-save"></i> Aplicar
+            </button>
+        </div>
+        <p style="font-size:0.8rem; color:#6b7280; margin-top:0.75rem;">
+            <i class="fas fa-info-circle"></i>
+            O usuário precisa estar cadastrado no Clerk. Após a mudança, ele precisa fazer login novamente para que o novo role tenha efeito.
+        </p>
+    </form>
+</div>
+
+<!-- Lista de admins atuais -->
+<div class="card">
+    <div class="card-header">
+        <span class="card-title"><i class="fas fa-users-cog"></i> Administradores atuais ({{ admins | length }})</span>
+    </div>
+
+    {% if admins %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Email</th>
+                <th>ID Clerk</th>
+                <th>Criado em</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in admins %}
+            <tr>
+                <td>{{ u.firstName or '' }} {{ u.lastName or '' }}</td>
+                <td>{{ u.emailAddresses[0].emailAddress if u.emailAddresses else '—' }}</td>
+                <td style="font-size:0.75rem; color:#9ca3af;">{{ u.id }}</td>
+                <td>{{ u.createdAt | string | truncate(10, true, '') }}</td>
+                <td>
+                    <form method="POST" action="/admin/usuarios/definir-admin" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                        <input type="hidden" name="email" value="{{ u.emailAddresses[0].emailAddress if u.emailAddresses else '' }}">
+                        <input type="hidden" name="acao" value="remover">
+                        <button type="submit" class="btn btn-danger" style="font-size:0.8rem; padding:0.4rem 0.8rem;"
+                            onclick="return confirm('Remover permissão de admin de {{ u.firstName or u.emailAddresses[0].emailAddress }}?')">
+                            <i class="fas fa-user-minus"></i> Remover admin
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#6b7280; padding:1rem 0;">Nenhum usuário com role "admin" encontrado.</p>
+    {% endif %}
+</div>
+{% endblock %}

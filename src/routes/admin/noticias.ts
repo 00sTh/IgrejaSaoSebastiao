@@ -7,7 +7,8 @@ import { uploadImage, MediaValidationError } from '../../lib/media'
 import type { Noticia } from '../../types/index'
 
 const router = Router()
-const upload = multer({ storage: multer.memoryStorage() })
+import { config as appConfig } from '../../config'
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: appConfig.maxFileSize } })
 
 const ALLOWED_TAGS = ['b', 'i', 'u', 'p', 'br', 'a', 'ul', 'ol', 'li', 'h2', 'h3', 'blockquote', 'strong', 'em']
 const ALLOWED_ATTRS = { a: ['href', 'title', 'target'] }

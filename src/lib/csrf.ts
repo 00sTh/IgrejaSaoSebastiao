@@ -6,5 +6,6 @@ export function generateCsrfToken(): string {
 
 export function validateCsrfToken(sessionToken: string | undefined, requestToken: string | undefined): boolean {
   if (!sessionToken || !requestToken) return false
-  return sessionToken === requestToken
+  if (sessionToken.length !== requestToken.length) return false
+  return crypto.timingSafeEqual(Buffer.from(sessionToken), Buffer.from(requestToken))
 }

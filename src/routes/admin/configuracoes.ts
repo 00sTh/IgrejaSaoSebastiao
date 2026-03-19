@@ -2,6 +2,14 @@ import { Router } from 'express'
 import { sql, dbQuery } from '../../db'
 import type { Configuracao, Contato } from '../../types/index'
 
+const ALLOWED_CONFIG_KEYS = new Set([
+  'site_nome',
+  'site_descricao',
+  'endereco_completo',
+  'mapa_latitude',
+  'mapa_longitude',
+])
+
 const router = Router()
 
 router.get('/', async (_req, res) => {
@@ -16,6 +24,7 @@ router.post('/', async (req, res) => {
   const body = req.body as Record<string, string>
   for (const [key, valor] of Object.entries(body)) {
     if (key === 'csrf_token') continue
+    if (!ALLOWED_CONFIG_KEYS.has(key)) continue
     await sql`UPDATE configuracoes SET valor = ${valor.trim()} WHERE chave = ${key}`
   }
   req.flash('success', 'Configurações atualizadas com sucesso!')

@@ -27,6 +27,7 @@ import adminConteudo from './routes/admin/conteudo'
 import adminImagens from './routes/admin/imagens'
 import adminComunidades from './routes/admin/comunidades'
 import adminSantos from './routes/admin/santos'
+import adminUsuarios from './routes/admin/usuarios'
 
 const rootDir = path.resolve(__dirname, '..')
 
@@ -157,6 +158,7 @@ app.use('/admin/conteudo-site', loginRequired, adminConteudo)
 app.use('/admin', loginRequired, adminImagens)
 app.use('/admin/comunidades', loginRequired, adminComunidades)
 app.use('/admin/santos', loginRequired, adminSantos)
+app.use('/admin/usuarios', loginRequired, adminUsuarios)
 
 // ==================== ERROR HANDLER ====================
 app.use((_req, res) => {
@@ -166,15 +168,20 @@ app.use((_req, res) => {
 // ==================== START ====================
 const port = config.port
 
-initDb()
-  .then(() => {
-    app.listen(port, '0.0.0.0', () => {
-      console.log(`✅ Servidor rodando em http://localhost:${port}`)
+if (process.env.VERCEL) {
+  // Serverless: initialize DB once per cold start, no listen()
+  initDb().catch((err) => console.error('Erro ao inicializar banco de dados (Vercel):', err))
+} else {
+  initDb()
+    .then(() => {
+      app.listen(port, '0.0.0.0', () => {
+        console.log(`✅ Servidor rodando em http://localhost:${port}`)
+      })
     })
-  })
-  .catch((err) => {
-    console.error('Erro ao inicializar banco de dados:', err)
-    process.exit(1)
-  })
+    .catch((err) => {
+      console.error('Erro ao inicializar banco de dados:', err)
+      process.exit(1)
+    })
+}
 
 export default app

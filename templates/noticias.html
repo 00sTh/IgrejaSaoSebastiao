@@ -213,7 +213,10 @@
                 <article class="noticia-card">
 
                     {% if n.imagem_url %}
-                    <img src="{{ n.imagem_url }}" alt="{{ n.titulo }}" class="noticia-imagem" loading="lazy">
+                    <img src="{{ n.imagem_url }}" alt="{{ n.titulo }}" class="noticia-imagem" loading="lazy" onerror="this.onerror=null;this.style.display='none';this.parentElement.querySelector('.noticia-imagem-placeholder').style.display='flex';">
+                    <div class="noticia-imagem-placeholder" style="display:none;">
+                        <i class="fas fa-church"></i>
+                    </div>
                     {% else %}
                     <div class="noticia-imagem-placeholder">
                         <i class="fas fa-church"></i>

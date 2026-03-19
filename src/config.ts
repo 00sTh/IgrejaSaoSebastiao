@@ -18,6 +18,7 @@ const envSchema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().optional(),
+  SITE_URL: z.string().url().optional(),
   NODE_ENV: z.string().optional(),
 })
 
@@ -70,4 +71,6 @@ export const config = {
     pass: env.SMTP_PASS ?? '',
     from: env.SMTP_FROM ?? 'noreply@igrejasaosebastiao.com.br',
   },
+
+  siteUrl: env.SITE_URL ?? '',
 } as const
