@@ -250,7 +250,7 @@
                     <div class="comunidade-foto">
                         {% if c.imagem_url %}
                         <img src="{{ c.imagem_url }}"
-                             alt="Comunidade {{ c.nome }}"
+                             alt="{{ c.nome }}"
                              loading="lazy"
                              onerror="this.parentElement.innerHTML='<div class=\'comunidade-foto-placeholder\'><i class=\'fas fa-church\'></i><span>Sem foto</span></div>'">
                         {% else %}
