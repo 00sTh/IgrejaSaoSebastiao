@@ -265,10 +265,34 @@
                         <h3>{{ c.nome }}</h3>
                         <p class="comunidade-bairro">
                             <i class="fas fa-map-marker-alt"></i>
+                            {% if c.mapa_url %}
+                            <a href="{{ c.mapa_url }}" target="_blank" rel="noopener" style="color: inherit; text-decoration: underline dotted;">{{ c.bairro }}</a>
+                            {% else %}
                             {{ c.bairro }}
+                            {% endif %}
                         </p>
+                        {% if c.endereco %}
+                        <p class="comunidade-descricao" style="display: flex; align-items: flex-start; gap: 0.35rem; margin-top: 0.3rem;">
+                            <i class="fas fa-home" style="color: var(--color-primary); font-size: 0.75rem; margin-top: 0.15rem; flex-shrink: 0;"></i>
+                            <span>{{ c.endereco }}</span>
+                        </p>
+                        {% endif %}
                         {% if c.descricao %}
                         <p class="comunidade-descricao">{{ c.descricao }}</p>
+                        {% endif %}
+                        {% if c.horarios and c.horarios | length > 0 %}
+                        <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f3f4f6;">
+                            {% for h in c.horarios %}
+                            <p style="font-size: 0.78rem; color: #374151; margin: 0.2rem 0; display: flex; align-items: center; gap: 0.4rem;">
+                                <i class="fas fa-{% if h.tipo == 'missa' %}church{% elif h.tipo == 'reuniao' %}users{% elif h.tipo == 'novena' %}praying-hands{% else %}calendar{% endif %}"
+                                   style="color: var(--color-primary); font-size: 0.7rem; flex-shrink: 0;"></i>
+                                <span>
+                                    {% if h.dia_semana %}{{ h.dia_semana }}, {% endif %}{{ h.horario }}
+                                    {% if h.titulo %} — {{ h.titulo }}{% endif %}
+                                </span>
+                            </p>
+                            {% endfor %}
+                        </div>
                         {% endif %}
                     </div>
 

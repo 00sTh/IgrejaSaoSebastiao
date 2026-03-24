@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { sql, dbQuery, queryOne } from '../db'
 import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
 import { sendNewMessageNotification } from '../lib/mailer'
-import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, Santo } from '../types/index'
+import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, ComunidadeHorario, Santo } from '../types/index'
 
 interface Video {
   id: number
@@ -93,7 +93,16 @@ router.get('/comunidades', async (_req, res) => {
   const comunidades = await dbQuery<Comunidade>`
     SELECT * FROM comunidades WHERE ativo = TRUE ORDER BY ordem ASC, nome ASC
   `
-  res.render('comunidades.html', { comunidades })
+  const horarios = await dbQuery<ComunidadeHorario>`
+    SELECT * FROM comunidade_horarios WHERE ativo = TRUE ORDER BY comunidade_id, id
+  `
+  const horariosMap: Record<number, ComunidadeHorario[]> = {}
+  for (const h of horarios) {
+    if (!horariosMap[h.comunidade_id]) horariosMap[h.comunidade_id] = []
+    horariosMap[h.comunidade_id].push(h)
+  }
+  const comunidadesComHorarios = comunidades.map(c => ({ ...c, horarios: horariosMap[c.id] ?? [] }))
+  res.render('comunidades.html', { comunidades: comunidadesComHorarios })
 })
 
 // ==================== SANTOS ====================

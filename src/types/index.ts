@@ -84,10 +84,25 @@ export interface Comunidade {
   id: number
   nome: string
   bairro: string
+  descricao: string | null
+  endereco: string | null
+  mapa_url: string | null
   imagem_url: string | null
   ativo: boolean
   ordem: number
   data_criacao: string
+}
+
+export interface ComunidadeHorario {
+  id: number
+  comunidade_id: number
+  tipo: string
+  titulo: string | null
+  dia_semana: string | null
+  data_especifica: string | null
+  horario: string
+  descricao: string | null
+  ativo: boolean
 }
 
 export interface Santo {
