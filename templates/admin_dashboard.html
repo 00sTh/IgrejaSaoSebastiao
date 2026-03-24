@@ -52,11 +52,11 @@
 
     <div class="stat-card">
         <div class="stat-icon" style="background: #fef3c7; color: #d97706;">
-            <i class="fas fa-calendar-check"></i>
+            <i class="fas fa-video"></i>
         </div>
         <div class="stat-content">
-            <h3>{{ agendamentos_pendentes or 0 }}</h3>
-            <p>Agendamentos Pendentes</p>
+            <h3>{{ total_videos or 0 }}</h3>
+            <p>Vídeos Publicados</p>
         </div>
     </div>
 
@@ -89,9 +89,9 @@
             <i class="fas fa-image"></i>
             Adicionar Foto
         </a>
-        <a href="/admin/agendamentos" class="btn" style="justify-content: center; padding: 1rem; background: #fef3c7; color: #92400e;">
-            <i class="fas fa-calendar-check"></i>
-            Ver Agendamentos
+        <a href="/admin/videos" class="btn" style="justify-content: center; padding: 1rem; background: #fef3c7; color: #92400e;">
+            <i class="fas fa-video"></i>
+            Gerenciar Vídeos
         </a>
         <a href="/admin/horarios-confissao" class="btn" style="justify-content: center; padding: 1rem; background: #dbeafe; color: #1e40af;">
             <i class="fas fa-pray"></i>
@@ -162,7 +162,7 @@
         </div>
         <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 8px;">
             <span style="font-weight: 500; color: #374151;">Versão:</span>
-            <span style="color: #6b7280;">1.0.0</span>
+            <span style="color: #6b7280;">1.0.3</span>
         </div>
     </div>
 </div>

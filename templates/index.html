@@ -40,6 +40,7 @@
                     <li><a href="/noticias">Notícias</a></li>
                     <li><a href="/comunidades">Comunidades</a></li>
                     <li><a href="/santos">Santos</a></li>
+                    <li><a href="#videos">Vídeos</a></li>
                     <li><a href="#contato">Contato</a></li>
                 </ul>
             </nav>
@@ -187,6 +188,38 @@
             </div>
         </div>
     </section>
+
+    <!-- SEÇÃO VÍDEOS -->
+    {% if videos %}
+    <section id="videos" class="videos-section section-padding bg-light">
+        <div class="container">
+            <h2>Vídeos da Paróquia</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Assista às missas e eventos da Igreja São Sebastião</p>
+            <div class="videos-grid">
+                {% for video in videos %}
+                <div class="video-card">
+                    <div class="video-embed-wrapper">
+                        <iframe
+                            src="{{ video.url_youtube }}?rel=0"
+                            title="{{ video.titulo }}"
+                            frameborder="0"
+                            allowfullscreen
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
+                    </div>
+                    <div class="video-info">
+                        <h3>{{ video.titulo }}</h3>
+                        {% if video.descricao %}
+                        <p>{{ video.descricao }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
 
     <!-- SEÇÃO HISTÓRIA -->
     <section id="historia" class="history-section section-padding">

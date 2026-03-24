@@ -8,15 +8,15 @@ router.get('/dashboard', async (_req, res) => {
     noticiasCount,
     galeriaCount,
     missasCount,
-    agendamentosCount,
     mensagensCount,
+    videosCount,
     noticiasRecentes,
   ] = await Promise.all([
     dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM noticias`,
     dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM galeria`,
     dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM horarios_missas WHERE ativo = TRUE`,
-    dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM agendamentos_confissao WHERE status = 'pendente'`,
     dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM mensagens_contato WHERE lida = FALSE`,
+    dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM videos WHERE ativo = TRUE`,
     dbQuery`SELECT * FROM noticias ORDER BY data_criacao DESC LIMIT 5`,
   ])
 
@@ -25,7 +25,7 @@ router.get('/dashboard', async (_req, res) => {
     total_fotos: Number(galeriaCount[0]?.count ?? 0),
     total_horarios: Number(missasCount[0]?.count ?? 0),
     total_informacoes: 0,
-    agendamentos_pendentes: Number(agendamentosCount[0]?.count ?? 0),
+    total_videos: Number(videosCount[0]?.count ?? 0),
     mensagens_nao_lidas: Number(mensagensCount[0]?.count ?? 0),
     noticias_recentes: noticiasRecentes,
   })

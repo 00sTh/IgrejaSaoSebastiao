@@ -28,6 +28,8 @@ import adminImagens from './routes/admin/imagens'
 import adminComunidades from './routes/admin/comunidades'
 import adminSantos from './routes/admin/santos'
 import adminUsuarios from './routes/admin/usuarios'
+import adminHorariosConfissao from './routes/admin/horarios-confissao'
+import adminVideos from './routes/admin/videos'
 
 // No Vercel (serverless), __dirname aponta para dentro do bundle — usar process.cwd() como fallback
 const rootDir = process.env.VERCEL
@@ -75,6 +77,7 @@ app.use(
         frameSrc: [
           "'self'",
           'https://www.google.com',
+          'https://www.youtube.com',
           'https://*.clerk.accounts.dev',
         ],
         objectSrc: ["'none'"],
@@ -162,6 +165,8 @@ app.use('/admin', loginRequired, adminImagens)
 app.use('/admin/comunidades', loginRequired, adminComunidades)
 app.use('/admin/santos', loginRequired, adminSantos)
 app.use('/admin/usuarios', loginRequired, adminUsuarios)
+app.use('/admin', loginRequired, adminHorariosConfissao)
+app.use('/admin', loginRequired, adminVideos)
 
 // ==================== ERROR HANDLER ====================
 app.use((_req, res) => {

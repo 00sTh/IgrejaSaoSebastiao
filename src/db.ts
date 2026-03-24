@@ -179,6 +179,29 @@ export async function initDb(): Promise<void> {
     )
   `
 
+  // Tabela de vídeos do YouTube
+  await sql`
+    CREATE TABLE IF NOT EXISTS videos (
+      id SERIAL PRIMARY KEY,
+      titulo TEXT NOT NULL,
+      url_youtube TEXT NOT NULL,
+      descricao TEXT,
+      ativo BOOLEAN DEFAULT TRUE,
+      ordem INTEGER DEFAULT 0,
+      data_criacao TIMESTAMPTZ DEFAULT NOW()
+    )
+  `
+
+  // Tabela de horários de confissão
+  await sql`
+    CREATE TABLE IF NOT EXISTS horarios_confissao (
+      id SERIAL PRIMARY KEY,
+      dia_semana TEXT NOT NULL,
+      horario TEXT NOT NULL,
+      ativo BOOLEAN DEFAULT TRUE
+    )
+  `
+
   // Adicionar coluna descricao em comunidades (seguro se já existir)
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
   await sql`

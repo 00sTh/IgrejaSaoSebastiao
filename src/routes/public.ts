@@ -5,18 +5,28 @@ import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
 import { sendNewMessageNotification } from '../lib/mailer'
 import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, Santo } from '../types/index'
 
+interface Video {
+  id: number
+  titulo: string
+  url_youtube: string
+  descricao: string | null
+  ativo: boolean
+  ordem: number
+}
+
 const router = Router()
 
 // ==================== HOME ====================
 
 router.get('/', async (req, res) => {
-  const [noticias, horarios, infos, galeria, contatos, configs] = await Promise.all([
+  const [noticias, horarios, infos, galeria, contatos, configs, videos] = await Promise.all([
     dbQuery<Noticia>`SELECT * FROM noticias ORDER BY data_criacao DESC LIMIT 5`,
     dbQuery<HorarioMissa>`SELECT * FROM horarios_missas WHERE ativo = TRUE ORDER BY id`,
     dbQuery<ParoquiaInfo>`SELECT * FROM paroquia_info ORDER BY ordem`,
     dbQuery<Galeria>`SELECT * FROM galeria WHERE ativo = TRUE ORDER BY data_upload DESC LIMIT 12`,
     dbQuery<Contato>`SELECT * FROM contatos ORDER BY ordem`,
     dbQuery<Configuracao>`SELECT * FROM configuracoes`,
+    dbQuery<Video>`SELECT * FROM videos WHERE ativo = TRUE ORDER BY ordem ASC, data_criacao DESC LIMIT 6`,
   ])
 
   // Build infoParoquia with .get() method to stay compatible with Jinja2-style templates in Nunjucks
@@ -46,6 +56,7 @@ router.get('/', async (req, res) => {
     galeria,
     contatos,
     configs: configDict,
+    videos,
     is_admin: res.locals.currentUser?.role === 'admin',
   })
 })
