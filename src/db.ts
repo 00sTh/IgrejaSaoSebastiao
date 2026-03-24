@@ -202,8 +202,25 @@ export async function initDb(): Promise<void> {
     )
   `
 
+  // Tabela de horários por comunidade
+  await sql`
+    CREATE TABLE IF NOT EXISTS comunidade_horarios (
+      id SERIAL PRIMARY KEY,
+      comunidade_id INTEGER NOT NULL REFERENCES comunidades(id) ON DELETE CASCADE,
+      tipo TEXT NOT NULL DEFAULT 'missa',
+      titulo TEXT,
+      dia_semana TEXT,
+      data_especifica DATE,
+      horario TEXT NOT NULL,
+      descricao TEXT,
+      ativo BOOLEAN DEFAULT TRUE
+    )
+  `
+
   // Adicionar coluna descricao em comunidades (seguro se já existir)
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
+  await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS endereco TEXT`
+  await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS mapa_url TEXT`
   await sql`
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'comunidades_nome_unique') THEN
