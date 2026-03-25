@@ -1,0 +1,603 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Ajuda / Manual{% endblock %}
+
+{% block extra_css %}
+<style>
+    .manual-nav {
+        position: sticky;
+        top: 1rem;
+        background: white;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+    .manual-nav h4 {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+    }
+    .manual-nav ul { list-style: none; padding: 0; margin: 0; }
+    .manual-nav li { margin-bottom: 0.25rem; }
+    .manual-nav a {
+        display: block;
+        padding: 0.35rem 0.6rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #374151;
+        text-decoration: none;
+        transition: background 0.15s;
+    }
+    .manual-nav a:hover { background: #f3f4f6; color: #667eea; }
+    .manual-nav a.sub { padding-left: 1.4rem; color: #6b7280; font-size: 0.8rem; }
+
+    .manual-section {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        margin-bottom: 1.5rem;
+        scroll-margin-top: 1rem;
+    }
+    .manual-section h2 {
+        font-size: 1.3rem;
+        color: #1f2937;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+    .manual-section h2 i { color: #667eea; font-size: 1.1rem; }
+    .manual-section h3 {
+        font-size: 1rem;
+        color: #374151;
+        margin: 1.25rem 0 0.6rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .manual-section h3 i { color: #9ca3af; font-size: 0.9rem; }
+    .manual-section p { font-size: 0.9rem; color: #4b5563; line-height: 1.7; margin-bottom: 0.75rem; }
+    .manual-section ul, .manual-section ol {
+        font-size: 0.9rem;
+        color: #4b5563;
+        line-height: 1.7;
+        padding-left: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+    .manual-section li { margin-bottom: 0.3rem; }
+
+    .tip-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        margin: 0.75rem 0;
+        font-size: 0.875rem;
+        color: #1e40af;
+    }
+    .tip-box i { margin-right: 0.4rem; }
+
+    .warn-box {
+        background: #fffbeb;
+        border: 1px solid #fcd34d;
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        margin: 0.75rem 0;
+        font-size: 0.875rem;
+        color: #92400e;
+    }
+    .warn-box i { margin-right: 0.4rem; }
+
+    .steps {
+        counter-reset: step;
+        list-style: none;
+        padding: 0;
+    }
+    .steps li {
+        counter-increment: step;
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 0.6rem;
+        align-items: flex-start;
+    }
+    .steps li::before {
+        content: counter(step);
+        min-width: 24px;
+        height: 24px;
+        background: #667eea;
+        color: white;
+        border-radius: 50%;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    .badge-free { background: #dcfce7; color: #166534; }
+    .badge-req { background: #fee2e2; color: #991b1b; }
+    .badge-opt { background: #f3f4f6; color: #374151; }
+
+    .feature-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin: 0.75rem 0; }
+    .feature-table th { background: #f9fafb; padding: 0.6rem 0.75rem; text-align: left; color: #374151; font-weight: 600; border-bottom: 2px solid #e5e7eb; }
+    .feature-table td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f3f4f6; color: #4b5563; vertical-align: top; }
+
+    .cost-highlight {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        border: 1px solid #bbf7d0;
+        border-radius: 10px;
+        padding: 1.25rem;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    .cost-highlight .cost-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #16a34a;
+    }
+    .cost-highlight p { margin: 0.25rem 0 0; color: #166534; font-size: 0.875rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1><i class="fas fa-question-circle" style="color: #667eea;"></i> Manual do Administrador</h1>
+    <p class="breadcrumb">Painel Administrativo / Ajuda — Como usar o site da Igreja São Sebastião</p>
+</div>
+
+<div style="display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start;">
+
+    <!-- Índice lateral -->
+    <nav class="manual-nav">
+        <h4>Índice</h4>
+        <ul>
+            <li><a href="#sobre-o-site">Sobre o Site</a></li>
+            <li><a href="#login">Como Fazer Login</a></li>
+            <li><a href="#noticias">Notícias e Eventos</a></li>
+            <li><a href="#horarios">Horários de Missas</a></li>
+            <li><a href="#confissao">Horários de Confissão</a></li>
+            <li><a href="#galeria">Galeria de Fotos</a></li>
+            <li><a href="#videos">Vídeos</a></li>
+            <li><a href="#comunidades">Comunidades</a></li>
+            <li><a href="#santos">Santos</a></li>
+            <li><a href="#conteudo">Conteúdo do Site</a></li>
+            <li><a href="#configuracoes">Configurações</a></li>
+            <li><a href="#mensagens">Mensagens</a></li>
+            <li><a href="#usuarios">Usuários Admin</a></li>
+            <li><a href="#boas-praticas">Boas Práticas</a></li>
+            <li><a href="#custos">Custos</a></li>
+            <li><a href="#suporte">Suporte</a></li>
+        </ul>
+    </nav>
+
+    <!-- Conteúdo principal -->
+    <div>
+
+        <!-- Sobre o site -->
+        <section class="manual-section" id="sobre-o-site">
+            <h2><i class="fas fa-church"></i> Sobre o Site</h2>
+            <p>
+                O site da <strong>Igreja São Sebastião de Ponte Nova/MG</strong> é um sistema completo de comunicação paroquial.
+                Ele permite publicar notícias, horários de missas, fotos, vídeos, informações sobre comunidades e muito mais —
+                tudo gerenciado por este painel administrativo, sem precisar de conhecimento técnico.
+            </p>
+            <table class="feature-table">
+                <tr><th>Endereço do site</th><td><a href="https://igreja-sao-sebastiao.vercel.app" target="_blank">igreja-sao-sebastiao.vercel.app</a></td></tr>
+                <tr><th>Endereço do admin</th><td>igreja-sao-sebastiao.vercel.app/admin</td></tr>
+                <tr><th>Hospedagem</th><td>Vercel (gratuito)</td></tr>
+                <tr><th>Banco de dados</th><td>Neon PostgreSQL (gratuito)</td></tr>
+                <tr><th>Imagens</th><td>Cloudinary (gratuito)</td></tr>
+            </table>
+            <div class="tip-box">
+                <i class="fas fa-info-circle"></i>
+                O site funciona 24 horas por dia, 7 dias por semana, sem custo mensal. Todas as alterações feitas no painel aparecem imediatamente no site público.
+            </div>
+        </section>
+
+        <!-- Login -->
+        <section class="manual-section" id="login">
+            <h2><i class="fas fa-sign-in-alt"></i> Como Fazer Login</h2>
+            <p>O acesso ao painel utiliza o sistema <strong>Clerk</strong>, uma plataforma segura de autenticação. Apenas usuários cadastrados como administradores conseguem entrar.</p>
+            <ol class="steps">
+                <li>Acesse <strong>igreja-sao-sebastiao.vercel.app/admin</strong></li>
+                <li>Clique em <strong>"Entrar no Painel"</strong></li>
+                <li>Faça login com o e-mail e senha cadastrados no Clerk</li>
+                <li>Você será redirecionado automaticamente para o painel</li>
+            </ol>
+            <div class="warn-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Esqueceu a senha?</strong> Use o link "Esqueci minha senha" na tela de login. O Clerk enviará um e-mail de redefinição.
+            </div>
+            <h3><i class="fas fa-clock"></i> Tempo de sessão</h3>
+            <p>A sessão do administrador dura <strong>8 horas</strong>. Após isso, será necessário fazer login novamente.</p>
+        </section>
+
+        <!-- Notícias -->
+        <section class="manual-section" id="noticias">
+            <h2><i class="fas fa-newspaper"></i> Notícias e Eventos</h2>
+            <p>Publique avisos, notícias paroquiais e eventos da comunidade. Tudo que for publicado aqui aparece na página inicial do site e na seção de Notícias.</p>
+
+            <h3><i class="fas fa-plus"></i> Publicar uma notícia ou evento</h3>
+            <ol class="steps">
+                <li>No menu lateral, clique em <strong>Notícias e Eventos</strong></li>
+                <li>Clique no botão <strong>"Nova Notícia/Evento"</strong></li>
+                <li>Preencha o <strong>Título</strong> (obrigatório)</li>
+                <li>Escolha o <strong>Tipo</strong>: Notícia ou Evento</li>
+                <li>Escreva o <strong>Conteúdo</strong> (aceita formatação básica: negrito, itálico, listas)</li>
+                <li>Se for um <strong>Evento</strong>, preencha a data, hora e local</li>
+                <li>Adicione uma <strong>imagem</strong> se quiser (JPG ou PNG, até 5 MB)</li>
+                <li>Clique em <strong>"Criar Notícia"</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-edit"></i> Editar ou excluir</h3>
+            <p>Na lista de Notícias, clique no botão <strong>Editar</strong> ao lado do item desejado. Para excluir, clique em <strong>Excluir</strong> e confirme. A exclusão é permanente.</p>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                Use o campo <strong>Subtítulo</strong> para um resumo curto que aparece nos cards da página inicial. Sem subtítulo, aparecerão as primeiras palavras do conteúdo.
+            </div>
+        </section>
+
+        <!-- Horários de Missas -->
+        <section class="manual-section" id="horarios">
+            <h2><i class="fas fa-clock"></i> Horários de Missas</h2>
+            <p>Gerencie os horários das missas que aparecem na página inicial e nos cabeçalhos do site.</p>
+
+            <h3><i class="fas fa-plus"></i> Adicionar um horário</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Horários de Missas</strong> no menu</li>
+                <li>Clique em <strong>"Novo Horário"</strong></li>
+                <li>Preencha o <strong>Dia da semana</strong> (ex: Domingo, Segunda-feira)</li>
+                <li>Informe o <strong>Horário</strong> (ex: 08:00, 19:30)</li>
+                <li>Preencha o <strong>Tipo</strong> se necessário (ex: Missa, Eucaristia)</li>
+                <li>Preencha o <strong>Nome</strong> do celebrante, se quiser</li>
+                <li>Salve</li>
+            </ol>
+
+            <h3><i class="fas fa-eye-slash"></i> Ativar e desativar horários</h3>
+            <p>Use o campo <strong>Ativo</strong> para mostrar ou ocultar um horário sem precisar excluí-lo. Útil para horários temporários (ex: período de férias).</p>
+        </section>
+
+        <!-- Confissão -->
+        <section class="manual-section" id="confissao">
+            <h2><i class="fas fa-pray"></i> Horários de Confissão</h2>
+            <p>Gerencie separadamente os horários do Sacramento da Reconciliação.</p>
+
+            <ol class="steps">
+                <li>Vá em <strong>Horários Confissão</strong> no menu</li>
+                <li>Selecione o <strong>Dia da semana</strong></li>
+                <li>Informe o <strong>Horário</strong> e clique em <strong>"Adicionar"</strong></li>
+            </ol>
+            <p>Para remover um horário, clique no botão <strong>Excluir</strong> ao lado dele. Use o botão de ativar/desativar para controlar a visibilidade sem excluir.</p>
+        </section>
+
+        <!-- Galeria -->
+        <section class="manual-section" id="galeria">
+            <h2><i class="fas fa-images"></i> Galeria de Fotos</h2>
+            <p>Fotos da vida paroquial que aparecem na seção Galeria da página inicial.</p>
+
+            <h3><i class="fas fa-upload"></i> Adicionar foto</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Galeria de Fotos</strong></li>
+                <li>Clique em <strong>"Adicionar Foto"</strong></li>
+                <li>Preencha o <strong>Título</strong> (obrigatório)</li>
+                <li>Escolha a <strong>Categoria</strong> (ex: Festa 2024, Semana Santa)</li>
+                <li>Selecione o arquivo de imagem (JPG ou PNG, até 5 MB)</li>
+                <li>Salve</li>
+            </ol>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                Prefira fotos em formato <strong>horizontal</strong> (paisagem). Ficam melhor nos cards da galeria.
+            </div>
+            <div class="warn-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                As fotos são armazenadas permanentemente no Cloudinary. Se excluir uma foto do sistema, ela sai do site mas pode continuar no Cloudinary.
+            </div>
+        </section>
+
+        <!-- Vídeos -->
+        <section class="manual-section" id="videos">
+            <h2><i class="fas fa-video"></i> Vídeos</h2>
+            <p>Exiba vídeos do YouTube na página inicial. Ideal para missas transmitidas, catequeses e eventos.</p>
+
+            <h3><i class="fas fa-plus"></i> Adicionar vídeo</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Vídeos</strong> no menu</li>
+                <li>Clique em <strong>"Novo Vídeo"</strong></li>
+                <li>Preencha o <strong>Título</strong></li>
+                <li>Cole a <strong>URL do YouTube</strong> (qualquer formato funciona: link normal, link curto, ou embed)</li>
+                <li>Defina a <strong>Ordem</strong> de exibição (0 = primeiro)</li>
+                <li>Salve</li>
+            </ol>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                Use o botão de <strong>ativar/desativar</strong> para controlar quais vídeos aparecem sem precisar excluí-los.
+            </div>
+        </section>
+
+        <!-- Comunidades -->
+        <section class="manual-section" id="comunidades">
+            <h2><i class="fas fa-users"></i> Comunidades</h2>
+            <p>Cadastre as comunidades vinculadas à paróquia. Cada uma aparece em um card na página <strong>/comunidades</strong> do site.</p>
+
+            <h3><i class="fas fa-plus"></i> Cadastrar comunidade</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Comunidades</strong> no menu</li>
+                <li>Clique em <strong>"Nova Comunidade"</strong></li>
+                <li>Preencha <strong>Nome</strong> e <strong>Bairro</strong> (obrigatórios)</li>
+                <li>Adicione uma <strong>Descrição</strong> curta (ex: padroeiro, quando celebra)</li>
+                <li>Informe o <strong>Endereço</strong> completo</li>
+                <li>Cole o link do <strong>Google Maps</strong> se quiser</li>
+                <li>Envie uma <strong>foto</strong> da chapel (opcional)</li>
+                <li>Defina a <strong>Ordem</strong> de exibição</li>
+                <li>Salve</li>
+            </ol>
+
+            <h3><i class="fas fa-calendar-alt"></i> Horários da comunidade</h3>
+            <p>Após salvar a comunidade, acesse <strong>Editar</strong> e role até a seção <strong>"Horários desta Comunidade"</strong>. Adicione missas, reuniões ou novenas com dia e horário. Cada horário aparece no card público da comunidade.</p>
+        </section>
+
+        <!-- Santos -->
+        <section class="manual-section" id="santos">
+            <h2><i class="fas fa-cross"></i> Santos</h2>
+            <p>Gerencie o catálogo de santos padroeiros e santos jovens exibidos na página <strong>/santos</strong>.</p>
+
+            <h3><i class="fas fa-layer-group"></i> Categorias</h3>
+            <ul>
+                <li><strong>Padroeiro</strong> — Santos padroeiros das comunidades</li>
+                <li><strong>Jovem</strong> — Santos jovens para referência da juventude</li>
+                <li><strong>Outros</strong> — Demais santos</li>
+            </ul>
+
+            <h3><i class="fas fa-plus"></i> Adicionar santo</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Santos</strong> no menu</li>
+                <li>Clique em <strong>"Novo Santo"</strong></li>
+                <li>Preencha o <strong>Nome</strong> (obrigatório)</li>
+                <li>Escolha a <strong>Categoria</strong></li>
+                <li>Informe o <strong>Dia da Festa</strong> (ex: 20 de janeiro)</li>
+                <li>Escreva uma <strong>Descrição</strong> breve</li>
+                <li>Envie uma <strong>imagem</strong> (opcional — aparece placeholder de cruz se não tiver)</li>
+                <li>Salve</li>
+            </ol>
+        </section>
+
+        <!-- Conteúdo do site -->
+        <section class="manual-section" id="conteudo">
+            <h2><i class="fas fa-edit"></i> Conteúdo do Site</h2>
+            <p>Edite os textos fixos da página inicial: hero, seção Sobre, histórico, localização, textos de rodapé e redes sociais.</p>
+
+            <div class="warn-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                Esta seção mexe nos textos principais do site. Altere com cuidado. Se errar, basta editar novamente para corrigir.
+            </div>
+
+            <h3><i class="fas fa-list"></i> Seções editáveis</h3>
+            <table class="feature-table">
+                <thead><tr><th>Seção</th><th>O que controla</th></tr></thead>
+                <tbody>
+                    <tr><td>Hero</td><td>Título principal, subtítulo e texto do botão da primeira tela</td></tr>
+                    <tr><td>Sobre</td><td>Texto da seção "Seja Bem-Vindo"</td></tr>
+                    <tr><td>Horários</td><td>Títulos e horários de confissão (separados por |)</td></tr>
+                    <tr><td>Secretaria</td><td>Horário de funcionamento, telefone e e-mail</td></tr>
+                    <tr><td>História</td><td>Texto histórico da paróquia e marcos históricos</td></tr>
+                    <tr><td>Localização</td><td>Endereço, telefones, e-mail e link do mapa</td></tr>
+                    <tr><td>Rodapé</td><td>Links de Facebook, Instagram e WhatsApp</td></tr>
+                </tbody>
+            </table>
+
+            <div class="tip-box">
+                <i class="fas fa-lightbulb"></i>
+                Campos com <strong>horários múltiplos</strong> (ex: confissões) usam o caractere <strong>|</strong> (barra vertical) para separar cada linha. Exemplo: <code>Terça: 19h | Sexta: 18h | Sábado: 15h</code>
+            </div>
+        </section>
+
+        <!-- Configurações -->
+        <section class="manual-section" id="configuracoes">
+            <h2><i class="fas fa-cog"></i> Configurações</h2>
+            <p>Ajuste informações gerais do site e dados de contato exibidos no rodapé e na seção de contato.</p>
+
+            <h3><i class="fas fa-sliders-h"></i> Configurações gerais</h3>
+            <table class="feature-table">
+                <thead><tr><th>Campo</th><th>Uso</th></tr></thead>
+                <tbody>
+                    <tr><td>Nome do site</td><td>Nome exibido no título das abas do navegador</td></tr>
+                    <tr><td>Descrição do site</td><td>Texto usado pelos mecanismos de busca (Google)</td></tr>
+                    <tr><td>Endereço completo</td><td>Endereço físico da paróquia</td></tr>
+                    <tr><td>Latitude / Longitude</td><td>Coordenadas para o mapa do Google na página inicial</td></tr>
+                </tbody>
+            </table>
+
+            <h3><i class="fas fa-address-card"></i> Contatos</h3>
+            <p>Edite os números de telefone, e-mail e endereço que aparecem na seção de contato. Cada contato tem um <strong>ícone</strong> do Font Awesome (ex: <code>fas fa-phone</code>) e uma <strong>ordem</strong> de exibição.</p>
+        </section>
+
+        <!-- Mensagens -->
+        <section class="manual-section" id="mensagens">
+            <h2><i class="fas fa-envelope"></i> Mensagens</h2>
+            <p>Visualize e responda às mensagens enviadas pelo formulário de contato do site.</p>
+
+            <h3><i class="fas fa-inbox"></i> Ver mensagens</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Mensagens</strong> no menu</li>
+                <li>Mensagens não lidas aparecem destacadas</li>
+                <li>Clique no nome do remetente para ver o conteúdo completo</li>
+                <li>Clique em <strong>"Responder"</strong> para enviar uma resposta por e-mail</li>
+            </ol>
+
+            <div class="tip-box">
+                <i class="fas fa-info-circle"></i>
+                Se o servidor de e-mail (SMTP) estiver configurado, a resposta é enviada automaticamente para o e-mail de quem enviou a mensagem. Caso contrário, a resposta é salva apenas no sistema.
+            </div>
+
+            <h3><i class="fas fa-trash"></i> Excluir mensagens</h3>
+            <p>Mensagens podem ser excluídas permanentemente clicando em <strong>Excluir</strong>. Não há recuperação.</p>
+        </section>
+
+        <!-- Usuários -->
+        <section class="manual-section" id="usuarios">
+            <h2><i class="fas fa-user-shield"></i> Usuários Admin</h2>
+            <p>Gerencie quem tem acesso ao painel administrativo.</p>
+
+            <h3><i class="fas fa-user-plus"></i> Adicionar novo administrador</h3>
+            <ol class="steps">
+                <li>A pessoa precisa primeiro criar uma conta em <a href="https://clerk.com" target="_blank">clerk.com</a> com o e-mail dela</li>
+                <li>Vá em <strong>Usuários Admin</strong> no menu</li>
+                <li>Digite o <strong>e-mail</strong> da pessoa no campo</li>
+                <li>Selecione <strong>"Adicionar como admin"</strong></li>
+                <li>Clique em <strong>"Aplicar"</strong></li>
+            </ol>
+
+            <h3><i class="fas fa-user-minus"></i> Remover administrador</h3>
+            <ol class="steps">
+                <li>Vá em <strong>Usuários Admin</strong></li>
+                <li>Digite o e-mail do administrador</li>
+                <li>Selecione <strong>"Remover admin"</strong></li>
+                <li>Clique em <strong>"Aplicar"</strong></li>
+            </ol>
+
+            <div class="warn-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                Tenha cuidado para não remover o único administrador. Se isso acontecer, entre em contato com o desenvolvedor do site.
+            </div>
+        </section>
+
+        <!-- Boas práticas -->
+        <section class="manual-section" id="boas-praticas">
+            <h2><i class="fas fa-star"></i> Boas Práticas</h2>
+
+            <h3><i class="fas fa-image"></i> Imagens</h3>
+            <ul>
+                <li>Use arquivos <strong>JPG ou PNG</strong> — WEBP também é aceito</li>
+                <li>Tamanho máximo: <strong>5 MB</strong> por imagem (10 MB para imagens de comunidade)</li>
+                <li>Prefira fotos em formato <strong>horizontal</strong> (paisagem)</li>
+                <li>Resolução recomendada: <strong>1200×800 pixels</strong> ou maior</li>
+                <li>Evite imagens muito pesadas — comprima antes de enviar (use o site <a href="https://squoosh.app" target="_blank">squoosh.app</a>)</li>
+            </ul>
+
+            <h3><i class="fas fa-clock"></i> Horários</h3>
+            <ul>
+                <li>Use o formato <strong>HH:MM</strong> (ex: 08:00, 19:30)</li>
+                <li>Para horários múltiplos num mesmo campo de texto, separe com <strong>|</strong> (barra vertical)</li>
+                <li>Desative horários temporários em vez de excluí-los</li>
+            </ul>
+
+            <h3><i class="fas fa-newspaper"></i> Notícias</h3>
+            <ul>
+                <li>Mantenha o título <strong>curto e claro</strong> (até 80 caracteres)</li>
+                <li>Use o subtítulo para resumir em uma linha</li>
+                <li>Separe as notícias por <strong>tipo</strong> (Notícia ou Evento) para melhor organização</li>
+                <li>Eventos com data são automaticamente ordenados e destacados</li>
+            </ul>
+
+            <h3><i class="fas fa-shield-alt"></i> Segurança</h3>
+            <ul>
+                <li>Nunca compartilhe a senha do Clerk com outras pessoas</li>
+                <li>Para dar acesso a outra pessoa, use o sistema de <strong>Usuários Admin</strong></li>
+                <li>Faça logout quando terminar de usar em computadores compartilhados</li>
+            </ul>
+        </section>
+
+        <!-- Custos -->
+        <section class="manual-section" id="custos">
+            <h2><i class="fas fa-dollar-sign"></i> Custos Mensais</h2>
+            <p>O site foi construído inteiramente com serviços na camada gratuita. Não há custo mensal para a paróquia.</p>
+
+            <div class="cost-highlight">
+                <div class="cost-value">R$ 0,00</div>
+                <p>Custo mensal total do site</p>
+            </div>
+
+            <table class="feature-table">
+                <thead><tr><th>Serviço</th><th>Para que serve</th><th>Custo</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Vercel</strong></td>
+                        <td>Hospedagem do site (servidor)</td>
+                        <td><span class="badge badge-free">Gratuito</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Neon</strong></td>
+                        <td>Banco de dados (armazena todas as informações)</td>
+                        <td><span class="badge badge-free">Gratuito</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Clerk</strong></td>
+                        <td>Login seguro dos administradores</td>
+                        <td><span class="badge badge-free">Gratuito</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cloudinary</strong></td>
+                        <td>Armazenamento de imagens e fotos</td>
+                        <td><span class="badge badge-free">Gratuito</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Domínio próprio</strong></td>
+                        <td>Endereço personalizado (ex: igrejasaosebastiao.com.br)</td>
+                        <td><span class="badge badge-opt">Opcional — ~R$ 50/ano</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="tip-box">
+                <i class="fas fa-info-circle"></i>
+                Os planos gratuitos têm limites generosos, adequados para um site paroquial. Se o volume de visitas crescer muito no futuro, pode ser necessário migrar para planos pagos — mas isso é improvável para o contexto atual.
+            </div>
+        </section>
+
+        <!-- Suporte -->
+        <section class="manual-section" id="suporte">
+            <h2><i class="fas fa-headset"></i> Suporte</h2>
+            <p>Este site foi desenvolvido e doado à Paróquia São Sebastião. Para dúvidas técnicas ou problemas, entre em contato com o desenvolvedor:</p>
+
+            <table class="feature-table">
+                <tr><th>Desenvolvedor</th><td>—</td></tr>
+                <tr><th>GitHub</th><td><a href="https://github.com/00sTh/IgrejaSaoSebastiao" target="_blank">github.com/00sTh/IgrejaSaoSebastiao</a></td></tr>
+            </table>
+
+            <h3><i class="fas fa-tools"></i> Problemas comuns</h3>
+            <table class="feature-table">
+                <thead><tr><th>Problema</th><th>Solução</th></tr></thead>
+                <tbody>
+                    <tr><td>Não consigo fazer login</td><td>Verifique o e-mail cadastrado. Use "Esqueci minha senha" no Clerk.</td></tr>
+                    <tr><td>Imagem não aparece após upload</td><td>Verifique o tamanho (máx. 5 MB) e o formato (JPG, PNG, WEBP).</td></tr>
+                    <tr><td>Alteração não aparece no site</td><td>Aguarde alguns segundos e recarregue a página. As mudanças são imediatas.</td></tr>
+                    <tr><td>Mensagem de e-mail não foi enviada</td><td>O e-mail de resposta depende do servidor SMTP configurado. A resposta é salva no sistema mesmo sem envio.</td></tr>
+                    <tr><td>Site fora do ar</td><td>Verifique o painel da Vercel (vercel.com) ou entre em contato com o desenvolvedor.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+    </div>
+</div>
+
+<style>
+@media (max-width: 900px) {
+    .content-header + div {
+        grid-template-columns: 1fr !important;
+    }
+    .manual-nav { display: none; }
+}
+</style>
+{% endblock %}

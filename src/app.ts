@@ -30,6 +30,7 @@ import adminSantos from './routes/admin/santos'
 import adminUsuarios from './routes/admin/usuarios'
 import adminHorariosConfissao from './routes/admin/horarios-confissao'
 import adminVideos from './routes/admin/videos'
+import adminAjuda from './routes/admin/ajuda'
 
 // No Vercel (serverless), __dirname aponta para dentro do bundle — usar process.cwd() como fallback
 const rootDir = process.env.VERCEL
@@ -167,6 +168,7 @@ app.use('/admin/santos', loginRequired, adminSantos)
 app.use('/admin/usuarios', loginRequired, adminUsuarios)
 app.use('/admin', loginRequired, adminHorariosConfissao)
 app.use('/admin', loginRequired, adminVideos)
+app.use('/admin/ajuda', loginRequired, adminAjuda)
 
 // ==================== ERROR HANDLER ====================
 app.use((_req, res) => {
