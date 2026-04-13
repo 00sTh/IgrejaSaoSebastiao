@@ -146,6 +146,12 @@ const MensagemSchema = z.object({
 
 router.post('/api/enviar-mensagem', mensagemRateLimitMiddleware, async (req, res) => {
   try {
+    // Honeypot: bots preenchem campo oculto "website", humanos deixam vazio
+    if ((req.body as Record<string, string>).website) {
+      res.json({ status: 'success', message: 'Mensagem enviada com sucesso! Responderemos em breve.' })
+      return
+    }
+
     const result = MensagemSchema.safeParse(req.body)
     if (!result.success) {
       const firstError = result.error.issues[0]?.message ?? 'Dados inválidos.'
@@ -164,6 +170,41 @@ router.post('/api/enviar-mensagem', mensagemRateLimitMiddleware, async (req, res
     console.error('Erro ao enviar mensagem:', err)
     res.status(500).json({ status: 'error', message: 'Erro ao enviar mensagem. Tente novamente.' })
   }
+})
+
+// ==================== SEO ====================
+
+router.get('/robots.txt', (req, res) => {
+  const siteUrl = (res.locals.site_url as string) || `${req.protocol}://${req.get('host')}`
+  res.type('text/plain').send(
+    `User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: ${siteUrl}/sitemap.xml`
+  )
+})
+
+router.get('/sitemap.xml', async (_req, res) => {
+  const siteUrl = res.locals.site_url as string
+  const noticias = await dbQuery<{ id: number; data_criacao: string }>`
+    SELECT id, data_criacao FROM noticias ORDER BY data_criacao DESC
+  `
+  const staticUrls = [
+    { loc: '/', changefreq: 'weekly', priority: '1.0' },
+    { loc: '/noticias', changefreq: 'daily', priority: '0.9' },
+    { loc: '/comunidades', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/santos', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/termos-de-uso', changefreq: 'yearly', priority: '0.3' },
+    { loc: '/politica-de-privacidade', changefreq: 'yearly', priority: '0.3' },
+  ]
+  const urlElements = [
+    ...staticUrls.map(u =>
+      `  <url><loc>${siteUrl}${u.loc}</loc><changefreq>${u.changefreq}</changefreq><priority>${u.priority}</priority></url>`
+    ),
+    ...noticias.map(n =>
+      `  <url><loc>${siteUrl}/noticias/${n.id}</loc><lastmod>${String(n.data_criacao).slice(0, 10)}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
+    ),
+  ]
+  res.type('application/xml').send(
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlElements.join('\n')}\n</urlset>`
+  )
 })
 
 export default router

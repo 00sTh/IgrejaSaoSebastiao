@@ -7,13 +7,41 @@
     <meta name="description" content="{{ noticia.subtitulo if noticia.subtitulo else noticia.titulo }}">
     {% if noticia.imagem_url %}
     <meta property="og:image" content="{{ noticia.imagem_url }}">
+    {% else %}
+    <meta property="og:image" content="{{ site_url }}/img/logo.png">
     {% endif %}
     <meta property="og:title" content="{{ noticia.titulo }} — Igreja São Sebastião">
     <meta property="og:type" content="article">
+    <meta property="og:url" content="{{ site_url }}/noticias/{{ noticia.id }}">
+    <meta property="og:description" content="{{ noticia.subtitulo if noticia.subtitulo else noticia.titulo }}">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ noticia.titulo }} — Igreja São Sebastião">
+    <meta name="twitter:description" content="{{ noticia.subtitulo if noticia.subtitulo else noticia.titulo }}">
+    <meta name="twitter:image" content="{{ noticia.imagem_url if noticia.imagem_url else (site_url + '/img/logo.png') }}">
+    <link rel="canonical" href="{{ site_url }}/noticias/{{ noticia.id }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B5F6C">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": "{{ noticia.titulo | safe }}",
+      "datePublished": "{{ noticia.data_criacao | date_short }}",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Paróquia São Sebastião",
+        "url": "{{ site_url }}/"
+      }{% if noticia.imagem_url %},
+      "image": "{{ noticia.imagem_url }}"{% endif %}
+    }
+    </script>
     <style>
         .main-header {
             background-color: var(--color-background-dark) !important;
@@ -151,6 +179,7 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-to-main">Pular para o conteúdo principal</a>
 
     <!-- CABEÇALHO -->
     <header class="main-header" id="mainHeader">
@@ -181,7 +210,7 @@
     </header>
 
     <!-- HERO DA NOTÍCIA -->
-    <section class="noticia-hero">
+    <section class="noticia-hero" id="main-content" role="main">
         <div class="container">
             <span class="noticia-tipo-badge">{{ noticia.tipo }}</span>
             <h1>{{ noticia.titulo }}</h1>

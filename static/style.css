@@ -328,13 +328,15 @@ ul {
 /* ==================== */
 .hero-section {
 	position: relative;
-	height: 100vh; /* Altura total da viewport */
+	height: 100vh;
+	height: 100svh; /* iOS Safari: exclui a barra do browser */
+	min-height: 500px;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	text-align: center;
 	color: var(--color-text-light);
-	background: url('img/hero-background.jpg') no-repeat center center/cover; /* Sua imagem de fundo aqui */
+	background: url('img/hero-background.jpg') no-repeat center 30%/cover;
 }
 
 .hero-overlay {
@@ -911,6 +913,14 @@ ul {
 		font-size: 1.5rem;
 	}
 
+	.hero-section h1 {
+		font-size: 2.6rem;
+	}
+
+	.hero-subtitle {
+		font-size: 1.3rem;
+	}
+
 	.main-header .cta-header {
 		display: none;
 	}
@@ -1031,20 +1041,30 @@ ul {
 		font-size: 1.3rem;
 	}
 
-	.hero-subtitle {
-		font-size: 1.2rem;
+	/* Hero responsivo no mobile */
+	.hero-section {
+		height: 100svh;
+		min-height: 480px;
+		background-position: center 20%; /* mostra o topo da imagem em tela estreita */
 	}
 
-	.hero-section {
-		position: relative;
-		height: 100vh; /* Altura total da viewport */
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		text-align: center;
-		color: var(--color-text-light);
-		/* --- AQUI É ONDE VOCÊ COLOCA O CAMINHO DA SUA IMAGEM --- */
-		background: url('img/hero-background.jpg') no-repeat center center/cover;
+	.hero-section h1 {
+		font-size: 2rem;
+		line-height: 1.2;
+	}
+
+	.hero-subtitle {
+		font-size: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.hero-section .container {
+		padding: 0 1.25rem;
+	}
+
+	.hero-cta {
+		font-size: 0.95rem;
+		padding: 0.7rem 1.5rem;
 	}
 
 	.hour-card ul li {
@@ -1068,29 +1088,119 @@ ul {
 /* ==================== */
 /* SEÇÃO DE VÍDEOS       */
 /* ==================== */
-.videos-section h2 {
+.videos-section {
+    background: #1c2d35;
+    color: #f0ece0;
+}
+
+.videos-section-header {
     text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.videos-section-header h2 {
+    color: #f0ece0;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
     margin-bottom: 0.5rem;
 }
 
+.videos-section-header p {
+    color: rgba(240,236,224,0.7);
+    font-size: 1rem;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+.videos-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #c0392b;
+    color: #fff;
+    padding: 5px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+/* Vídeo em destaque: lado a lado (embed + info) */
+.video-featured-wrap {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 1.5rem;
+    align-items: start;
+    margin-bottom: 2rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.video-featured-info {
+    padding: 1.5rem 1.5rem 1.5rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.video-featured-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--color-secondary);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.video-featured-info h3 {
+    font-size: 1.2rem;
+    color: #f0ece0;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.video-featured-info p {
+    font-size: 0.9rem;
+    color: rgba(240,236,224,0.65);
+    margin: 0;
+}
+
+/* Grade secundária */
 .videos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+    margin-top: 0;
+}
+
+.videos-grid-secondary {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 1.5rem;
 }
 
 .video-card {
-    background: white;
+    background: rgba(255,255,255,0.06);
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
     overflow: hidden;
-    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    transition: transform var(--transition-speed), background var(--transition-speed);
 }
 
 .video-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    transform: translateY(-3px);
+    background: rgba(255,255,255,0.1);
+}
+
+.video-card-dark .video-info h3 {
+    color: #f0ece0;
+}
+
+.video-card-dark .video-info p {
+    color: rgba(240,236,224,0.6);
 }
 
 .video-embed-wrapper {
@@ -1108,23 +1218,105 @@ ul {
 }
 
 .video-info {
-    padding: 1rem;
+    padding: 0.85rem 1rem;
 }
 
 .video-info h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     color: var(--color-text-dark);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.2rem;
+    line-height: 1.3;
 }
 
 .video-info p {
-    font-size: 0.875rem;
+    font-size: 0.82rem;
     color: #666;
+    margin: 0;
+}
+
+/* Estado vazio */
+.videos-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: rgba(240,236,224,0.5);
+}
+
+.videos-empty i {
+    font-size: 3.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+}
+
+.videos-empty p {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-videos-add {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--color-secondary);
+    color: #1c2d35;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+@media (max-width: 900px) {
+    .video-featured-wrap {
+        grid-template-columns: 1fr;
+    }
+    .video-featured-info {
+        padding: 1rem 1.25rem 1.25rem;
+    }
 }
 
 @media (max-width: 768px) {
     .videos-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* === Classes de suporte === */
+.event-subtitulo {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0.25rem 0 0.5rem;
+    font-style: italic;
+}
+.event-content-text {
+    font-size: 0.9rem;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0.5rem 0;
+}
+.event-content-text p { margin: 0 0 0.5rem; }
+.btn-sm {
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+}
+
+/* Acessibilidade: skip navigation */
+.skip-to-main {
+    position: absolute;
+    top: -100%;
+    left: 0;
+    background: var(--color-primary);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    z-index: 9999;
+    border-radius: 0 0 6px 0;
+    transition: top 0.2s;
+}
+.skip-to-main:focus {
+    top: 0;
+    outline: 3px solid var(--color-secondary);
+    outline-offset: 2px;
 }

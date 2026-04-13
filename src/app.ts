@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import 'express-async-errors' // Auto-encaminha erros de async routes ao global error handler
 import express from 'express'
 import helmet from 'helmet'
 import session from 'express-session'
@@ -12,6 +13,7 @@ import { checkSession } from './middleware/session'
 import { csrfProtect } from './middleware/csrf'
 import { requestLogger } from './middleware/logger'
 import { loginRequired } from './lib/auth'
+import compression from 'compression'
 
 // Route imports
 import publicRoutes from './routes/public'
@@ -86,6 +88,10 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false, // Required for Google Maps embeds
+    hsts: {
+      maxAge: 15552000, // 180 dias — sem preload até o domínio final estar confirmado
+      includeSubDomains: false,
+    },
   })
 )
 
@@ -113,9 +119,10 @@ env.addFilter('date_short', (val: unknown) => {
 })
 
 // ==================== MIDDLEWARE ====================
+app.use(compression())
 app.use(express.urlencoded({ limit: '1mb', extended: true }))
 app.use(express.json({ limit: '1mb' }))
-app.use(express.static(path.join(rootDir, 'static')))
+app.use(express.static(path.join(rootDir, 'static'), { maxAge: '1d' }))
 
 // Clerk middleware (only if keys are configured)
 if (config.clerkPublishableKey && config.clerkSecretKey) {
@@ -141,6 +148,12 @@ app.use(flash())
 app.use(requestLogger)
 app.use(checkSession)  // populates res.locals.currentUser, csrfToken, messages
 app.use(csrfProtect)   // validates CSRF on POST/PUT/DELETE
+
+// Expõe site_url para todos os templates (usa SITE_URL do env ou detecta do request)
+app.use((req, res, next) => {
+  res.locals.site_url = config.siteUrl || `${req.protocol}://${req.get('host')}`
+  next()
+})
 
 // Expose request.args (query params) to all templates — Jinja2 compat
 app.use((req, res, next) => {
@@ -170,9 +183,16 @@ app.use('/admin', loginRequired, adminHorariosConfissao)
 app.use('/admin', loginRequired, adminVideos)
 app.use('/admin/ajuda', loginRequired, adminAjuda)
 
-// ==================== ERROR HANDLER ====================
+// ==================== ERROR HANDLERS ====================
 app.use((_req, res) => {
   res.status(404).render('error.html', { error: 'Página não encontrada', code: 404 })
+})
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err.message)
+  if (res.headersSent) return
+  res.status(500).render('error.html', { error: 'Erro interno do servidor.', code: 500 })
 })
 
 // ==================== START ====================

@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notícias e Eventos — Igreja São Sebastião</title>
     <meta name="description" content="Acompanhe as últimas notícias, eventos e avisos da Paróquia São Sebastião de Ponte Nova, MG.">
+    <meta property="og:title" content="Notícias — Igreja São Sebastião">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site_url }}/noticias">
+    <meta property="og:description" content="Acompanhe as últimas notícias, eventos e avisos da Paróquia São Sebastião de Ponte Nova, MG.">
+    <meta property="og:image" content="{{ site_url }}/img/logo.png">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Notícias — Igreja São Sebastião">
+    <meta name="twitter:description" content="Acompanhe as últimas notícias, eventos e avisos da Paróquia São Sebastião de Ponte Nova, MG.">
+    <meta name="twitter:image" content="{{ site_url }}/img/logo.png">
+    <link rel="canonical" href="{{ site_url }}/noticias">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B5F6C">
     <style>
         .main-header {
             background-color: var(--color-background-dark) !important;
@@ -165,6 +180,7 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-to-main">Pular para o conteúdo principal</a>
 
     <!-- CABEÇALHO -->
     <header class="main-header" id="mainHeader">
@@ -195,7 +211,7 @@
     </header>
 
     <!-- HERO -->
-    <section class="noticias-hero">
+    <section class="noticias-hero" id="main-content" role="main">
         <div class="container">
             <i class="fas fa-newspaper hero-icon"></i>
             <h1>Notícias e Eventos</h1>

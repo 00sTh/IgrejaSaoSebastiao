@@ -90,6 +90,7 @@ export interface Comunidade {
   imagem_url: string | null
   ativo: boolean
   ordem: number
+  conteudo_extra?: string | null
   data_criacao: string
 }
 

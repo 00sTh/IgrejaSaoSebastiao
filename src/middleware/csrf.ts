@@ -1,8 +1,8 @@
 import type { Request, Response, NextFunction } from 'express'
-import { validateCsrfToken } from '../lib/csrf'
+import { validateCsrfToken, getCsrfFromCookies } from '../lib/csrf'
 
 // Routes exempt from CSRF (public APIs)
-const EXEMPT_PATHS = ['/api/agendar-confissao', '/api/enviar-mensagem']
+const EXEMPT_PATHS = ['/api/enviar-mensagem']
 
 export function csrfProtect(req: Request, res: Response, next: NextFunction): void {
   if (!['POST', 'PUT', 'DELETE'].includes(req.method)) {
@@ -25,7 +25,8 @@ export function csrfProtect(req: Request, res: Response, next: NextFunction): vo
     ? req.headers['x-csrf-token'] as string | undefined
     : (req.body as Record<string, string>)?.csrf_token
 
-  if (!validateCsrfToken(req.session.csrf_token, token)) {
+  const cookieToken = getCsrfFromCookies(req)
+  if (!validateCsrfToken(cookieToken, token)) {
     res.status(403).render('error.html', { error: 'CSRF token inválido', code: 403 })
     return
   }

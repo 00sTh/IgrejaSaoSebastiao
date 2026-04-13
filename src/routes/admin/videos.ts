@@ -32,8 +32,9 @@ router.get('/videos', async (_req, res) => {
   res.render('admin_videos.html', { videos })
 })
 
-router.get('/videos/novo', (_req, res) => {
-  res.render('admin_videos.html', { videos: [], form_mode: 'novo' })
+router.get('/videos/novo', async (_req, res) => {
+  const videos = await dbQuery<Video>`SELECT * FROM videos ORDER BY ordem ASC, data_criacao DESC`
+  res.render('admin_videos.html', { videos, form_mode: 'novo' })
 })
 
 router.get('/videos/:id/editar', async (req, res) => {

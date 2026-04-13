@@ -39,6 +39,13 @@ router.get('/editar/:id', async (req, res) => {
 router.post('/nova', upload.single('imagem'), async (req, res) => { await saveComunidade(req, res, null) })
 router.post('/editar/:id', upload.single('imagem'), async (req, res) => { await saveComunidade(req, res, parseInt(req.params.id, 10)) })
 
+const ALLOWED_TAGS = ['p', 'strong', 'em', 'b', 'i', 'a', 'ul', 'ol', 'li', 'br', 'h4', 'h5', 'h6']
+const ALLOWED_ATTRS = { 'a': ['href', 'target', 'rel'] }
+
+function sanitizeRich(text: string): string {
+  return sanitizeHtml(text, { allowedTags: ALLOWED_TAGS, allowedAttributes: ALLOWED_ATTRS })
+}
+
 async function saveComunidade(req: Request, res: Response, id: number | null): Promise<void> {
   const body = req.body as Record<string, string>
   const nome = sanitize((body.nome ?? '').trim())
@@ -46,6 +53,7 @@ async function saveComunidade(req: Request, res: Response, id: number | null): P
   const descricao = sanitize((body.descricao ?? '').trim()) || null
   const endereco = sanitize((body.endereco ?? '').trim()) || null
   const mapa_url = sanitize((body.mapa_url ?? '').trim()) || null
+  const conteudo_extra = sanitizeRich((body.conteudo_extra ?? '').trim()) || null
   const ativo = body.ativo === 'on' || body.ativo === '1'
   const ordem = parseInt(body.ordem ?? '0', 10) || 0
 
@@ -76,13 +84,13 @@ async function saveComunidade(req: Request, res: Response, id: number | null): P
 
   if (id) {
     if (imagemUrl !== null && file) {
-      await sql`UPDATE comunidades SET nome = ${nome}, bairro = ${bairro}, descricao = ${descricao}, endereco = ${endereco}, mapa_url = ${mapa_url}, ativo = ${ativo}, ordem = ${ordem}, imagem_url = ${imagemUrl} WHERE id = ${id}`
+      await sql`UPDATE comunidades SET nome = ${nome}, bairro = ${bairro}, descricao = ${descricao}, endereco = ${endereco}, mapa_url = ${mapa_url}, conteudo_extra = ${conteudo_extra}, ativo = ${ativo}, ordem = ${ordem}, imagem_url = ${imagemUrl} WHERE id = ${id}`
     } else {
-      await sql`UPDATE comunidades SET nome = ${nome}, bairro = ${bairro}, descricao = ${descricao}, endereco = ${endereco}, mapa_url = ${mapa_url}, ativo = ${ativo}, ordem = ${ordem} WHERE id = ${id}`
+      await sql`UPDATE comunidades SET nome = ${nome}, bairro = ${bairro}, descricao = ${descricao}, endereco = ${endereco}, mapa_url = ${mapa_url}, conteudo_extra = ${conteudo_extra}, ativo = ${ativo}, ordem = ${ordem} WHERE id = ${id}`
     }
     req.flash('success', 'Comunidade atualizada com sucesso!')
   } else {
-    await sql`INSERT INTO comunidades (nome, bairro, descricao, endereco, mapa_url, imagem_url, ativo, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${endereco}, ${mapa_url}, ${imagemUrl}, ${ativo}, ${ordem})`
+    await sql`INSERT INTO comunidades (nome, bairro, descricao, endereco, mapa_url, conteudo_extra, imagem_url, ativo, ordem) VALUES (${nome}, ${bairro}, ${descricao}, ${endereco}, ${mapa_url}, ${conteudo_extra}, ${imagemUrl}, ${ativo}, ${ordem})`
     req.flash('success', 'Comunidade adicionada com sucesso!')
   }
   res.redirect('/admin/comunidades')

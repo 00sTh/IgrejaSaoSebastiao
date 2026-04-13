@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comunidades — Igreja São Sebastião</title>
     <meta name="description" content="Conheça as {{ comunidades | length }} comunidades vinculadas à Paróquia São Sebastião de Ponte Nova, MG.">
+    <meta property="og:title" content="Comunidades — Igreja São Sebastião">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site_url }}/comunidades">
+    <meta property="og:description" content="Conheça as comunidades vinculadas à Paróquia São Sebastião, presentes nos bairros e distritos de Ponte Nova, MG.">
+    <meta property="og:image" content="{{ site_url }}/img/logo.png">
+    <meta property="og:locale" content="pt_BR">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Comunidades — Igreja São Sebastião">
+    <meta name="twitter:description" content="Conheça as comunidades vinculadas à Paróquia São Sebastião, presentes nos bairros e distritos de Ponte Nova, MG.">
+    <meta name="twitter:image" content="{{ site_url }}/img/logo.png">
+    <link rel="canonical" href="{{ site_url }}/comunidades">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B5F6C">
     <style>
         /* Cabeçalho com fundo sólido (não há hero-image nesta página) */
         .main-header {
@@ -154,6 +169,61 @@
             line-height: 1.4;
         }
 
+        /* Horários de celebrações */
+        .comunidade-horarios {
+            margin-top: 0.75rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid #f3f4f6;
+        }
+        .comunidade-horarios-titulo {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .comunidade-horario-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.45rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.78rem;
+            color: #374151;
+        }
+        .horario-tipo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.12rem 0.45rem;
+            border-radius: 9999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .horario-tipo-missa   { background: #dbeafe; color: #1d4ed8; }
+        .horario-tipo-reuniao { background: #fef9c3; color: #854d0e; }
+        .horario-tipo-novena  { background: #f3e8ff; color: #7c3aed; }
+        .horario-tipo-outro   { background: #f3f4f6; color: #374151; }
+        .horario-info { line-height: 1.3; }
+
+        /* Conteúdo livre */
+        .comunidade-conteudo-extra {
+            margin-top: 0.6rem;
+            padding-top: 0.6rem;
+            border-top: 1px solid #f3f4f6;
+            font-size: 0.78rem;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+        .comunidade-conteudo-extra a { color: var(--color-primary); }
+        .comunidade-conteudo-extra ul { padding-left: 1rem; margin: 0.25rem 0; }
+        .comunidade-conteudo-extra p { margin: 0.2rem 0; }
+
         /* Estado vazio */
         .comunidades-empty {
             text-align: center;
@@ -197,6 +267,7 @@
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-to-main">Pular para o conteúdo principal</a>
 
     <!-- CABEÇALHO -->
     <header class="main-header" id="mainHeader">
@@ -227,7 +298,7 @@
     </header>
 
     <!-- HERO -->
-    <section class="comunidades-hero">
+    <section class="comunidades-hero" id="main-content" role="main">
         <div class="container">
             <i class="fas fa-users hero-icon"></i>
             <h1>Nossas Comunidades</h1>
@@ -281,17 +352,26 @@
                         <p class="comunidade-descricao">{{ c.descricao }}</p>
                         {% endif %}
                         {% if c.horarios and c.horarios | length > 0 %}
-                        <div style="margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px solid #f3f4f6;">
-                            {% for h in c.horarios %}
-                            <p style="font-size: 0.78rem; color: #374151; margin: 0.2rem 0; display: flex; align-items: center; gap: 0.4rem;">
-                                <i class="fas fa-{% if h.tipo == 'missa' %}church{% elif h.tipo == 'reuniao' %}users{% elif h.tipo == 'novena' %}praying-hands{% else %}calendar{% endif %}"
-                                   style="color: var(--color-primary); font-size: 0.7rem; flex-shrink: 0;"></i>
-                                <span>
-                                    {% if h.dia_semana %}{{ h.dia_semana }}, {% endif %}{{ h.horario }}
-                                    {% if h.titulo %} — {{ h.titulo }}{% endif %}
-                                </span>
+                        <div class="comunidade-horarios">
+                            <p class="comunidade-horarios-titulo">
+                                <i class="fas fa-clock"></i> Celebrações
                             </p>
+                            {% for h in c.horarios %}
+                            <div class="comunidade-horario-item">
+                                <span class="horario-tipo horario-tipo-{{ h.tipo }}">
+                                    <i class="fas fa-{% if h.tipo == 'missa' %}church{% elif h.tipo == 'reuniao' %}users{% elif h.tipo == 'novena' %}praying-hands{% else %}calendar{% endif %}"></i>
+                                    {{ h.tipo | capitalize }}
+                                </span>
+                                <span class="horario-info">
+                                    {% if h.dia_semana %}{{ h.dia_semana }}{% if h.horario %}, {% endif %}{% endif %}{{ h.horario }}{% if h.titulo %} — {{ h.titulo }}{% endif %}
+                                </span>
+                            </div>
                             {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if c.conteudo_extra %}
+                        <div class="comunidade-conteudo-extra">
+                            {{ c.conteudo_extra | safe }}
                         </div>
                         {% endif %}
                     </div>

@@ -221,6 +221,7 @@ export async function initDb(): Promise<void> {
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS descricao TEXT`
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS endereco TEXT`
   await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS mapa_url TEXT`
+  await sql`ALTER TABLE comunidades ADD COLUMN IF NOT EXISTS conteudo_extra TEXT`
   await sql`
     DO $$ BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'comunidades_nome_unique') THEN

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import { getAuth } from '@clerk/express'
-import { generateCsrfToken } from '../lib/csrf'
+import { generateCsrfToken, getCsrfFromCookies } from '../lib/csrf'
 
 export async function checkSession(req: Request, res: Response, next: NextFunction): Promise<void> {
   // Load current user from Clerk (only if keys configured)
@@ -20,11 +20,18 @@ export async function checkSession(req: Request, res: Response, next: NextFuncti
     res.locals.currentUser = null
   }
 
-  // CSRF token
-  if (!req.session.csrf_token) {
-    req.session.csrf_token = generateCsrfToken()
+  // CSRF token — double-submit cookie pattern (stateless, funciona em Vercel multi-instância)
+  const existingToken = getCsrfFromCookies(req)
+  const csrfToken = existingToken ?? generateCsrfToken()
+  if (!existingToken) {
+    res.cookie('csrf_token', csrfToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 8 * 60 * 60 * 1000, // 8h
+    })
   }
-  res.locals.csrfToken = req.session.csrf_token
+  res.locals.csrfToken = csrfToken
 
   // Flash messages
   const flashMessages: Array<{ category: string; text: string }> = []

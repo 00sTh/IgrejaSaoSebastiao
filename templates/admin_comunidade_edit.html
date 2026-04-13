@@ -27,6 +27,7 @@
 
             <form id="formComunidade" method="POST" enctype="multipart/form-data"
                   action="{% if comunidade %}/admin/comunidades/editar/{{ comunidade.id }}{% else %}/admin/comunidades/nova{% endif %}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
 
                 <div class="form-group">
                     <label class="form-label" for="nome">
@@ -56,6 +57,17 @@
                               placeholder="Ex: Padroeiro: São Sebastião — Eucaristia: 2ª quarta-feira, 19h30">{{ comunidade.descricao if comunidade and comunidade.descricao else '' }}</textarea>
                     <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
                         Breve descrição que aparece no card da comunidade.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="conteudo_extra">
+                        Conteúdo livre <span style="color: #6b7280; font-weight: 400;">(opcional)</span>
+                    </label>
+                    <textarea id="conteudo_extra" name="conteudo_extra" class="form-control" rows="5"
+                              placeholder="Adicione qualquer informação extra: avisos, história local, padroeiro, grupos pastorais, telefone de contato...">{{ comunidade.conteudo_extra if comunidade and comunidade.conteudo_extra else '' }}</textarea>
+                    <small style="color: #6b7280; font-size: 0.8rem; margin-top: 0.25rem; display: block;">
+                        Suporta HTML básico: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;a href="..."&gt;</code>, <code>&lt;ul&gt;&lt;li&gt;</code>. Aparece no card da comunidade no site.
                     </small>
                 </div>
 

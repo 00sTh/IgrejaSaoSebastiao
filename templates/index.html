@@ -9,20 +9,54 @@
     <meta property="og:description" content="{{ info_paroquia.get('sobre_texto', {}).get('titulo', 'Paróquia São Sebastião de Ponte Nova. Missas, eventos, comunidades e mais.') }}">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="pt_BR">
-    <link rel="canonical" href="/">
+    <meta property="og:url" content="{{ site_url }}/">
+    <meta property="og:image" content="{{ site_url }}/img/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ info_paroquia.get('hero_titulo', {}).get('titulo', 'Igreja São Sebastião') }} - Ponte Nova, MG">
+    <meta name="twitter:description" content="{{ info_paroquia.get('sobre_texto', {}).get('titulo', 'Paróquia São Sebastião de Ponte Nova. Missas, eventos, comunidades e mais.') }}">
+    <meta name="twitter:image" content="{{ site_url }}/img/logo.png">
+    <link rel="canonical" href="{{ site_url }}/">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#3B5F6C">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["Church", "LocalBusiness"],
+      "name": "Paróquia São Sebastião",
+      "url": "{{ site_url }}/",
+      "logo": "{{ site_url }}/img/logo.png",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Praça Getúlio Vargas, 92",
+        "addressLocality": "Ponte Nova",
+        "addressRegion": "MG",
+        "postalCode": "35430-000",
+        "addressCountry": "BR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -20.4161,
+        "longitude": -42.9093
+      },
+      "telephone": "+55 31 3295-1379"
+    }
+    </script>
 </head>
 <body>
+    <a href="#hero" class="skip-to-main">Pular para o conteúdo principal</a>
     <input type="hidden" id="isAdmin" value="{{ 'true' if is_admin else 'false' }}">
 
     <!-- CABEÇALHO -->
     <header class="main-header" id="mainHeader">
         <div class="container">
             <div class="logo">
-                <a href="#"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a>
+                <a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a>
             </div>
             <nav class="main-nav">
                 <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
@@ -57,6 +91,69 @@
         </div>
     </section>
 
+    <!-- SEÇÃO VÍDEOS DAS MISSAS -->
+    <section id="videos" class="videos-section section-padding">
+        <div class="container">
+            <div class="videos-section-header">
+                <span class="videos-badge"><i class="fab fa-youtube"></i> Missas &amp; Celebrações</span>
+                <h2>Participe de Onde Estiver</h2>
+                <p>Assista às missas e celebrações da Paróquia São Sebastião ao vivo ou quando quiser.</p>
+            </div>
+
+            {% if videos %}
+                {% set featured = videos[0] %}
+                <div class="video-featured-wrap">
+                    <div class="video-embed-wrapper">
+                        <iframe
+                            src="{{ featured.url_youtube }}?rel=0"
+                            title="{{ featured.titulo }}"
+                            frameborder="0"
+                            allowfullscreen
+                            loading="lazy"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                        </iframe>
+                    </div>
+                    <div class="video-featured-info">
+                        <span class="video-featured-label"><i class="fas fa-play-circle"></i> Mais recente</span>
+                        <h3>{{ featured.titulo }}</h3>
+                        {% if featured.descricao %}<p>{{ featured.descricao }}</p>{% endif %}
+                    </div>
+                </div>
+
+                {% if videos|length > 1 %}
+                <div class="videos-grid videos-grid-secondary">
+                    {% for video in videos %}{% if loop.index > 1 %}
+                    <div class="video-card video-card-dark">
+                        <div class="video-embed-wrapper">
+                            <iframe
+                                src="{{ video.url_youtube }}?rel=0"
+                                title="{{ video.titulo }}"
+                                frameborder="0"
+                                allowfullscreen
+                                loading="lazy"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
+                            </iframe>
+                        </div>
+                        <div class="video-info">
+                            <h3>{{ video.titulo }}</h3>
+                            {% if video.descricao %}<p>{{ video.descricao }}</p>{% endif %}
+                        </div>
+                    </div>
+                    {% endif %}{% endfor %}
+                </div>
+                {% endif %}
+            {% else %}
+            <div class="videos-empty">
+                <i class="fab fa-youtube"></i>
+                <p>Os vídeos das missas aparecerão aqui em breve.</p>
+                {% if is_admin %}
+                <a href="/admin/videos" class="btn-videos-add"><i class="fas fa-plus"></i> Adicionar vídeos</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
     <!-- SEÇÃO DE A PARÓQUIA -->
     <section id="a-paroquia" class="about-section section-padding">
         <div class="container">
@@ -66,7 +163,7 @@
                 <a href="#historia" class="btn btn-outline">Saiba Mais Sobre Nós</a>
             </div>
             <div class="about-image">
-              <a href="#"><img src="/img/Comunidade_acolhedora.jpg" alt="Membros da comunidade da Paróquia São Sebastião reunidos"></a>
+              <img src="/img/Comunidade_acolhedora.jpg" alt="Membros da comunidade da Paróquia São Sebastião reunidos" loading="lazy">
             </div>
         </div>
     </section>
@@ -189,38 +286,6 @@
         </div>
     </section>
 
-    <!-- SEÇÃO VÍDEOS -->
-    {% if videos %}
-    <section id="videos" class="videos-section section-padding bg-light">
-        <div class="container">
-            <h2>Vídeos da Paróquia</h2>
-            <p style="text-align: center; color: #666; margin-bottom: 2rem;">Assista às missas e eventos da Igreja São Sebastião</p>
-            <div class="videos-grid">
-                {% for video in videos %}
-                <div class="video-card">
-                    <div class="video-embed-wrapper">
-                        <iframe
-                            src="{{ video.url_youtube }}?rel=0"
-                            title="{{ video.titulo }}"
-                            frameborder="0"
-                            allowfullscreen
-                            loading="lazy"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture">
-                        </iframe>
-                    </div>
-                    <div class="video-info">
-                        <h3>{{ video.titulo }}</h3>
-                        {% if video.descricao %}
-                        <p>{{ video.descricao }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
-    {% endif %}
-
     <!-- SEÇÃO HISTÓRIA -->
     <section id="historia" class="history-section section-padding">
         <div class="container">
@@ -274,14 +339,20 @@
                         <li><i class="fas fa-clock"></i> Secretaria: {{ info_paroquia.get('secretaria_horarios', {}).get('titulo', 'Segunda a Sexta, 13h às 18h') }}</li>
                     </ul>
                     <div class="social-icons">
-                        <a href="{{ info_paroquia.get('redes_facebook', {}).get('titulo', '#') }}" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="{{ info_paroquia.get('redes_instagram', {}).get('titulo', '#') }}" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                        <a href="https://arqmariana.com.br/" target="_blank" aria-label="Arquidiocese de Mariana"><i class="fas fa-church"></i></a>
+                        {% set fb_url = info_paroquia.get('redes_facebook', {}).get('titulo', '') %}
+                        {% if fb_url and fb_url != '#' %}<a href="{{ fb_url }}" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>{% endif %}
+                        {% set ig_url = info_paroquia.get('redes_instagram', {}).get('titulo', '') %}
+                        {% if ig_url and ig_url != '#' %}<a href="{{ ig_url }}" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>{% endif %}
+                        <a href="https://arqmariana.com.br/" target="_blank" rel="noopener" aria-label="Arquidiocese de Mariana"><i class="fas fa-church"></i></a>
                     </div>
                 </div>
                 <div class="contact-form-container">
                     <h3>Envie-nos uma Mensagem</h3>
-                    <form class="simple-contact-form">
+                    <form class="simple-contact-form" method="POST" action="/api/enviar-mensagem">
+                        {# Honeypot anti-spam — campo invisível, bots preenchem, humanos não #}
+                        <div style="display:none;" aria-hidden="true">
+                            <input type="text" name="website" tabindex="-1" autocomplete="off">
+                        </div>
                         <div class="form-group">
                             <label for="contact-nome">Nome:</label>
                             <input type="text" id="contact-nome" name="nome" required>
@@ -309,7 +380,6 @@
             <ul class="footer-links">
                 <li><a href="/politica-de-privacidade">Política de Privacidade</a></li>
                 <li><a href="/termos-de-uso">Termos de Uso</a></li>
-                <li><a href="#">Mapa do Site</a></li>
             </ul>
             <div style="margin-top: 12px;">
                 <a href="https://arqmariana.com.br/" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; color: #fff; background: rgba(255,255,255,0.15); padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.95rem; transition: background 0.2s;">
