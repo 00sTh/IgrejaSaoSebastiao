@@ -32,13 +32,14 @@ router.post('/editar/:id', async (req, res) => {
   const body = req.body as Record<string, string>
   const titulo = sanitize((body.titulo ?? '').trim())
   const conteudo = sanitize((body.conteudo ?? '').trim())
+  const ordem = parseInt(body.ordem ?? '0', 10) || 0
 
   if (!titulo || !conteudo) {
     req.flash('error', 'Título e conteúdo são obrigatórios.')
     return res.redirect(`/admin/informacoes/editar/${id}`)
   }
 
-  await sql`UPDATE paroquia_info SET titulo = ${titulo}, conteudo = ${conteudo} WHERE id = ${id}`
+  await sql`UPDATE paroquia_info SET titulo = ${titulo}, conteudo = ${conteudo}, ordem = ${ordem} WHERE id = ${id}`
   req.flash('success', 'Informação atualizada com sucesso!')
   res.redirect('/admin/informacoes')
 })

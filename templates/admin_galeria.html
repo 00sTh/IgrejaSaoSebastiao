@@ -19,15 +19,19 @@
 
     <!-- Filtros -->
     <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
-        <form method="GET" style="display: flex; gap: 1rem; align-items: end;">
-            <div style="flex: 1;">
-                <label class="form-label">Buscar</label>
-                <input type="text" name="busca" class="form-control" placeholder="Buscar por título ou descrição..."
-                       value="{{ request.args.get('busca', '') }}">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+            <div style="min-width: 200px;">
+                <label class="form-label">Categoria</label>
+                <select name="categoria" class="form-control">
+                    <option value="">Todas</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat }}" {% if cat == categoria_atual %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <button type="submit" class="btn btn-primary">
-                <i class="fas fa-search"></i>
-                Buscar
+                <i class="fas fa-filter"></i>
+                Filtrar
             </button>
             <a href="/admin/galeria" class="btn btn-secondary">
                 <i class="fas fa-redo"></i>
@@ -64,7 +68,7 @@
                 <!-- Data -->
                 <div style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 1rem;">
                     <i class="fas fa-calendar"></i>
-                    {{ foto.data_upload.strftime('%d/%m/%Y') if foto.data_upload else 'N/A' }}
+                    {{ foto.data_upload | date_short }}
                 </div>
 
                 <!-- Ações -->
@@ -91,7 +95,7 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
             <div style="padding: 1rem; background: #eff6ff; border-radius: 8px; text-align: center;">
                 <div style="font-size: 2rem; font-weight: 700; color: #2563eb; margin-bottom: 0.25rem;">
-                    {{ fotos|length }}
+                    {{ fotos | length }}
                 </div>
                 <div style="font-size: 0.875rem; color: #1e40af;">
                     Total de Fotos

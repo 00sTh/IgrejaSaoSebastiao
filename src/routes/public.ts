@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { sql, dbQuery, queryOne } from '../db'
 import { mensagemRateLimitMiddleware } from '../middleware/rate-limit'
 import { sendNewMessageNotification } from '../lib/mailer'
-import type { Noticia, HorarioMissa, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, ComunidadeHorario, Santo } from '../types/index'
+import type { Noticia, HorarioMissa, HorarioConfissao, ParoquiaInfo, Galeria, Contato, Configuracao, Comunidade, ComunidadeHorario, Santo } from '../types/index'
 
 interface Video {
   id: number
@@ -115,6 +115,60 @@ router.get('/santos', async (_req, res) => {
   res.render('santos.html', { santos, jovens, padroeiros, outros })
 })
 
+// ==================== GALERIA ====================
+
+router.get('/galeria', async (req, res) => {
+  const page = Math.max(1, parseInt((req.query.page as string) || '1', 10))
+  const categoria = ((req.query.categoria as string) || '').trim()
+  const perPage = 20
+  const offset = (page - 1) * perPage
+
+  const [fotos, totalRows, categoriasRows] = await Promise.all([
+    categoria
+      ? dbQuery<Galeria>`SELECT * FROM galeria WHERE ativo = TRUE AND categoria = ${categoria} ORDER BY data_upload DESC LIMIT ${perPage} OFFSET ${offset}`
+      : dbQuery<Galeria>`SELECT * FROM galeria WHERE ativo = TRUE ORDER BY data_upload DESC LIMIT ${perPage} OFFSET ${offset}`,
+    categoria
+      ? dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM galeria WHERE ativo = TRUE AND categoria = ${categoria}`
+      : dbQuery<{ count: string }>`SELECT COUNT(*) as count FROM galeria WHERE ativo = TRUE`,
+    dbQuery<{ categoria: string }>`SELECT DISTINCT categoria FROM galeria WHERE ativo = TRUE AND categoria IS NOT NULL ORDER BY categoria`,
+  ])
+
+  const totalPages = Math.ceil(Number(totalRows[0]?.count ?? 0) / perPage)
+  res.render('galeria.html', {
+    fotos,
+    categorias: categoriasRows.map(c => c.categoria),
+    categoria_atual: categoria,
+    current_page: page,
+    total_pages: totalPages,
+  })
+})
+
+// ==================== HORÁRIOS ====================
+
+router.get('/horarios', async (_req, res) => {
+  const diasOrdem = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
+  const [missas, confissoes] = await Promise.all([
+    dbQuery<HorarioMissa>`SELECT * FROM horarios_missas WHERE ativo = TRUE ORDER BY id`,
+    dbQuery<HorarioConfissao>`SELECT * FROM horarios_confissao WHERE ativo = TRUE ORDER BY
+      CASE dia_semana WHEN 'Domingo' THEN 0 WHEN 'Segunda-feira' THEN 1 WHEN 'Terça-feira' THEN 2
+        WHEN 'Quarta-feira' THEN 3 WHEN 'Quinta-feira' THEN 4 WHEN 'Sexta-feira' THEN 5
+        WHEN 'Sábado' THEN 6 ELSE 7 END, horario ASC`,
+  ])
+  const missasPorDia: Record<string, HorarioMissa[]> = {}
+  for (const m of missas) {
+    if (!missasPorDia[m.dia_semana]) missasPorDia[m.dia_semana] = []
+    missasPorDia[m.dia_semana].push(m)
+  }
+  res.render('horarios.html', { missas, confissoes, missas_por_dia: missasPorDia, dias_ordem: diasOrdem })
+})
+
+// ==================== VÍDEOS ====================
+
+router.get('/videos', async (_req, res) => {
+  const videos = await dbQuery<Video>`SELECT * FROM videos WHERE ativo = TRUE ORDER BY ordem ASC, data_criacao DESC`
+  res.render('videos.html', { videos })
+})
+
 // ==================== PÁGINAS LEGAIS ====================
 
 router.get('/termos-de-uso', (_req, res) => {
@@ -191,6 +245,9 @@ router.get('/sitemap.xml', async (_req, res) => {
     { loc: '/noticias', changefreq: 'daily', priority: '0.9' },
     { loc: '/comunidades', changefreq: 'monthly', priority: '0.8' },
     { loc: '/santos', changefreq: 'monthly', priority: '0.8' },
+    { loc: '/galeria', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/horarios', changefreq: 'weekly', priority: '0.8' },
+    { loc: '/videos', changefreq: 'weekly', priority: '0.7' },
     { loc: '/termos-de-uso', changefreq: 'yearly', priority: '0.3' },
     { loc: '/politica-de-privacidade', changefreq: 'yearly', priority: '0.3' },
   ]

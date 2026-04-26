@@ -10,6 +10,12 @@ router.get('/', async (_req, res) => {
   res.render('admin_mensagens.html', { mensagens })
 })
 
+router.post('/marcar-todas-lidas', async (req, res) => {
+  await sql`UPDATE mensagens_contato SET lida = TRUE WHERE lida = FALSE`
+  req.flash('success', 'Todas as mensagens marcadas como lidas.')
+  res.redirect('/admin/mensagens')
+})
+
 router.post('/:id/lida', async (req, res) => {
   const id = parseInt(req.params.id, 10)
   await sql`UPDATE mensagens_contato SET lida = TRUE WHERE id = ${id}`

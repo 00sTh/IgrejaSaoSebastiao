@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria de Fotos — Igreja São Sebastião</title>
+    <meta name="description" content="Galeria de fotos da Paróquia São Sebastião de Ponte Nova, MG.">
+    <link rel="canonical" href="{{ site_url }}/galeria">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#3B5F6C">
+    <style>
+        .main-header { background-color: var(--color-background-dark) !important; }
+        .main-header.sticky { background-color: var(--color-background-dark) !important; }
+        .galeria-hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-background-dark) 100%);
+            color: var(--color-text-light);
+            padding: 6rem 0 3.5rem;
+            text-align: center;
+        }
+        .galeria-hero .hero-icon { font-size: 3.5rem; color: var(--color-secondary); margin-bottom: 1rem; display: block; }
+        .galeria-hero h1 { color: var(--color-text-light); font-size: 2.8rem; margin-bottom: 0.75rem; }
+        .galeria-hero p { font-size: 1.1rem; opacity: 0.85; max-width: 560px; margin: 0 auto; }
+        .galeria-section { background: var(--color-gray-light); padding: var(--spacing-xl) 0; }
+        .filtros { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .filtro-btn {
+            padding: 0.5rem 1.25rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;
+            border: 2px solid var(--color-primary); color: var(--color-primary);
+            background: white; cursor: pointer; text-decoration: none; transition: all 0.2s;
+        }
+        .filtro-btn:hover, .filtro-btn.active {
+            background: var(--color-primary); color: white;
+        }
+        .galeria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.25rem;
+        }
+        .foto-card {
+            border-radius: 12px; overflow: hidden; box-shadow: var(--box-shadow);
+            background: white; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .foto-card:hover { transform: translateY(-5px); box-shadow: 0 12px 30px rgba(0,0,0,0.15); }
+        .foto-card img {
+            width: 100%; height: 200px; object-fit: cover; display: block;
+        }
+        .foto-info { padding: 0.75rem 1rem; }
+        .foto-titulo { font-weight: 600; font-size: 0.95rem; color: var(--color-text-dark); margin-bottom: 0.25rem; }
+        .foto-cat {
+            font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.6rem;
+            border-radius: 9999px; background: var(--color-primary); color: white;
+            display: inline-block;
+        }
+        .galeria-empty { text-align: center; padding: 4rem 1rem; color: #6b7280; }
+        .galeria-empty i { font-size: 4rem; color: var(--color-gray-medium); margin-bottom: 1rem; display: block; }
+        .paginacao { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2.5rem; flex-wrap: wrap; }
+        .pag-btn {
+            padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600;
+            border: 2px solid var(--color-primary); color: var(--color-primary);
+            background: white; text-decoration: none; transition: all 0.2s;
+        }
+        .pag-btn:hover, .pag-btn.active { background: var(--color-primary); color: white; }
+        /* Lightbox */
+        .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; padding:1rem; }
+        .lightbox.open { display:flex; }
+        .lightbox img { max-width:90vw; max-height:85vh; border-radius:8px; object-fit:contain; }
+        .lightbox-close { position:absolute; top:1rem; right:1.5rem; font-size:2rem; color:white; cursor:pointer; background:none; border:none; }
+        .lightbox-caption { position:absolute; bottom:1.5rem; left:50%; transform:translateX(-50%); color:white; font-size:1rem; text-align:center; }
+        @media (max-width: 768px) {
+            .galeria-hero h1 { font-size: 2rem; }
+            .galeria-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; }
+            .foto-card img { height: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-to-main">Pular para o conteúdo principal</a>
+
+    <header class="main-header" id="mainHeader">
+        <div class="container">
+            <div class="logo"><a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a></div>
+            <nav class="main-nav">
+                <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                <ul class="nav-list" id="navList">
+                    <li><a href="/#hero">Início</a></li>
+                    <li class="has-dropdown">
+                        <a href="/#a-paroquia">A Paróquia <i class="fas fa-chevron-down nav-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#historia">História</a></li>
+                            <li><a href="/galeria" class="active">Galeria</a></li>
+                            <li><a href="/#localizacao">Localização</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/horarios">Horários</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/comunidades">Comunidades</a></li>
+                    <li><a href="/santos">Santos</a></li>
+                    <li><a href="/videos">Vídeos</a></li>
+                    <li><a href="/#contato">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="galeria-hero" id="main-content">
+        <div class="container">
+            <i class="fas fa-images hero-icon"></i>
+            <h1>Galeria de Fotos</h1>
+            <p>Momentos especiais da nossa comunidade em Ponte Nova.</p>
+        </div>
+    </section>
+
+    <section class="galeria-section">
+        <div class="container">
+
+            {% if categorias %}
+            <div class="filtros">
+                <a href="/galeria" class="filtro-btn {% if not categoria_atual %}active{% endif %}">Todas</a>
+                {% for cat in categorias %}
+                <a href="/galeria?categoria={{ cat | urlencode }}" class="filtro-btn {% if cat == categoria_atual %}active{% endif %}">{{ cat }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if fotos %}
+            <div class="galeria-grid">
+                {% for foto in fotos %}
+                <div class="foto-card" onclick="abrirLightbox('{{ foto.imagem_url }}', '{{ foto.titulo | replace("'", "\\'") }}')">
+                    <img src="{{ foto.imagem_url }}" alt="{{ foto.titulo }}" loading="lazy"
+                         onerror="this.style.display='none'">
+                    <div class="foto-info">
+                        <div class="foto-titulo">{{ foto.titulo }}</div>
+                        {% if foto.categoria %}
+                        <span class="foto-cat">{{ foto.categoria }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if total_pages > 1 %}
+            <div class="paginacao">
+                {% for p in range(1, total_pages + 1) %}
+                <a href="?page={{ p }}{% if categoria_atual %}&categoria={{ categoria_atual | urlencode }}{% endif %}"
+                   class="pag-btn {% if p == current_page %}active{% endif %}">{{ p }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="galeria-empty">
+                <i class="fas fa-images"></i>
+                <p>Nenhuma foto encontrada.</p>
+            </div>
+            {% endif %}
+
+            <div style="text-align:center; margin-top: 2.5rem;">
+                <a href="/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Voltar para o início</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="fecharLightbox()">
+        <button class="lightbox-close" onclick="fecharLightbox()">&times;</button>
+        <img id="lightboxImg" src="" alt="">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> Igreja São Sebastião. Todos os direitos reservados.</p>
+            <ul class="footer-links">
+                <li><a href="/politica-de-privacidade">Política de Privacidade</a></li>
+                <li><a href="/termos-de-uso">Termos de Uso</a></li>
+                <li><a href="/#contato">Contato</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const navToggle = document.querySelector('.nav-toggle');
+        const navList = document.getElementById('navList');
+        if (navToggle && navList) navToggle.addEventListener('click', () => navList.classList.toggle('active'));
+
+        function abrirLightbox(src, titulo) {
+            document.getElementById('lightboxImg').src = src;
+            document.getElementById('lightboxCaption').textContent = titulo;
+            document.getElementById('lightbox').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function fecharLightbox() {
+            document.getElementById('lightbox').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharLightbox(); });
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@
   "name": "igreja-sao-sebastiao",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@10.30.3",
   "scripts": {
     "dev": "nodemon",
     "start": "tsx src/app.ts",

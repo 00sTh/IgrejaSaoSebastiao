@@ -85,15 +85,11 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="observacoes">
-                Observações
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500;">
+                <input type="checkbox" name="ativo" value="on"
+                       {{ 'checked' if not horario or horario.ativo }}>
+                Horário ativo (visível no site)
             </label>
-            <textarea id="observacoes" name="observacoes" class="form-control"
-                      rows="3" maxlength="200"
-                      placeholder="Informações adicionais (opcional)">{{ horario.observacoes if horario else '' }}</textarea>
-            <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
-                Ex: "Apenas no primeiro domingo do mês", "Não há missa em feriados", etc.
-            </small>
         </div>
 
         <!-- Preview do horário -->

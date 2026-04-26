@@ -118,6 +118,11 @@ env.addFilter('date_short', (val: unknown) => {
   return String(val).slice(0, 10)
 })
 
+env.addFilter('datetime_short', (val: unknown) => {
+  if (!val) return ''
+  return String(val).slice(0, 16).replace('T', ' ')
+})
+
 // ==================== MIDDLEWARE ====================
 app.use(compression())
 app.use(express.urlencoded({ limit: '1mb', extended: true }))

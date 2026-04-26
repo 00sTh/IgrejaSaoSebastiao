@@ -40,18 +40,18 @@
             </label>
             <select id="tipo" name="tipo" class="form-control" required>
                 <option value="">Selecione o tipo</option>
-                <option value="noticia" {% if noticia and noticia.tipo == 'noticia' %}selected{% endif %}>Notícia</option>
-                <option value="evento" {% if noticia and noticia.tipo == 'evento' %}selected{% endif %}>Evento</option>
+                <option value="Notícia" {% if noticia and noticia.tipo == 'Notícia' %}selected{% endif %}>Notícia</option>
+                <option value="Evento" {% if noticia and noticia.tipo == 'Evento' %}selected{% endif %}>Evento</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="descricao">
+            <label class="form-label" for="subtitulo">
                 Descrição Curta <span style="color: #ef4444;">*</span>
             </label>
-            <textarea id="descricao" name="descricao" class="form-control"
+            <textarea id="subtitulo" name="subtitulo" class="form-control"
                       required maxlength="300" rows="3"
-                      placeholder="Breve descrição que aparecerá na lista de notícias">{{ noticia.descricao if noticia else '' }}</textarea>
+                      placeholder="Breve descrição que aparecerá na lista de notícias">{{ noticia.subtitulo if noticia else '' }}</textarea>
             <small style="color: #6b7280; font-size: 0.875rem; margin-top: 0.25rem; display: block;">
                 Máximo de 300 caracteres
             </small>
@@ -86,34 +86,6 @@
             </small>
         </div>
 
-        <!-- Campos específicos para eventos -->
-        <div id="evento-fields" style="display: none; padding: 1.5rem; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; margin-bottom: 1.5rem;">
-            <h3 style="color: #166534; margin-bottom: 1rem; font-size: 1.125rem;">
-                <i class="fas fa-calendar"></i> Informações do Evento
-            </h3>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" for="data_evento">Data do Evento</label>
-                    <input type="date" id="data_evento" name="data_evento" class="form-control"
-                           value="{{ noticia.data_evento.strftime('%Y-%m-%d') if noticia and noticia.data_evento else '' }}">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label" for="hora_evento">Horário</label>
-                    <input type="time" id="hora_evento" name="hora_evento" class="form-control"
-                           value="{{ noticia.hora_evento if noticia else '' }}">
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-top: 1rem; margin-bottom: 0;">
-                <label class="form-label" for="local_evento">Local do Evento</label>
-                <input type="text" id="local_evento" name="local_evento" class="form-control"
-                       value="{{ noticia.local_evento if noticia else '' }}"
-                       placeholder="Ex: Igreja São Sebastião">
-            </div>
-        </div>
-
         <div style="display: flex; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
             <button type="submit" class="btn btn-success">
                 <i class="fas fa-save"></i>
@@ -143,28 +115,9 @@
 
 {% block extra_js %}
 <script>
-    // Mostrar/ocultar campos de evento baseado no tipo
-    document.getElementById('tipo').addEventListener('change', function() {
-        const eventoFields = document.getElementById('evento-fields');
-        if (this.value === 'evento') {
-            eventoFields.style.display = 'block';
-        } else {
-            eventoFields.style.display = 'none';
-        }
-    });
-
-    // Inicializar ao carregar a página
-    document.addEventListener('DOMContentLoaded', function() {
-        const tipo = document.getElementById('tipo').value;
-        if (tipo === 'evento') {
-            document.getElementById('evento-fields').style.display = 'block';
-        }
-    });
-
-    // Validação de tamanho de arquivo
     document.getElementById('imagem').addEventListener('change', function() {
         if (this.files[0]) {
-            const fileSize = this.files[0].size / 1024 / 1024; // em MB
+            const fileSize = this.files[0].size / 1024 / 1024;
             if (fileSize > 5) {
                 alert('O arquivo selecionado é muito grande. O tamanho máximo é 5MB.');
                 this.value = '';

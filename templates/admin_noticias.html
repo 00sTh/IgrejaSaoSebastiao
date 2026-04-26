@@ -70,7 +70,7 @@
                 </td>
                 <td>
                     <div style="font-weight: 500; color: #1f2937; margin-bottom: 0.25rem;">{{ noticia.titulo }}</div>
-                    <div style="font-size: 0.875rem; color: #6b7280;">{{ noticia.descricao[:80] }}...</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">{{ (noticia.subtitulo or '') | truncate(80, true, '') }}</div>
                 </td>
                 <td>
                     <span style="padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem; font-weight: 500; display: inline-block;

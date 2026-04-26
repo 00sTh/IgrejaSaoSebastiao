@@ -24,7 +24,9 @@ async function saveHorario(req: Request, res: Response, id: number | null): Prom
   const body = req.body as Record<string, string>
   const dia_semana = (body.dia_semana ?? '').trim()
   const horario = (body.horario ?? '').trim()
-  const tipo = (body.tipo ?? 'Missa').trim()
+  const tipo = (body.tipo === 'Outro' && body.tipo_outro
+    ? body.tipo_outro
+    : (body.tipo ?? 'Missa')).trim()
   const nome = (body.nome ?? '').trim()
   const ativo = body.ativo === 'on'
 

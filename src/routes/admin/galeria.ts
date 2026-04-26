@@ -14,9 +14,19 @@ function sanitize(text: string): string {
   return sanitizeHtml(text, { allowedTags: [], allowedAttributes: {} })
 }
 
-router.get('/', async (_req, res) => {
-  const galeria = await dbQuery<Galeria>`SELECT * FROM galeria ORDER BY data_upload DESC`
-  res.render('admin_galeria.html', { galeria })
+router.get('/', async (req, res) => {
+  const categoria = ((req.query.categoria as string) || '').trim()
+  const [fotos, categoriasRows] = await Promise.all([
+    categoria
+      ? dbQuery<Galeria>`SELECT * FROM galeria WHERE categoria = ${categoria} ORDER BY data_upload DESC`
+      : dbQuery<Galeria>`SELECT * FROM galeria ORDER BY data_upload DESC`,
+    dbQuery<{ categoria: string }>`SELECT DISTINCT categoria FROM galeria WHERE categoria IS NOT NULL ORDER BY categoria`,
+  ])
+  res.render('admin_galeria.html', { fotos, categorias: categoriasRows.map(c => c.categoria), categoria_atual: categoria })
+})
+
+router.get('/novo', (_req, res) => {
+  res.render('admin_galeria_edit.html', { foto: null })
 })
 
 router.get('/editar', (_req, res) => {
@@ -24,7 +34,12 @@ router.get('/editar', (_req, res) => {
 })
 
 router.get('/editar/:id', async (req, res) => {
+  if (req.params.id === 'novo') {
+    res.render('admin_galeria_edit.html', { foto: null })
+    return
+  }
   const id = parseInt(req.params.id, 10)
+  if (isNaN(id)) { res.redirect('/admin/galeria'); return }
   const rows = await dbQuery<Galeria>`SELECT * FROM galeria WHERE id = ${id}`
   if (!rows[0]) {
     req.flash('error', 'Foto não encontrada.')

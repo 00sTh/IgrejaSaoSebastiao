@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horários de Missas — Igreja São Sebastião</title>
+    <meta name="description" content="Horários de missas e confissões da Paróquia São Sebastião de Ponte Nova, MG.">
+    <link rel="canonical" href="{{ site_url }}/horarios">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#3B5F6C">
+    <style>
+        .main-header { background-color: var(--color-background-dark) !important; }
+        .main-header.sticky { background-color: var(--color-background-dark) !important; }
+        .horarios-hero {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-background-dark) 100%);
+            color: var(--color-text-light); padding: 6rem 0 3.5rem; text-align: center;
+        }
+        .horarios-hero .hero-icon { font-size: 3.5rem; color: var(--color-secondary); margin-bottom: 1rem; display: block; }
+        .horarios-hero h1 { color: var(--color-text-light); font-size: 2.8rem; margin-bottom: 0.75rem; }
+        .horarios-hero p { font-size: 1.1rem; opacity: 0.85; max-width: 560px; margin: 0 auto; }
+        .horarios-section { background: var(--color-gray-light); padding: var(--spacing-xl) 0; }
+        .bloco-titulo {
+            font-size: 1.5rem; font-weight: 700; color: var(--color-primary);
+            margin: 2.5rem 0 1.25rem; display: flex; align-items: center; gap: 0.75rem;
+        }
+        .bloco-titulo:first-child { margin-top: 0; }
+        .dias-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .dia-card { background: white; border-radius: 12px; box-shadow: var(--box-shadow); overflow: hidden; }
+        .dia-header {
+            background: linear-gradient(135deg, var(--color-primary), #2d4a55);
+            color: white; padding: 0.875rem 1.25rem;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .dia-nome { font-weight: 700; font-size: 1.05rem; }
+        .dia-count { background: rgba(255,255,255,0.2); padding: 0.2rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; }
+        .horario-item {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.875rem 1.25rem; border-bottom: 1px solid #f3f4f6;
+        }
+        .horario-item:last-child { border-bottom: none; }
+        .horario-time { font-size: 1.25rem; font-weight: 700; color: var(--color-primary); min-width: 60px; }
+        .horario-info { flex: 1; }
+        .horario-tipo { font-size: 0.8rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+        .horario-nome { font-size: 0.9rem; color: var(--color-text-dark); }
+        .sem-missas { padding: 1.5rem; text-align: center; color: #9ca3af; font-size: 0.9rem; }
+        .confissao-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+        .confissao-card {
+            background: white; border-radius: 10px; padding: 1rem 1.25rem;
+            box-shadow: var(--box-shadow); display: flex; align-items: center; gap: 0.875rem;
+        }
+        .confissao-card i { font-size: 1.5rem; color: var(--color-secondary); }
+        .confissao-dia { font-weight: 600; font-size: 0.95rem; color: var(--color-text-dark); }
+        .confissao-hora { font-size: 0.875rem; color: #6b7280; }
+        .aviso-box {
+            background: #fef3c7; border-left: 4px solid #f59e0b;
+            border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin-bottom: 2rem;
+            display: flex; align-items: flex-start; gap: 0.75rem;
+        }
+        .aviso-box i { color: #d97706; margin-top: 0.2rem; }
+        @media (max-width: 768px) {
+            .horarios-hero h1 { font-size: 2rem; }
+            .dias-grid { grid-template-columns: 1fr; }
+            .confissao-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-to-main">Pular para o conteúdo principal</a>
+
+    <header class="main-header" id="mainHeader">
+        <div class="container">
+            <div class="logo"><a href="/"><img src="/img/logo.png" alt="Paróquia São Sebastião"></a></div>
+            <nav class="main-nav">
+                <button class="nav-toggle" aria-label="Abrir menu"><i class="fas fa-bars"></i></button>
+                <ul class="nav-list" id="navList">
+                    <li><a href="/#hero">Início</a></li>
+                    <li class="has-dropdown">
+                        <a href="/#a-paroquia">A Paróquia <i class="fas fa-chevron-down nav-arrow"></i></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#historia">História</a></li>
+                            <li><a href="/galeria">Galeria</a></li>
+                            <li><a href="/#localizacao">Localização</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="/horarios" class="active">Horários</a></li>
+                    <li><a href="/noticias">Notícias</a></li>
+                    <li><a href="/comunidades">Comunidades</a></li>
+                    <li><a href="/santos">Santos</a></li>
+                    <li><a href="/videos">Vídeos</a></li>
+                    <li><a href="/#contato">Contato</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="horarios-hero" id="main-content">
+        <div class="container">
+            <i class="fas fa-church hero-icon"></i>
+            <h1>Horários</h1>
+            <p>Missas e confissões da Paróquia São Sebastião de Ponte Nova, MG.</p>
+        </div>
+    </section>
+
+    <section class="horarios-section">
+        <div class="container">
+
+            <div class="aviso-box">
+                <i class="fas fa-info-circle"></i>
+                <span>Em datas festivas e períodos litúrgicos especiais, os horários podem sofrer alterações. Confirme pelos nossos canais de contato.</span>
+            </div>
+
+            <div class="bloco-titulo">
+                <i class="fas fa-church"></i> Missas Semanais
+            </div>
+
+            {% if missas %}
+            <div class="dias-grid">
+                {% for dia in dias_ordem %}
+                {% if missas_por_dia[dia] %}
+                <div class="dia-card">
+                    <div class="dia-header">
+                        <span class="dia-nome">{{ dia }}</span>
+                        <span class="dia-count">{{ missas_por_dia[dia] | length }} missa{{ 's' if missas_por_dia[dia] | length != 1 }}</span>
+                    </div>
+                    {% for m in missas_por_dia[dia] %}
+                    <div class="horario-item">
+                        <div class="horario-time">{{ m.horario }}</div>
+                        <div class="horario-info">
+                            <div class="horario-tipo">{{ m.tipo or 'Missa' }}</div>
+                            {% if m.nome %}<div class="horario-nome">{{ m.nome }}</div>{% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color:#6b7280; text-align:center; padding:2rem 0;">Nenhum horário de missa cadastrado no momento.</p>
+            {% endif %}
+
+            {% if confissoes %}
+            <div class="bloco-titulo">
+                <i class="fas fa-hands-praying"></i> Confissões
+            </div>
+            <div class="confissao-grid">
+                {% for c in confissoes %}
+                <div class="confissao-card">
+                    <i class="fas fa-cross"></i>
+                    <div>
+                        <div class="confissao-dia">{{ c.dia_semana }}</div>
+                        <div class="confissao-hora">{{ c.horario }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div style="text-align:center; margin-top: 2.5rem;">
+                <a href="/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Voltar para o início</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; <span id="currentYear"></span> Igreja São Sebastião. Todos os direitos reservados.</p>
+            <ul class="footer-links">
+                <li><a href="/politica-de-privacidade">Política de Privacidade</a></li>
+                <li><a href="/termos-de-uso">Termos de Uso</a></li>
+                <li><a href="/#contato">Contato</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        const navToggle = document.querySelector('.nav-toggle');
+        const navList = document.getElementById('navList');
+        if (navToggle && navList) navToggle.addEventListener('click', () => navList.classList.toggle('active'));
+    </script>
+</body>
+</html>

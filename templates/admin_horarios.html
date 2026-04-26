@@ -35,7 +35,7 @@
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <div style="width: 40px; height: 40px; border-radius: 8px; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.875rem;">
-                                {{ horario.dia_semana[:3] }}
+                                {{ horario.dia_semana | truncate(3, true, '') }}
                             </div>
                             <span style="font-weight: 500; color: #1f2937;">
                                 {{ horario.dia_semana }}

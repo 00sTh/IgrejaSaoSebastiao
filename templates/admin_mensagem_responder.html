@@ -24,7 +24,7 @@
             </div>
             <div class="date">
                 <i class="fas fa-clock"></i>
-                {{ mensagem.data_criacao[:16] if mensagem.data_criacao else '' }}
+                {{ mensagem.data_criacao | datetime_short }}
             </div>
         </div>
         <div class="message-content">
@@ -67,7 +67,7 @@
 
         {% if mensagem.resposta %}
         <div class="previous-reply">
-            <p><i class="fas fa-check-circle"></i> Esta mensagem já foi respondida em {{ mensagem.data_resposta[:16] if mensagem.data_resposta else '' }}</p>
+            <p><i class="fas fa-check-circle"></i> Esta mensagem já foi respondida em {{ mensagem.data_resposta | datetime_short }}</p>
         </div>
         {% endif %}
     </form>

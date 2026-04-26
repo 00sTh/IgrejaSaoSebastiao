@@ -49,7 +49,7 @@
             {% if info.subtitulo %}
             <p class="info-subtitle">{{ info.subtitulo }}</p>
             {% endif %}
-            <p class="info-preview">{{ info.conteudo[:150] }}{% if info.conteudo|length > 150 %}...{% endif %}</p>
+            <p class="info-preview">{{ (info.conteudo or '') | truncate(150, true, '...') }}</p>
         </div>
         <div class="info-actions">
             <a href="/admin/informacoes/editar/{{ info.id }}" class="btn btn-edit" title="Editar">
