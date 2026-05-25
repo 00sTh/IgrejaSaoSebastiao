@@ -100,7 +100,7 @@
                 <p>Assista às missas e celebrações da Paróquia São Sebastião ao vivo ou quando quiser.</p>
             </div>
 
-            {% if videos %}
+            {% if videos and videos|length %}
                 {% set featured = videos[0] %}
                 <div class="video-featured-wrap">
                     <div class="video-embed-wrapper">

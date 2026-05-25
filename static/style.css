@@ -336,7 +336,19 @@ ul {
 	align-items: center;
 	text-align: center;
 	color: var(--color-text-light);
-	background: url('img/hero-background.jpg') no-repeat center 30%/cover;
+	background: #1a2b3c url('img/hero-background.jpg') no-repeat center 30%/cover;
+}
+
+/* Em viewports mais verticais que a imagem (1280:727 ≈ 1.76), trava no aspect-ratio
+   da imagem pra não cortar lateralmente. Pega celulares e tablets em portrait. */
+@media (max-aspect-ratio: 1280 / 727) {
+	.hero-section {
+		height: auto;
+		aspect-ratio: 1280 / 727;
+		min-height: 0;
+		max-height: 100svh;
+		background-position: center center;
+	}
 }
 
 .hero-overlay {
@@ -1039,18 +1051,6 @@ ul {
 
 	h3 {
 		font-size: 1.3rem;
-	}
-
-	/* Hero responsivo no mobile — usa aspect-ratio da imagem (1280x727) pra mostrar inteira sem cortar */
-	.hero-section {
-		height: auto;
-		aspect-ratio: 1280 / 727;
-		min-height: unset;
-		max-height: 100svh;
-		background-color: #1a2b3c;
-		background-position: center center;
-		background-size: cover;
-		padding: 1.5rem 0;
 	}
 
 	.hero-section h1 {
