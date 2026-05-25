@@ -332,49 +332,23 @@ ul {
 	height: 100svh; /* iOS Safari: exclui a barra do browser */
 	min-height: 500px;
 	display: flex;
-	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	text-align: center;
 	color: var(--color-text-light);
-	background-color: #1a2b3c;
-	overflow: hidden;
-}
-
-/* Imagem do hero como <img> real — renderiza no tamanho intrínseco quando
-   solta, e cobre todo o container em desktop. Nunca corta em mobile portrait. */
-.hero-image {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center 30%;
-	z-index: 0;
-	display: block;
+	background: #1a2b3c url('img/hero-background.jpg') no-repeat center 30%/cover;
 }
 
 /* Em viewports mais verticais que a imagem (1280:727 ≈ 1.76),
-   o hero vira layout empilhado: imagem inteira em cima + texto embaixo. */
+   trava no aspect-ratio da imagem e usa contain pra não cortar nada. */
 @media (max-aspect-ratio: 1280 / 727) {
 	.hero-section {
 		height: auto;
+		aspect-ratio: 1280 / 727;
 		min-height: 0;
-		padding: 0;
-	}
-	.hero-image {
-		position: static;
-		width: 100%;
-		height: auto;
-		max-width: 100%;
-		object-fit: contain;
-	}
-	.hero-overlay {
-		display: none;
-	}
-	.hero-section .container {
-		padding: 2rem 1.25rem;
-		width: 100%;
+		max-height: 100svh;
+		background-position: center center;
+		background-size: contain;
 	}
 }
 
