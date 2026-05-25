@@ -340,15 +340,33 @@ ul {
 }
 
 /* Em viewports mais verticais que a imagem (1280:727 ≈ 1.76),
-   trava no aspect-ratio da imagem e usa contain pra não cortar nada. */
+   o hero vira um banner: logo inteiro com fundo branco em cima
+   + bloco escuro com h1/subtitle/btn embaixo. */
 @media (max-aspect-ratio: 1280 / 727) {
 	.hero-section {
 		height: auto;
-		aspect-ratio: 1280 / 727;
 		min-height: 0;
-		max-height: 100svh;
-		background-position: center center;
-		background-size: contain;
+		max-height: none;
+		flex-direction: column;
+		justify-content: flex-start;
+		background-image: none;
+		background-color: #ffffff;
+		padding: 0;
+	}
+	.hero-section::before {
+		content: '';
+		display: block;
+		width: 100%;
+		aspect-ratio: 1280 / 727;
+		background: #ffffff url('img/hero-background.jpg') no-repeat center center / contain;
+	}
+	.hero-overlay {
+		display: none;
+	}
+	.hero-section .container {
+		background-color: var(--color-primary, #3B5F6C);
+		padding: 2rem 1.25rem;
+		width: 100%;
 	}
 }
 
