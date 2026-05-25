@@ -108,7 +108,7 @@
             {% if videos %}
             <div class="videos-grid">
                 {% for v in videos %}
-                {% set vid_id = v.url_youtube | replace('https://www.youtube.com/watch?v=', '') | replace('https://youtu.be/', '') | replace('https://youtube.com/watch?v=', '') %}
+                {% set vid_id = v.url_youtube | replace('https://www.youtube.com/embed/', '') | replace('https://youtube.com/embed/', '') | replace('https://www.youtube.com/watch?v=', '') | replace('https://youtube.com/watch?v=', '') | replace('https://youtu.be/', '') | split('?') | first | split('&') | first %}
                 <div class="video-card">
                     <div class="video-thumb" onclick="abrirVideo('{{ vid_id }}')">
                         <img src="https://img.youtube.com/vi/{{ vid_id }}/hqdefault.jpg" alt="{{ v.titulo }}" loading="lazy">

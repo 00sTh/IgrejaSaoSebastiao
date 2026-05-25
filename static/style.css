@@ -1041,21 +1041,27 @@ ul {
 		font-size: 1.3rem;
 	}
 
-	/* Hero responsivo no mobile */
+	/* Hero responsivo no mobile — usa aspect-ratio da imagem (1280x727) pra mostrar inteira sem cortar */
 	.hero-section {
-		height: 100svh;
-		min-height: 480px;
-		background-position: center 20%; /* mostra o topo da imagem em tela estreita */
+		height: auto;
+		aspect-ratio: 1280 / 727;
+		min-height: unset;
+		max-height: 100svh;
+		background-color: #1a2b3c;
+		background-position: center center;
+		background-size: cover;
+		padding: 1.5rem 0;
 	}
 
 	.hero-section h1 {
-		font-size: 2rem;
-		line-height: 1.2;
+		font-size: clamp(1.4rem, 5.5vw, 1.9rem);
+		line-height: 1.15;
+		margin-bottom: 0.4rem;
 	}
 
 	.hero-subtitle {
-		font-size: 1rem;
-		margin-bottom: 1.5rem;
+		font-size: clamp(0.8rem, 3vw, 0.95rem);
+		margin-bottom: 0.75rem;
 	}
 
 	.hero-section .container {
@@ -1063,8 +1069,8 @@ ul {
 	}
 
 	.hero-cta {
-		font-size: 0.95rem;
-		padding: 0.7rem 1.5rem;
+		font-size: 0.85rem;
+		padding: 0.55rem 1.1rem;
 	}
 
 	.hour-card ul li {
