@@ -161,9 +161,6 @@
     <script src="/script.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-        const navToggle = document.querySelector('.nav-toggle');
-        const navList = document.getElementById('navList');
-        if (navToggle && navList) navToggle.addEventListener('click', () => navList.classList.toggle('active'));
 
         function abrirVideo(id) {
             document.getElementById('videoIframe').src = 'https://www.youtube.com/embed/' + id + '?autoplay=1';

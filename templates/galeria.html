@@ -167,7 +167,7 @@
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox" onclick="fecharLightbox()">
         <button class="lightbox-close" onclick="fecharLightbox()">&times;</button>
-        <img id="lightboxImg" src="" alt="">
+        <img id="lightboxImg" alt="">
         <div class="lightbox-caption" id="lightboxCaption"></div>
     </div>
 
@@ -185,9 +185,6 @@
     <script src="/script.js"></script>
     <script>
         document.getElementById('currentYear').textContent = new Date().getFullYear();
-        const navToggle = document.querySelector('.nav-toggle');
-        const navList = document.getElementById('navList');
-        if (navToggle && navList) navToggle.addEventListener('click', () => navList.classList.toggle('active'));
 
         function abrirLightbox(src, titulo) {
             document.getElementById('lightboxImg').src = src;

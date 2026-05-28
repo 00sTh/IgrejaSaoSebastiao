@@ -22,6 +22,26 @@ Site **responde 200 em todas as rotas, não tem overflow horizontal em nenhum vi
 
 ---
 
+## Rodada 2 — Testes funcionais no localhost (2026-05-28)
+
+Site subido localmente (`pnpm start`, Neon real) e testado com Playwright: navegação, formulário de contato (envio real), menu mobile, lightbox, e fluxo de auth admin.
+
+### ✅ Funciona
+- **Formulário de contato** (`POST /api/enviar-mensagem`) → 200, salva no banco, retorna "Mensagem enviada com sucesso!". Tem honeypot anti-bot (campo `website`).
+- **Auth admin (Clerk)**: todas as 12 rotas `/admin/*` redirecionam pra `/sign-in` sem sessão. Sign-in page renderiza com botão "Entrar com Clerk".
+- **Empty states** em `/galeria`, `/videos`, `/noticias` aparecem corretamente (banco de produção sem conteúdo cadastrado ainda).
+
+### 🔴 Bugs novos encontrados e CORRIGIDOS nesta rodada
+- **P0-6 ✅ Menu hamburger não abria (todas as páginas)** — `static/script.js` já registrava o handler do `.nav-toggle`, mas **9 templates** repetiam um `addEventListener('click', …toggle('active'))` inline. Os dois handlers disparavam no mesmo clique → o menu abria e fechava instantaneamente (net effect: nada). **Fix:** removido o handler duplicado de index, noticias, noticia, galeria, horarios, videos, comunidades, santos, termos, privacidade. Confirmado funcionando nos 4 viewports (`docs/.../shots/MENU-aberto.png`).
+- **P1-6 ✅ `<img src="">` no lightbox da galeria** — `src=""` faz o browser requisitar a própria URL `/galeria` (aparecia como imagem quebrada nas métricas). **Fix:** removido o `src=""` em `templates/galeria.html:170` (o JS seta o src ao abrir).
+
+### 🔴 Bugs novos encontrados — PENDENTES (precisam de Cloudinary ou refactor)
+- **P0-2/P0-3 (confirmados localmente)** — `/comunidades` (3-5 imgs Blogger) e `/santos` (1-3 imgs Wikipedia, ex: `Saint_Tarcisius_MET_DP167090.jpg`) seguem com `ERR_BLOCKED_BY_ORB`. Migração pro Cloudinary continua pendente.
+- **P0-5 (confirmado)** — CSP `script-src-attr 'none'` bloqueia `onclick=` inline. Templates admin afetados: `admin_conteudo_site` (9×), `admin_banco_imagens` (3×), e `admin_configuracoes`, `admin_galeria_edit`, `admin_horario_edit`, `admin_informacao_edit`, `admin_noticia_edit`, `admin_usuarios`, `admin_videos` (1× cada). Botões com `onclick` inline **não executam** em produção. Públicos `videos.html` (4×) e `galeria.html` (3×) também — mas as funções desses usam `addEventListener`, então o impacto é menor. **Precisa refatorar pra `addEventListener` ou adicionar nonce na CSP.**
+- **Mais 7 templates admin com `<img src="">`** (preview de upload): `admin_banco_imagens`, `admin_santo_edit` (2×), `admin_galeria_edit`, `admin_comunidade_edit` (2×). Mesmo fix do P1-6.
+
+---
+
 ## P0 — Críticos
 
 ### P0-1. Mapa Google cortado pela metade em celular
