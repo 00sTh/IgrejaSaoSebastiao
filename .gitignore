@@ -75,6 +75,10 @@ Thumbs.db
 temp/
 tmp/
 
+# Auditoria mobile (screenshots pesados — só o .md fica versionado)
+docs/auditoria-mobile-*/shots/
+docs/auditoria-mobile-*/results.json
+
 # Imagens WhatsApp e fotos avulsas na raiz
 WhatsApp Image*.jpeg
 WhatsApp Image*.jpg

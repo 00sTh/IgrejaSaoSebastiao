@@ -357,8 +357,8 @@ ul {
 		content: '';
 		display: block;
 		width: 100%;
-		aspect-ratio: 1280 / 727;
-		background: #ffffff url('img/hero-background.jpg') no-repeat center center / contain;
+		aspect-ratio: 1000 / 1100;
+		background: #ffffff url('img/hero-background-mobile.jpg') no-repeat center center / contain;
 	}
 	.hero-overlay {
 		display: none;
